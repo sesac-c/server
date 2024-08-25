@@ -12,12 +12,16 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import sesac.server.auth.filter.AccessTokenFilter;
+import sesac.server.auth.handler.CustomAccessDeniedHandler;
+import sesac.server.auth.handler.CustomAuthenticationEntryPoint;
 
 @Configuration
 @EnableWebSecurity
@@ -43,7 +47,14 @@ public class SecurityConfig {
                 .requestMatchers("/manager/**").hasRole("MANAGER")
                 .anyRequest().authenticated());
 
+        http.exceptionHandling(handler -> handler
+                .accessDeniedHandler(accessDeniedHandler())
+                .authenticationEntryPoint(authenticationEntryPoint()));
+
         http.addFilterBefore(accessTokenFilter, UsernamePasswordAuthenticationFilter.class);
+
+//        http.addFilterBefore(new RefreshTokenFilter("/refreshToken", jwtUtil),
+//                TokenCheckFilter.class);
 
         return http.build();
     }
@@ -53,6 +64,15 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return new CustomAccessDeniedHandler();
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return new CustomAuthenticationEntryPoint();
+    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
