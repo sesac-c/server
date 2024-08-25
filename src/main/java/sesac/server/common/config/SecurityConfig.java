@@ -13,9 +13,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import sesac.server.auth.filter.AccessTokenFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -23,6 +25,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Log4j2
 public class SecurityConfig {
 
+    private final AccessTokenFilter accessTokenFilter;
     @Value("${origins}")
     private String origins;
 
@@ -34,6 +37,13 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        http.authorizeHttpRequests(requests -> requests
+                .requestMatchers("/accounts/**").permitAll()
+                .requestMatchers("/manager/**").hasRole("MANAGER")
+                .anyRequest().authenticated());
+
+        http.addFilterBefore(accessTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -52,6 +62,8 @@ public class SecurityConfig {
         configuration.setAllowedHeaders(
                 Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
         configuration.setAllowCredentials(true);
+//        configuration.setMaxAge(3600L); // 1시간 동안 preflight 요청 결과를 캐시
+//        configuration.setExposedHeaders(List.of("Set-Cookie", "Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
