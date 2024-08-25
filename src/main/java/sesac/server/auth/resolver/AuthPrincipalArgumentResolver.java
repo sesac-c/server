@@ -29,12 +29,12 @@ public class AuthPrincipalArgumentResolver implements HandlerMethodArgumentResol
         if (authentication instanceof UsernamePasswordAuthenticationToken) {
             Map<String, Object> principal = (Map<String, Object>) authentication.getPrincipal();
 
-            PrincipalRecord record = new PrincipalRecord(
+            PrincipalRecord principalRecord = new PrincipalRecord(
                     (String) principal.get("nickname"),
                     (String) principal.get("role")
             );
 
-            return record;
+            return principalRecord;
         }
         return null;
     }

@@ -5,7 +5,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +44,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
             Map<String, Object> claim = jwtUtil.validateToken(token);
 
             List<GrantedAuthority> authorities =
-                    Arrays.asList(new SimpleGrantedAuthority("ROLE_" + claim.get("role")));
+                    List.of(new SimpleGrantedAuthority("ROLE_" + claim.get("role")));
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(claim, null, authorities);
@@ -66,34 +65,34 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         return null;
     }
 
-//    private Map<String, Object> validateAccessToken(HttpServletRequest request) throws AccessTokenException {
-//        String headerStr = request.getHeader("Authorization");
-//
-//        if (headerStr == null || headerStr.length() < 8) {
-////            throw new AccessTokenException(AccessTokenException.TOKEN_ERROR.UNACCEPT);
-//        }
-//
-//        String tokenType = headerStr.substring(0, 6);
-//        String tokenStr = headerStr.substring(7);
-//
-//        if (tokenType.equalsIgnoreCase("Bearer") == false) {
-////            throw new AccessTokenException(AccessTokenException.TOKEN_ERROR.BADTYPE);
-//        }
-//
-//        try {
-//            return jwtUtil.validateToken(tokenStr);
-//        } catch (MalformedJwtException malformedJwtException) {
-//            log.error("MalFormedJwtException-------------");
-////            throw new AccessTokenException((AccessTokenException.TOKEN_ERROR.MALFORM));
-//        } catch (SignatureException signatureException) {
-//            log.error("SignatureException-------------");
-////            throw new AccessTokenException((AccessTokenException.TOKEN_ERROR.BADSIGN));
-//        } catch (ExpiredJwtException expiredJwtException) {
-//            log.error("ExpiredJwtException-------------");
-////            throw new AccessTokenException((AccessTokenException.TOKEN_ERROR.EXPIRED));
-//        }
-//        return null;
-//    }
+    /*private Map<String, Object> validateAccessToken(HttpServletRequest request) throws AccessTokenException {
+        String headerStr = request.getHeader("Authorization");
+
+        if (headerStr == null || headerStr.length() < 8) {
+//            throw new AccessTokenException(AccessTokenException.TOKEN_ERROR.UNACCEPT);
+        }
+
+        String tokenType = headerStr.substring(0, 6);
+        String tokenStr = headerStr.substring(7);
+
+        if (tokenType.equalsIgnoreCase("Bearer") == false) {
+//            throw new AccessTokenException(AccessTokenException.TOKEN_ERROR.BADTYPE);
+        }
+
+        try {
+            return jwtUtil.validateToken(tokenStr);
+        } catch (MalformedJwtException malformedJwtException) {
+            log.error("MalFormedJwtException-------------");
+//            throw new AccessTokenException((AccessTokenException.TOKEN_ERROR.MALFORM));
+        } catch (SignatureException signatureException) {
+            log.error("SignatureException-------------");
+//            throw new AccessTokenException((AccessTokenException.TOKEN_ERROR.BADSIGN));
+        } catch (ExpiredJwtException expiredJwtException) {
+            log.error("ExpiredJwtException-------------");
+//            throw new AccessTokenException((AccessTokenException.TOKEN_ERROR.EXPIRED));
+        }
+        return null;
+    }*/
 
 
 }

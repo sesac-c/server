@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Log4j2
 public class JwtUtil {
 
-    @Value("${jwt.secret}")
+    @Value("${jwt-secret}")
     private String key;
 
     public String generateToken(Map<String, Object> valueMap, int days) {

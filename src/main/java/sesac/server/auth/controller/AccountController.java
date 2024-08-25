@@ -30,7 +30,7 @@ public class AccountController {
         Map<String, Object> claims = new HashMap<>();
         claims.put("name", loginRequest.username());
         claims.put("nickname", "nickname");
-        claims.put("role", "MANAGER");
+        claims.put("role", "USER");
 
         String token = jwtUtil.generateToken(claims, 1);
 
@@ -38,8 +38,6 @@ public class AccountController {
                 .status(HttpStatus.OK)
                 .body(token);
     }
-
-    ;
 
     @GetMapping
     public ResponseEntity<String> getUser() {

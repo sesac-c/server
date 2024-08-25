@@ -2,7 +2,7 @@ spring:
   application:
     name: myapp
   profiles:
-    active: dev # ?????
+    active: dev # default profile
   jpa:
     show-sql: true
     properties:
