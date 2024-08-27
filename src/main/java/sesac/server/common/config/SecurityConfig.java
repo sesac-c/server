@@ -43,7 +43,8 @@ public class SecurityConfig {
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.authorizeHttpRequests(requests -> requests
-                .requestMatchers("/accounts/**", "/campuses").permitAll()
+                .requestMatchers("/accounts/**", "/campuses", "/campuses/{campusId}/courses")
+                .permitAll()
                 .requestMatchers("/manager/**").hasRole("MANAGER")
                 .anyRequest().authenticated());
 
