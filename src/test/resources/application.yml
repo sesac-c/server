@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: myapp
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/sesacc_test
+    username: root
+    password:
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  logging:
+    level:
+      org:
+        springframework:
+          security: TRACE
+
+jwt-secret: developmentjwtkeydmdoiwj2398usd7ayf987124gugszdc9783287gf
+origins: http://localhost:3000
