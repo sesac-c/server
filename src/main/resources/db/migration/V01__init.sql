@@ -4,7 +4,6 @@ CREATE TABLE user
     type       VARCHAR(20)  NOT NULL,                                          -- 사용자 유형 enum 'manager', 'student', 'graduate'
     email      VARCHAR(255) NOT NULL UNIQUE,                                   -- 이메일
     password   VARCHAR(255) NOT NULL,                                          -- 비밀번호
-    role       VARCHAR(20)  NOT NULL,                                          -- 권한
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                            -- 생성일시
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- 수정일시
 );
