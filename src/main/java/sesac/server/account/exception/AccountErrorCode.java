@@ -9,10 +9,10 @@ import sesac.server.common.exception.ErrorCode;
 @RequiredArgsConstructor
 public enum AccountErrorCode implements ErrorCode {
     DUPLICATED_EMAIL(HttpStatus.BAD_REQUEST, "DUPLICATED_EMAIL", "이미 가입된 이메일 입니다"),
-    REQUIRED_EMAIL(HttpStatus.BAD_REQUEST, "REQUIRED_EMAIL", "이메일이 입력되지 않았습니다"),
+    REQUIRED_EMAIL(HttpStatus.BAD_REQUEST, "REQUIRED_EMAIL", "이메일 주소를 입력해 주세요"),
     INVALID_EMAIL_PATTERN(HttpStatus.BAD_REQUEST, "INVALID_EMAIL_PATTERN", "이메일 형식이 아닙니다"),
 
-    REQUIRED_PASSWORD(HttpStatus.BAD_REQUEST, "REQUIRED_PASSWORD", "비밀번호가 입력되지 않았습니다"),
+    REQUIRED_PASSWORD(HttpStatus.BAD_REQUEST, "REQUIRED_PASSWORD", "비밀번호를 입력해 주세요"),
     INVALID_PASSWORD_PATTERN(HttpStatus.BAD_REQUEST, "INVALID_PASSWORD_PATTERN",
             "비밀번호는 8~20자 이내로 영어, 숫자, 특수문자를 포함해야 합니다"),
     REQUIRED_PASSWORD_CONFIRM(HttpStatus.BAD_REQUEST, "REQUIRED_PASSWORD_CONFIRM",
@@ -32,7 +32,17 @@ public enum AccountErrorCode implements ErrorCode {
     INVALID_GENDER(HttpStatus.BAD_REQUEST, "INVALID_GENDER", "주민번호 뒷자리는 1 ~ 4의 값을 입력해주세요"),
 
     REQUIRED_COURSE(HttpStatus.BAD_REQUEST, "REQUIRED_COURSE", "과정을 선택해주세요"),
-    NO_COURSE(HttpStatus.BAD_REQUEST, "NO_COURSE", "과정이 없습니다");
+    NO_COURSE(HttpStatus.BAD_REQUEST, "NO_COURSE", "과정이 없습니다"),
+
+    NO_EMAIL_OR_PASSWORD(HttpStatus.BAD_REQUEST, "NO_EMAIL_OR_PASSWORD",
+            "아이디 또는 비밀번호가 잘못되었습니다. 다시 입력해 주세요"),
+
+    PENDING_ACCOUNT(HttpStatus.UNAUTHORIZED, "PENDING_ACCOUNT", "아직 승인되지 않은 회원입니다."),
+    //    APPROVED_ACCOUNT(HttpStatus.BAD_REQUEST, "", ""),
+    HOLD_ACCOUNT(HttpStatus.UNAUTHORIZED, "HOLD_ACCOUNT", "승인 보류된 회원입니다."),
+    REJECTED_ACCOUNT(HttpStatus.UNAUTHORIZED, "REJECTED_ACCOUNT", "승인 거절된 회원입니다."),
+    ;
+
 
     private final HttpStatus status;
     private final String code;
