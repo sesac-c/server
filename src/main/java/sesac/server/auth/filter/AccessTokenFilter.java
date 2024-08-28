@@ -1,5 +1,8 @@
 package sesac.server.auth.filter;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +20,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import sesac.server.auth.exception.TokenErrorCode;
+import sesac.server.auth.exception.TokenException;
 import sesac.server.auth.util.JwtUtil;
 
 @Log4j2
@@ -34,7 +39,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         String token = extractToken(request);
 
         if (token != null) {
-            Map<String, Object> claim = jwtUtil.validateToken(token);
+            Map<String, Object> claim = validateAccessToken(token);
 
             List<GrantedAuthority> authorities =
                     List.of(new SimpleGrantedAuthority("ROLE_" + claim.get("role")));
@@ -58,34 +63,21 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         return null;
     }
 
-    /*private Map<String, Object> validateAccessToken(HttpServletRequest request) throws AccessTokenException {
-        String headerStr = request.getHeader("Authorization");
-
-        if (headerStr == null || headerStr.length() < 8) {
-//            throw new AccessTokenException(AccessTokenException.TOKEN_ERROR.UNACCEPT);
-        }
-
-        String tokenType = headerStr.substring(0, 6);
-        String tokenStr = headerStr.substring(7);
-
-        if (tokenType.equalsIgnoreCase("Bearer") == false) {
-//            throw new AccessTokenException(AccessTokenException.TOKEN_ERROR.BADTYPE);
-        }
+    private Map<String, Object> validateAccessToken(String tokenStr)
+            throws TokenException {
 
         try {
             return jwtUtil.validateToken(tokenStr);
         } catch (MalformedJwtException malformedJwtException) {
             log.error("MalFormedJwtException-------------");
-//            throw new AccessTokenException((AccessTokenException.TOKEN_ERROR.MALFORM));
+            throw new TokenException(TokenErrorCode.MALFORM);
         } catch (SignatureException signatureException) {
             log.error("SignatureException-------------");
-//            throw new AccessTokenException((AccessTokenException.TOKEN_ERROR.BADSIGN));
+            throw new TokenException(TokenErrorCode.BADSIGN);
         } catch (ExpiredJwtException expiredJwtException) {
             log.error("ExpiredJwtException-------------");
-//            throw new AccessTokenException((AccessTokenException.TOKEN_ERROR.EXPIRED));
+            throw new TokenException(TokenErrorCode.EXPIRED);
         }
-        return null;
-    }*/
-
+    }
 
 }
