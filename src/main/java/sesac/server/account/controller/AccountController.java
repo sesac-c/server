@@ -33,14 +33,14 @@ public class AccountController {
     public ResponseEntity<Void> signup(@Valid @RequestBody SignupRequest signupRequest,
             BindingResult bindingResult) {
         bindHandler.signupRequest(bindingResult);
-        accountService.saveStudent(signupRequest);
+        accountService.createStudent(signupRequest);
 
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("signup/check-email")
     public ResponseEntity<Void> checkEmail(@Valid @RequestBody EmailCheckRequest request) {
-        accountService.emailCheck(request.email());
+        accountService.checkEmail(request.email());
 
         return ResponseEntity.ok().build();
     }

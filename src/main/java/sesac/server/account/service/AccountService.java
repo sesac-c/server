@@ -29,7 +29,7 @@ public class AccountService {
     private final CourseRepository courseRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public void emailCheck(String email) {
+    public void checkEmail(String email) {
         boolean exits = userRepository.existsByEmail(email);
 
         if (exits) {
@@ -37,12 +37,12 @@ public class AccountService {
         }
     }
 
-    public Student saveStudent(SignupRequest signupRequest) {
+    public Student createStudent(SignupRequest signupRequest) {
         if (!signupRequest.password().equals(signupRequest.passwordConfirm())) {
             throw new AccountException(AccountErrorCode.DIFFERENT_PASSWORD_CONFIRM);
         }
 
-        this.emailCheck(signupRequest.email());
+        this.checkEmail(signupRequest.email());
 
         User user = User.builder()
                 .email(signupRequest.email())
