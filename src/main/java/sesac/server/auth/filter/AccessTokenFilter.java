@@ -30,16 +30,9 @@ public class AccessTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
-        String requestURI = request.getRequestURI();
-
-        if (requestURI.startsWith("/accounts")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         String token = extractToken(request);
 
-        // TODO: 수정필요
         if (token != null) {
             Map<String, Object> claim = jwtUtil.validateToken(token);
 

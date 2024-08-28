@@ -6,6 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -43,6 +44,7 @@ public class SecurityConfig {
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.authorizeHttpRequests(requests -> requests
+                .requestMatchers(HttpMethod.DELETE, "/accounts/**").authenticated()
                 .requestMatchers("/accounts/**", "/campuses", "/campuses/{campusId}/courses")
                 .permitAll()
                 .requestMatchers("/manager/**").hasRole("MANAGER")

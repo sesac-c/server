@@ -11,7 +11,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import sesac.server.auth.dto.AuthPrincipal;
-import sesac.server.auth.dto.PrincipalRecord;
+import sesac.server.auth.dto.CustomPrincipal;
 
 @Component
 public class AuthPrincipalArgumentResolver implements HandlerMethodArgumentResolver {
@@ -19,7 +19,7 @@ public class AuthPrincipalArgumentResolver implements HandlerMethodArgumentResol
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.getParameterAnnotation(AuthPrincipal.class) != null
-                && parameter.getParameterType().equals(PrincipalRecord.class);
+                && parameter.getParameterType().equals(CustomPrincipal.class);
     }
 
     @Override
@@ -29,8 +29,8 @@ public class AuthPrincipalArgumentResolver implements HandlerMethodArgumentResol
         if (authentication instanceof UsernamePasswordAuthenticationToken) {
             Map<String, Object> principal = (Map<String, Object>) authentication.getPrincipal();
 
-            return new PrincipalRecord(
-                    (String) principal.get("nickname"),
+            return new CustomPrincipal(
+                    Long.parseLong((String) principal.get("id")),
                     (String) principal.get("role")
             );
         }

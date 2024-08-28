@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,8 @@ import sesac.server.account.dto.LoginResponse;
 import sesac.server.account.dto.SignupRequest;
 import sesac.server.account.exception.AccountBindHandler;
 import sesac.server.account.service.AccountService;
+import sesac.server.auth.dto.AuthPrincipal;
+import sesac.server.auth.dto.CustomPrincipal;
 
 @Log4j2
 @RestController
@@ -46,5 +49,10 @@ public class AccountController {
         LoginResponse response = accountService.login(loginRequest);
 
         return ResponseEntity.ok().body(response);
+    }
+
+    @DeleteMapping("withdraw")
+    public void deleteUser(@AuthPrincipal CustomPrincipal principal) {
+        log.info("Deleting account");
     }
 }
