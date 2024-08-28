@@ -14,7 +14,7 @@ import sesac.server.campus.entity.Course;
 import sesac.server.campus.repository.CourseRepository;
 import sesac.server.user.entity.Student;
 import sesac.server.user.entity.User;
-import sesac.server.user.entity.UserType;
+import sesac.server.user.entity.UserRole;
 import sesac.server.user.repository.StudentRepository;
 import sesac.server.user.repository.UserRepository;
 
@@ -47,7 +47,7 @@ public class AccountService {
         User user = User.builder()
                 .email(signupRequest.email())
                 .password(passwordEncoder.encode(signupRequest.password()))
-                .type(UserType.STUDENT)
+                .role(UserRole.STUDENT)
                 .build();
         userRepository.save(user);
 

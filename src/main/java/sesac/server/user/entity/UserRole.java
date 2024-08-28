@@ -1,5 +1,5 @@
 package sesac.server.user.entity;
 
-public enum UserType {
+public enum UserRole {
     MANAGER, STUDENT, GRADUATE
 }
