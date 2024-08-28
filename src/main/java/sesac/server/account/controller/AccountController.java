@@ -1,19 +1,22 @@
-package sesac.server.auth.controller;
+package sesac.server.account.controller;
 
+import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import sesac.server.auth.dto.LoginRequest;
-import sesac.server.auth.exception.AccountErrorCode;
-import sesac.server.auth.exception.AccountException;
+import sesac.server.account.dto.EmailCheckRequest;
+import sesac.server.account.dto.LoginRequest;
+import sesac.server.account.dto.SignupRequest;
+import sesac.server.account.exception.AccountBindHandler;
+import sesac.server.account.service.AccountService;
 import sesac.server.auth.util.JwtUtil;
 
 @Log4j2
@@ -23,6 +26,24 @@ import sesac.server.auth.util.JwtUtil;
 public class AccountController {
 
     private final JwtUtil jwtUtil;
+    private final AccountService accountService;
+    private final AccountBindHandler bindHandler;
+
+    @PostMapping("signup")
+    public ResponseEntity<Void> signup(@Valid @RequestBody SignupRequest signupRequest,
+            BindingResult bindingResult) {
+        bindHandler.signupRequest(bindingResult);
+        accountService.saveStudent(signupRequest);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("signup/check-email")
+    public ResponseEntity<Void> checkEmail(@Valid @RequestBody EmailCheckRequest request) {
+        accountService.emailCheck(request.email());
+
+        return ResponseEntity.ok().build();
+    }
 
     @PostMapping("login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
@@ -39,9 +60,5 @@ public class AccountController {
                 .body(token);
     }
 
-    @GetMapping
-    public ResponseEntity<String> getUser() {
-        throw new AccountException(AccountErrorCode.NO);
-    }
 
 }

@@ -16,7 +16,6 @@ public class SampleController {
     public String hello(@AuthPrincipal PrincipalRecord principal) {
         log.info("hello, {}", GlobalErrorCode.INTERNAL_SERVER_ERROR.getStatus());
         log.info("hello,   {}", GlobalErrorCode.INTERNAL_SERVER_ERROR.getMessage());
-        log.info("hello, {}", GlobalErrorCode.INVALID.getMessage());
         throw new BaseException(GlobalErrorCode.INTERNAL_SERVER_ERROR);
 
     }
