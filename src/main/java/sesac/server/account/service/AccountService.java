@@ -63,7 +63,7 @@ public class AccountService {
                 .name(signupRequest.name())
                 .gender(gender)
                 .firstCourse(course)
-                .statusCode(100)
+                .statusCode(0)
                 .user(user)
                 .nickname("새싹_" + user.getId())
                 .build();
