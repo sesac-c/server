@@ -1,4 +1,4 @@
-package sesac.server.auth.util;
+package sesac.server.common.util;
 
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -30,8 +30,7 @@ public class JwtUtil {
         headers.put("alg", "HS256");
 
         // payload 부분 설정
-        Map<String, Object> payloads = new HashMap<>();
-        payloads.putAll(valueMap);
+        Map<String, Object> payloads = new HashMap<>(valueMap);
 
         // 테스트 시에는 짧은 유효 기간
         int time = (60 * 24) * days;

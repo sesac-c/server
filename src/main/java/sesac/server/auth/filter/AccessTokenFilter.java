@@ -1,5 +1,8 @@
 package sesac.server.auth.filter;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,7 +20,9 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import sesac.server.auth.util.JwtUtil;
+import sesac.server.auth.exception.TokenErrorCode;
+import sesac.server.auth.exception.TokenException;
+import sesac.server.common.util.JwtUtil;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -30,28 +35,26 @@ public class AccessTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
-        String requestURI = request.getRequestURI();
-
-        if (requestURI.startsWith("/accounts")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         String token = extractToken(request);
 
-        // TODO: 수정필요
         if (token != null) {
-            Map<String, Object> claim = jwtUtil.validateToken(token);
+            try {
+                Map<String, Object> claim = validateAccessToken(token);
 
-            List<GrantedAuthority> authorities =
-                    List.of(new SimpleGrantedAuthority("ROLE_" + claim.get("role")));
+                List<GrantedAuthority> authorities =
+                        List.of(new SimpleGrantedAuthority("ROLE_" + claim.get("role")));
 
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(claim, null, authorities);
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(claim, null, authorities);
+                authentication.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request));
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.info("Access token: {}", SecurityContextHolder.getContext().getAuthentication());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (TokenException tokenException) {
+                tokenException.sendResponseError(response);
+                return;
+            }
         }
 
         filterChain.doFilter(request, response);
@@ -65,34 +68,21 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         return null;
     }
 
-    /*private Map<String, Object> validateAccessToken(HttpServletRequest request) throws AccessTokenException {
-        String headerStr = request.getHeader("Authorization");
-
-        if (headerStr == null || headerStr.length() < 8) {
-//            throw new AccessTokenException(AccessTokenException.TOKEN_ERROR.UNACCEPT);
-        }
-
-        String tokenType = headerStr.substring(0, 6);
-        String tokenStr = headerStr.substring(7);
-
-        if (tokenType.equalsIgnoreCase("Bearer") == false) {
-//            throw new AccessTokenException(AccessTokenException.TOKEN_ERROR.BADTYPE);
-        }
+    private Map<String, Object> validateAccessToken(String tokenStr)
+            throws TokenException {
 
         try {
             return jwtUtil.validateToken(tokenStr);
         } catch (MalformedJwtException malformedJwtException) {
             log.error("MalFormedJwtException-------------");
-//            throw new AccessTokenException((AccessTokenException.TOKEN_ERROR.MALFORM));
+            throw new TokenException(TokenErrorCode.MALFORM);
         } catch (SignatureException signatureException) {
             log.error("SignatureException-------------");
-//            throw new AccessTokenException((AccessTokenException.TOKEN_ERROR.BADSIGN));
+            throw new TokenException(TokenErrorCode.BADSIGN);
         } catch (ExpiredJwtException expiredJwtException) {
             log.error("ExpiredJwtException-------------");
-//            throw new AccessTokenException((AccessTokenException.TOKEN_ERROR.EXPIRED));
+            throw new TokenException(TokenErrorCode.EXPIRED);
         }
-        return null;
-    }*/
-
+    }
 
 }

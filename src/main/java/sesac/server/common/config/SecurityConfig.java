@@ -6,6 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -20,6 +21,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import sesac.server.auth.filter.AccessTokenFilter;
+import sesac.server.auth.filter.RefreshTokenFilter;
 import sesac.server.auth.handler.CustomAccessDeniedHandler;
 import sesac.server.auth.handler.CustomAuthenticationEntryPoint;
 
@@ -30,6 +32,7 @@ import sesac.server.auth.handler.CustomAuthenticationEntryPoint;
 public class SecurityConfig {
 
     private final AccessTokenFilter accessTokenFilter;
+    private final RefreshTokenFilter refreshTokenFilter;
     @Value("${origins}")
     private String origins;
 
@@ -43,6 +46,7 @@ public class SecurityConfig {
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.authorizeHttpRequests(requests -> requests
+                .requestMatchers(HttpMethod.DELETE, "/accounts/**").authenticated()
                 .requestMatchers("/accounts/**", "/campuses", "/campuses/{campusId}/courses")
                 .permitAll()
                 .requestMatchers("/manager/**").hasRole("MANAGER")
@@ -53,9 +57,7 @@ public class SecurityConfig {
                 .authenticationEntryPoint(authenticationEntryPoint()));
 
         http.addFilterBefore(accessTokenFilter, UsernamePasswordAuthenticationFilter.class);
-
-//        http.addFilterBefore(new RefreshTokenFilter("/refreshToken", jwtUtil),
-//                TokenCheckFilter.class);
+        http.addFilterBefore(refreshTokenFilter, AccessTokenFilter.class);
 
         return http.build();
     }
