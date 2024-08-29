@@ -61,7 +61,9 @@ public class AccountController {
     }
 
     @DeleteMapping("withdraw")
-    public void deleteUser(@AuthPrincipal CustomPrincipal principal) {
-        log.info("Deleting account");
+    public ResponseEntity<Void> deleteUser(@AuthPrincipal CustomPrincipal principal) {
+        accountService.deleteUser(principal.id());
+
+        return ResponseEntity.ok().build();
     }
 }

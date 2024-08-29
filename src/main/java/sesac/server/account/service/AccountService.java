@@ -136,4 +136,8 @@ public class AccountService {
 
         tokenBlacklistService.addToBlacklist(token, expirationTime);
     }
+
+    public void deleteUser(Long userId) {
+        userRepository.deleteById(userId);
+    }
 }
