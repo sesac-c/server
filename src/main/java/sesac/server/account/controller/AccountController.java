@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import sesac.server.account.dto.EmailCheckRequest;
 import sesac.server.account.dto.LoginRequest;
 import sesac.server.account.dto.LoginResponse;
+import sesac.server.account.dto.LogoutRequest;
 import sesac.server.account.dto.SignupRequest;
 import sesac.server.account.exception.AccountBindHandler;
 import sesac.server.account.service.AccountService;
@@ -51,8 +52,18 @@ public class AccountController {
         return ResponseEntity.ok().body(response);
     }
 
+    @PostMapping("logout")
+    public ResponseEntity<Void> logout(@RequestBody LogoutRequest logoutRequest) {
+        accountService.logout(logoutRequest.accessToken());
+        accountService.logout(logoutRequest.refreshToken());
+
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("withdraw")
-    public void deleteUser(@AuthPrincipal CustomPrincipal principal) {
-        log.info("Deleting account");
+    public ResponseEntity<Void> deleteUser(@AuthPrincipal CustomPrincipal principal) {
+        accountService.deleteUser(principal.id());
+
+        return ResponseEntity.ok().build();
     }
 }

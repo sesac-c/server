@@ -20,6 +20,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import sesac.server.account.service.TokenBlacklistService;
 import sesac.server.auth.exception.TokenErrorCode;
 import sesac.server.auth.exception.TokenException;
 import sesac.server.common.util.JwtUtil;
@@ -30,6 +31,7 @@ import sesac.server.common.util.JwtUtil;
 public class AccessTokenFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -40,6 +42,10 @@ public class AccessTokenFilter extends OncePerRequestFilter {
 
         if (token != null) {
             try {
+                if (tokenBlacklistService.isBlacklisted(token)) {
+                    throw new TokenException(TokenErrorCode.EXPIRED);
+                }
+
                 Map<String, Object> claim = validateAccessToken(token);
 
                 List<GrantedAuthority> authorities =

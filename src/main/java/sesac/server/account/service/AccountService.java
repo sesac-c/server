@@ -34,6 +34,7 @@ public class AccountService {
     private final CourseRepository courseRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final TokenBlacklistService tokenBlacklistService;
 
     public void checkEmail(String email) {
         boolean exits = userRepository.existsByEmail(email);
@@ -127,5 +128,16 @@ public class AccountService {
         );
 
         return response;
+    }
+
+    public void logout(String token) {
+        Map<String, Object> claims = jwtUtil.validateToken(token);
+        Long expirationTime = (Long) claims.get("exp");
+
+        tokenBlacklistService.addToBlacklist(token, expirationTime);
+    }
+
+    public void deleteUser(Long userId) {
+        userRepository.deleteById(userId);
     }
 }
