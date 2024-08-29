@@ -22,7 +22,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import sesac.server.auth.exception.TokenErrorCode;
 import sesac.server.auth.exception.TokenException;
-import sesac.server.auth.util.JwtUtil;
+import sesac.server.common.util.JwtUtil;
 
 @Log4j2
 @RequiredArgsConstructor
