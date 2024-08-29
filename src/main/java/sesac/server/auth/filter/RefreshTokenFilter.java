@@ -19,6 +19,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import sesac.server.account.service.TokenBlacklistService;
 import sesac.server.auth.exception.TokenErrorCode;
 import sesac.server.auth.exception.TokenException;
 import sesac.server.common.util.JwtUtil;
@@ -29,6 +30,7 @@ import sesac.server.common.util.JwtUtil;
 public class RefreshTokenFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final TokenBlacklistService tokenBlacklistService;
     private final String refreshPath = "/refreshToken";
 
     @Override
@@ -54,6 +56,10 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
         }
 
         try {
+            if (tokenBlacklistService.isBlacklisted(refreshToken)) {
+                throw new TokenException(TokenErrorCode.EXPIRED);
+            }
+            
             Map<String, Object> refreshClaims = checkRefreshToken(refreshToken);
 
             String id = (String) refreshClaims.get("id");
