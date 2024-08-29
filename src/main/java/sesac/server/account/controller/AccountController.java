@@ -51,11 +51,6 @@ public class AccountController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping("logout")
-    public ResponseEntity<Void> logout() {
-        
-    }
-
     @DeleteMapping("withdraw")
     public void deleteUser(@AuthPrincipal CustomPrincipal principal) {
         log.info("Deleting account");
