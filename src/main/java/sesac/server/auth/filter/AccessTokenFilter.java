@@ -39,17 +39,22 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         String token = extractToken(request);
 
         if (token != null) {
-            Map<String, Object> claim = validateAccessToken(token);
+            try {
+                Map<String, Object> claim = validateAccessToken(token);
 
-            List<GrantedAuthority> authorities =
-                    List.of(new SimpleGrantedAuthority("ROLE_" + claim.get("role")));
+                List<GrantedAuthority> authorities =
+                        List.of(new SimpleGrantedAuthority("ROLE_" + claim.get("role")));
 
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(claim, null, authorities);
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(claim, null, authorities);
+                authentication.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request));
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.info("Access token: {}", SecurityContextHolder.getContext().getAuthentication());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (TokenException tokenException) {
+                tokenException.sendResponseError(response);
+                return;
+            }
         }
 
         filterChain.doFilter(request, response);

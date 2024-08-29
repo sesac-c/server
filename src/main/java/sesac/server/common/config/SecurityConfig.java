@@ -21,6 +21,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import sesac.server.auth.filter.AccessTokenFilter;
+import sesac.server.auth.filter.RefreshTokenFilter;
 import sesac.server.auth.handler.CustomAccessDeniedHandler;
 import sesac.server.auth.handler.CustomAuthenticationEntryPoint;
 
@@ -31,6 +32,7 @@ import sesac.server.auth.handler.CustomAuthenticationEntryPoint;
 public class SecurityConfig {
 
     private final AccessTokenFilter accessTokenFilter;
+    private final RefreshTokenFilter refreshTokenFilter;
     @Value("${origins}")
     private String origins;
 
@@ -55,9 +57,7 @@ public class SecurityConfig {
                 .authenticationEntryPoint(authenticationEntryPoint()));
 
         http.addFilterBefore(accessTokenFilter, UsernamePasswordAuthenticationFilter.class);
-
-//        http.addFilterBefore(new RefreshTokenFilter("/refreshToken", jwtUtil),
-//                TokenCheckFilter.class);
+        http.addFilterBefore(refreshTokenFilter, AccessTokenFilter.class);
 
         return http.build();
     }
