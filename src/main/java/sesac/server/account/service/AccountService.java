@@ -116,6 +116,7 @@ public class AccountService {
 
         claims.put("id", user.getId().toString());
         claims.put("role", user.getRole());
+        claims.put("nickname", student.getNickname());
 
         String accessToken = jwtUtil.generateToken(claims, 1);
         String refreshToken = jwtUtil.generateToken(claims, 14);

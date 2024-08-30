@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -59,13 +60,14 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
             if (tokenBlacklistService.isBlacklisted(refreshToken)) {
                 throw new TokenException(TokenErrorCode.EXPIRED);
             }
-            
+
             Map<String, Object> refreshClaims = checkRefreshToken(refreshToken);
 
             String id = (String) refreshClaims.get("id");
             String role = (String) refreshClaims.get("role");
+            String nickname = (String) refreshClaims.get("nickname");
 
-            Map<String, Object> claim = Map.of("id", id, "role", role);
+            Map<String, Object> claim = Map.of("id", id, "role", role, "nickname", nickname);
 
             String accessTokenValue = jwtUtil.generateToken(claim, 1);
             String refreshTokenValue = tokens.get("refreshToken");
@@ -81,7 +83,12 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
                 refreshTokenValue = jwtUtil.generateToken(claim, 30);
             }
 
-            sendTokens(accessTokenValue, refreshTokenValue, response);
+            Map<String, Object> payload = new HashMap<>(claim);
+            payload.put("accessToken", accessToken);
+            payload.put("refreshToken", refreshTokenValue);
+            payload.remove("id");
+
+            sendTokens(payload, response);
         } catch (TokenException refreshTokenException) {
             refreshTokenException.sendResponseError(response);
             return;
@@ -111,14 +118,13 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
         }
     }
 
-    private void sendTokens(String accessTokenValue, String refreshTokenValue,
-            HttpServletResponse response) {
+    private void sendTokens(Map<String, Object> payload, HttpServletResponse response) {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
 
         Gson gson = new Gson();
 
-        String jsonStr = gson.toJson(
-                Map.of("accessToken", accessTokenValue, "refreshToken", refreshTokenValue));
+        String jsonStr = gson.toJson(payload);
 
         try {
             response.getWriter().println(jsonStr);
