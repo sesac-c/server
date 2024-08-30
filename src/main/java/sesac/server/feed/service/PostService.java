@@ -6,9 +6,12 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import sesac.server.auth.exception.TokenErrorCode;
 import sesac.server.auth.exception.TokenException;
+import sesac.server.common.exception.BaseException;
 import sesac.server.feed.dto.CreatePostRequest;
+import sesac.server.feed.dto.PostResponse;
 import sesac.server.feed.entity.Post;
 import sesac.server.feed.entity.PostType;
+import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.feed.repository.PostRepository;
 import sesac.server.user.entity.User;
 import sesac.server.user.repository.UserRepository;
@@ -36,13 +39,22 @@ public class PostService {
         postRepository.save(post);
     }
 
-//    public void getPost() {
-//
-//    }
-//
-//    public void getPosts() {
-//
-//    }
+    public PostResponse getPost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BaseException(PostErrorCode.NO_POST));
+
+        return new PostResponse(
+                post.getUser().getStudent().getNickname(),
+                post.getTitle(),
+                post.getContent(),
+                post.getCreatedAt(),
+                post.getImage()
+        );
+    }
+
+    public void getPosts() {
+
+    }
 //
 //    public void updatePost(Long postId) {
 //    }
