@@ -24,4 +24,7 @@ public class Campus extends BaseEntity {
 
     @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false, unique = true, length = 100)
+    private String address;
 }
