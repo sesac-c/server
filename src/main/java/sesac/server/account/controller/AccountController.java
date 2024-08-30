@@ -1,6 +1,7 @@
 package sesac.server.account.controller;
 
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +16,11 @@ import sesac.server.account.dto.LoginRequest;
 import sesac.server.account.dto.LoginResponse;
 import sesac.server.account.dto.LogoutRequest;
 import sesac.server.account.dto.SignupRequest;
-import sesac.server.account.exception.AccountBindHandler;
+import sesac.server.account.exception.AccountErrorCode;
 import sesac.server.account.service.AccountService;
 import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
+import sesac.server.common.exception.BindingResultHandler;
 
 @Log4j2
 @RestController
@@ -27,12 +29,28 @@ import sesac.server.auth.dto.CustomPrincipal;
 public class AccountController {
 
     private final AccountService accountService;
-    private final AccountBindHandler bindHandler;
+    private final BindingResultHandler bindingResultHandler;
 
     @PostMapping("signup")
     public ResponseEntity<Void> signup(@Valid @RequestBody SignupRequest signupRequest,
             BindingResult bindingResult) {
-        bindHandler.signupRequest(bindingResult);
+
+        bindingResultHandler.handleBindingResult(bindingResult, List.of(
+                AccountErrorCode.REQUIRED_NAME,
+                AccountErrorCode.INVALID_NAME_PATTERN,
+                AccountErrorCode.INVALID_NAME_SIZE,
+                AccountErrorCode.REQUIRED_BIRTH,
+                AccountErrorCode.INVALID_BIRTH_PATTERN,
+                AccountErrorCode.INVALID_BIRTH_SIZE,
+                AccountErrorCode.REQUIRED_GENDER,
+                AccountErrorCode.INVALID_GENDER,
+                AccountErrorCode.REQUIRED_EMAIL,
+                AccountErrorCode.INVALID_EMAIL_PATTERN,
+                AccountErrorCode.REQUIRED_PASSWORD,
+                AccountErrorCode.INVALID_PASSWORD_PATTERN,
+                AccountErrorCode.REQUIRED_PASSWORD_CONFIRM
+        ));
+
         accountService.createStudent(signupRequest);
 
         return ResponseEntity.ok().build();
