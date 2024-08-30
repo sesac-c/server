@@ -1,4 +1,4 @@
-package sesac.server.article.entity;
+package sesac.server.feed.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,12 +17,13 @@ import lombok.NoArgsConstructor;
 import sesac.server.common.entity.BaseEntity;
 import sesac.server.user.entity.User;
 
+
 @Entity
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Reply extends BaseEntity {
+public class Notice extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,14 +33,21 @@ public class Reply extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
-    private Post post;
+    @Column(nullable = false)
+    private String title;
 
     @Column(nullable = false)
     private String content;
 
+    private String image;
+
+    private String thumbnail;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ArticleType type;
+    private NoticeType type;
+
+    private Integer importance;
+
+    private Boolean status;
 }

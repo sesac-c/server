@@ -1,4 +1,4 @@
-package sesac.server.article.entity;
+package sesac.server.feed.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

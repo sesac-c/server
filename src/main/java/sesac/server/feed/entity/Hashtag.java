@@ -1,4 +1,4 @@
-package sesac.server.article.entity;
+package sesac.server.feed.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,6 +28,6 @@ public class Hashtag {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ArticleType type;
+    private FeedType type;
 }
 

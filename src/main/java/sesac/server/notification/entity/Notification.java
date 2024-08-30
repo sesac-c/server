@@ -18,7 +18,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import sesac.server.article.entity.Post;
+import sesac.server.feed.entity.Post;
 import sesac.server.user.entity.User;
 
 @Entity
