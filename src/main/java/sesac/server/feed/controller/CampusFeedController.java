@@ -77,12 +77,12 @@ public class CampusFeedController {
                 PostErrorCode.INVALID_TITLE_SIZE,
                 PostErrorCode.INVALID_CONTENT_SIZE
         ));
-        
+
         postService.updatePost(postId, updatePostRequest);
     }
 
     @DeleteMapping("posts/{postId}")
-    public void deletePost() {
-//        postService.deletePost();
+    public void deletePost(@PathVariable Long postId) {
+        postService.deletePost(postId);
     }
 }

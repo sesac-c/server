@@ -70,8 +70,7 @@ public class PostService {
         postRepository.save(post);
     }
 
-//    public void deletePost(Long postId) {
-//    }
-
-
+    public void deletePost(Long postId) {
+        postRepository.deleteById(postId);
+    }
 }
