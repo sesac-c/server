@@ -7,35 +7,27 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import sesac.server.feed.dto.PostResponse;
-import sesac.server.feed.dto.QPostResponse;
+import sesac.server.feed.dto.PostListResponse;
+import sesac.server.feed.entity.Post;
 
 @RequiredArgsConstructor
 public class PostSearchImpl implements PostSearch {
 
     private final JPAQueryFactory queryFactory;
 
-    public List<PostResponse> searchPost(Pageable pageable) {
+    public List<PostListResponse> searchPost(Pageable pageable) {
 
-        List<PostResponse> posts = queryFactory
-                .select(new QPostResponse(
-                        post.id,
-                        user.student.nickname,
-                        post.title,
-                        post.content,
-                        post.createdAt,
-                        post.image,
-                        post.likesCount,
-                        post.replyCount
-                ))
-                .from(post)
+        List<Post> postList = queryFactory
+                .selectFrom(post)
                 .join(post.user, user)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        return posts;
+        List<PostListResponse> posts = postList.stream().map(PostListResponse::new).toList();
 
+        return posts;
+//        return null;
         /*JPAQuery<Post> countQuery = queryFactory
                 .select(post)
                 .from(post);

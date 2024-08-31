@@ -12,6 +12,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -50,11 +53,14 @@ public class Post extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PostType type;
 
-    @Formula("(SELECT COUNT(*) FROM likes l WHERE l.post_id = id)")
+    @Formula("(SELECT COUNT(*) FROM likes l WHERE l.post_id = id AND l.type = 'POST')")
     private Long likesCount;
 
-    @Formula("(SELECT COUNT(*) FROM reply r WHERE r.post_id = id)")
+    @Formula("(SELECT COUNT(*) FROM reply r WHERE r.post_id = id AND r.type = 'POST')")
     private Long replyCount;
+
+    @OneToMany(mappedBy = "post")
+    private List<PostHashtag> hashtags = new ArrayList<>();
 
 
     public void update(UpdatePostRequest request) {

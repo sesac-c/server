@@ -1,6 +1,5 @@
 package sesac.server.feed.dto;
 
-import com.querydsl.core.annotations.QueryProjection;
 import java.time.LocalDateTime;
 
 public record PostResponse(
@@ -9,19 +8,13 @@ public record PostResponse(
         String title,
         String content,
         LocalDateTime createdAt,
-//        int likeCount,
-//        int replyCount,
 //        String[] hashTags,
         String imageUrl,
         Long likesCount,
         Long replyCount
 //        String profileImage,
 //        Reply[] replies
-
 ) {
 
-    @QueryProjection
-    public PostResponse {
-    }
 }
 

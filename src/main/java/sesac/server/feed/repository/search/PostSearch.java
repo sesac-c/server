@@ -2,10 +2,10 @@ package sesac.server.feed.repository.search;
 
 import java.util.List;
 import org.springframework.data.domain.Pageable;
-import sesac.server.feed.dto.PostResponse;
+import sesac.server.feed.dto.PostListResponse;
 
 public interface PostSearch {
 
-    List<PostResponse> searchPost(Pageable pageable);
+    List<PostListResponse> searchPost(Pageable pageable);
 
 }

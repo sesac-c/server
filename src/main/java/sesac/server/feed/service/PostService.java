@@ -11,6 +11,7 @@ import sesac.server.auth.exception.TokenErrorCode;
 import sesac.server.auth.exception.TokenException;
 import sesac.server.common.exception.BaseException;
 import sesac.server.feed.dto.CreatePostRequest;
+import sesac.server.feed.dto.PostListResponse;
 import sesac.server.feed.dto.PostResponse;
 import sesac.server.feed.dto.UpdatePostRequest;
 import sesac.server.feed.entity.Post;
@@ -60,8 +61,8 @@ public class PostService {
         );
     }
 
-    public List<PostResponse> getPosts(Pageable pageable) {
-        List<PostResponse> posts = postRepository.searchPost(pageable);
+    public List<PostListResponse> getPosts(Pageable pageable) {
+        List<PostListResponse> posts = postRepository.searchPost(pageable);
 
         return posts;
     }
