@@ -1,5 +1,7 @@
 package sesac.server.feed.entity;
 
+import static org.springframework.util.StringUtils.hasText;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,6 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sesac.server.common.entity.BaseEntity;
+import sesac.server.feed.dto.UpdatePostRequest;
 import sesac.server.user.entity.User;
 
 @Entity
@@ -46,4 +49,16 @@ public class Post extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PostType type;
 
+
+    public void update(UpdatePostRequest request) {
+
+        if (hasText(request.title())) {
+            title = request.title();
+        }
+
+        if (hasText(request.content())) {
+            content = request.content();
+        }
+
+    }
 }

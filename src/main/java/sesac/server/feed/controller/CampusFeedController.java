@@ -21,6 +21,7 @@ import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.feed.dto.CreatePostRequest;
 import sesac.server.feed.dto.PostResponse;
+import sesac.server.feed.dto.UpdatePostRequest;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.feed.service.PostService;
 
@@ -67,8 +68,17 @@ public class CampusFeedController {
 
 
     @PutMapping("posts/{postId}")
-    public void updatePost() {
-//        postService.updatePost();
+    public void updatePost(
+            @PathVariable Long postId,
+            @Valid @RequestBody UpdatePostRequest updatePostRequest,
+            BindingResult bindingResult
+    ) {
+        bindingResultHandler.handleBindingResult(bindingResult, List.of(
+                PostErrorCode.INVALID_TITLE_SIZE,
+                PostErrorCode.INVALID_CONTENT_SIZE
+        ));
+        
+        postService.updatePost(postId, updatePostRequest);
     }
 
     @DeleteMapping("posts/{postId}")

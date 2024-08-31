@@ -11,6 +11,7 @@ import sesac.server.auth.exception.TokenException;
 import sesac.server.common.exception.BaseException;
 import sesac.server.feed.dto.CreatePostRequest;
 import sesac.server.feed.dto.PostResponse;
+import sesac.server.feed.dto.UpdatePostRequest;
 import sesac.server.feed.entity.Post;
 import sesac.server.feed.entity.PostType;
 import sesac.server.feed.exception.PostErrorCode;
@@ -60,10 +61,15 @@ public class PostService {
 
         return posts;
     }
-//
-//    public void updatePost(Long postId) {
-//    }
-//
+
+    public void updatePost(Long postId, UpdatePostRequest request) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BaseException(PostErrorCode.NO_POST));
+
+        post.update(request);
+        postRepository.save(post);
+    }
+
 //    public void deletePost(Long postId) {
 //    }
 
