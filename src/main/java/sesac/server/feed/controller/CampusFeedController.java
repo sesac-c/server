@@ -69,6 +69,7 @@ public class CampusFeedController {
 
     @PutMapping("posts/{postId}")
     public void updatePost(
+            @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId,
             @Valid @RequestBody UpdatePostRequest updatePostRequest,
             BindingResult bindingResult
@@ -78,11 +79,11 @@ public class CampusFeedController {
                 PostErrorCode.INVALID_CONTENT_SIZE
         ));
 
-        postService.updatePost(postId, updatePostRequest);
+        postService.updatePost(principal, postId, updatePostRequest);
     }
 
     @DeleteMapping("posts/{postId}")
-    public void deletePost(@PathVariable Long postId) {
-        postService.deletePost(postId);
+    public void deletePost(@AuthPrincipal CustomPrincipal principal, @PathVariable Long postId) {
+        postService.deletePost(principal, postId);
     }
 }

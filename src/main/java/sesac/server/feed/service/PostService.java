@@ -6,6 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.auth.exception.TokenErrorCode;
 import sesac.server.auth.exception.TokenException;
 import sesac.server.common.exception.BaseException;
@@ -17,6 +18,7 @@ import sesac.server.feed.entity.PostType;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.feed.repository.PostRepository;
 import sesac.server.user.entity.User;
+import sesac.server.user.entity.UserRole;
 import sesac.server.user.repository.UserRepository;
 
 @Log4j2
@@ -62,15 +64,30 @@ public class PostService {
         return posts;
     }
 
-    public void updatePost(Long postId, UpdatePostRequest request) {
+    public void updatePost(CustomPrincipal principal, Long postId, UpdatePostRequest request) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BaseException(PostErrorCode.NO_POST));
+
+        if (!hasPermission(principal, post.getUser().getId())) {
+            throw new BaseException(PostErrorCode.NO_PERMISSION);
+        }
 
         post.update(request);
         postRepository.save(post);
     }
 
-    public void deletePost(Long postId) {
-        postRepository.deleteById(postId);
+    public void deletePost(CustomPrincipal principal, Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BaseException(PostErrorCode.NO_POST));
+
+        if (!hasPermission(principal, post.getUser().getId())) {
+            throw new BaseException(PostErrorCode.NO_PERMISSION);
+        }
+
+        postRepository.delete(post);
+    }
+
+    private boolean hasPermission(CustomPrincipal principal, Long userId) {
+        return principal.role().equals(UserRole.MANAGER) || userId == principal.id();
     }
 }
