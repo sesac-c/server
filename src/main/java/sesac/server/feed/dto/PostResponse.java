@@ -12,7 +12,9 @@ public record PostResponse(
 //        int likeCount,
 //        int replyCount,
 //        String[] hashTags,
-        String imageUrl
+        String imageUrl,
+        Long likesCount,
+        Long replyCount
 //        String profileImage,
 //        Reply[] replies
 

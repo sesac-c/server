@@ -54,7 +54,9 @@ public class PostService {
                 post.getTitle(),
                 post.getContent(),
                 post.getCreatedAt(),
-                post.getImage()
+                post.getImage(),
+                post.getLikesCount(),
+                post.getReplyCount()
         );
     }
 

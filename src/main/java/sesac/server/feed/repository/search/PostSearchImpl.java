@@ -24,7 +24,9 @@ public class PostSearchImpl implements PostSearch {
                         post.title,
                         post.content,
                         post.createdAt,
-                        post.image
+                        post.image,
+                        post.likesCount,
+                        post.replyCount
                 ))
                 .from(post)
                 .join(post.user, user)

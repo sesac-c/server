@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 import sesac.server.common.entity.BaseEntity;
 import sesac.server.feed.dto.UpdatePostRequest;
 import sesac.server.user.entity.User;
@@ -48,6 +49,12 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private PostType type;
+
+    @Formula("(SELECT COUNT(*) FROM likes l WHERE l.post_id = id)")
+    private Long likesCount;
+
+    @Formula("(SELECT COUNT(*) FROM reply r WHERE r.post_id = id)")
+    private Long replyCount;
 
 
     public void update(UpdatePostRequest request) {
