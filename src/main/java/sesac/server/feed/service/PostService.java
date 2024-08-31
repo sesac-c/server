@@ -3,6 +3,8 @@ package sesac.server.feed.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sesac.server.auth.exception.TokenErrorCode;
 import sesac.server.auth.exception.TokenException;
@@ -44,6 +46,7 @@ public class PostService {
                 .orElseThrow(() -> new BaseException(PostErrorCode.NO_POST));
 
         return new PostResponse(
+                post.getId(),
                 post.getUser().getStudent().getNickname(),
                 post.getTitle(),
                 post.getContent(),
@@ -52,8 +55,10 @@ public class PostService {
         );
     }
 
-    public void getPosts() {
+    public Page<PostResponse> getPosts(Pageable pageable) {
+        Page<PostResponse> posts = postRepository.searchPost(pageable);
 
+        return posts;
     }
 //
 //    public void updatePost(Long postId) {

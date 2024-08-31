@@ -32,8 +32,9 @@ class CourseServiceTest {
 
     @BeforeEach
     public void before() {
-        Campus campus1 = Campus.builder().name("영등포 캠퍼스").build();
-        Campus campus2 = Campus.builder().name("금천 캠퍼스").build();
+        Campus campus1 = Campus.builder().name("영등포 캠퍼스").address("영등포").build();
+        Campus campus2 = Campus.builder().name("금천 캠퍼스").address("금천").build();
+
         em.persist(campus1);
         em.persist(campus2);
         campus1Id = campus1.getId();
