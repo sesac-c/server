@@ -1,9 +1,9 @@
 package sesac.server.feed.service;
 
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sesac.server.auth.dto.CustomPrincipal;
@@ -58,8 +58,8 @@ public class PostService {
         );
     }
 
-    public Page<PostResponse> getPosts(Pageable pageable) {
-        Page<PostResponse> posts = postRepository.searchPost(pageable);
+    public List<PostResponse> getPosts(Pageable pageable) {
+        List<PostResponse> posts = postRepository.searchPost(pageable);
 
         return posts;
     }

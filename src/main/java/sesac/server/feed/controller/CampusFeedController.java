@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -53,8 +52,8 @@ public class CampusFeedController {
     }
 
     @GetMapping("posts")
-    public ResponseEntity<Page<PostResponse>> posts(Pageable pageable) {
-        Page<PostResponse> posts = postService.getPosts(pageable);
+    public ResponseEntity<List<PostResponse>> posts(Pageable pageable) {
+        List<PostResponse> posts = postService.getPosts(pageable);
 
         return ResponseEntity.ok(posts);
     }
