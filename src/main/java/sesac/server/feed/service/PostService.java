@@ -15,9 +15,14 @@ import sesac.server.feed.dto.PostListResponse;
 import sesac.server.feed.dto.PostResponse;
 import sesac.server.feed.dto.ReplyResponse;
 import sesac.server.feed.dto.UpdatePostRequest;
+import sesac.server.feed.entity.FeedType;
+import sesac.server.feed.entity.Hashtag;
 import sesac.server.feed.entity.Post;
+import sesac.server.feed.entity.PostHashtag;
 import sesac.server.feed.entity.PostType;
 import sesac.server.feed.exception.PostErrorCode;
+import sesac.server.feed.repository.HashtagRepository;
+import sesac.server.feed.repository.PostHashtagRepository;
 import sesac.server.feed.repository.PostRepository;
 import sesac.server.user.entity.User;
 import sesac.server.user.entity.UserRole;
@@ -31,6 +36,8 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final HashtagRepository hashtagRepository;
+    private final PostHashtagRepository postHashtagRepository;
 
     public void createPost(Long userId, CreatePostRequest request) {
         User user = userRepository.findById(userId)
@@ -44,6 +51,33 @@ public class PostService {
                 .build();
 
         postRepository.save(post);
+
+        List<Hashtag> hashtags = hashtagRepository.findByNameIn(request.hashtag());
+        List<Hashtag> newHashtags = request.hashtag()
+                .stream()
+                .filter(hashtag -> !hashtags.stream()
+                        .map(r -> r.getName())
+                        .toList()
+                        .contains(hashtag))
+                .map(hashtag -> Hashtag.builder()
+                        .name(hashtag)
+                        .build())
+                .toList();
+
+        hashtags.addAll(newHashtags);
+
+        hashtagRepository.saveAll(hashtags);
+
+        List<PostHashtag> postHashtags = hashtags.stream()
+                .map(hashtag -> PostHashtag.builder()
+                        .post(post)
+                        .hashtag(hashtag)
+                        .type(FeedType.POST)
+                        .build())
+                .toList();
+
+        postHashtagRepository.saveAll(postHashtags);
+
     }
 
     public PostResponse getPost(Long postId) {

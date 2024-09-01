@@ -2,6 +2,7 @@ package sesac.server.feed.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 
 public record CreatePostRequest(
         @NotBlank(message = "REQUIRED_TITLE")
@@ -12,7 +13,7 @@ public record CreatePostRequest(
         @Size(min = 1, max = 500, message = "INVALID_CONTENT_SIZE")
         String content,
 
-        String[] hashtag,
+        List<String> hashtag,
 
         String imageUrl
 ) {
