@@ -62,6 +62,8 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post")
     private List<PostHashtag> hashtags = new ArrayList<>();
 
+    @OneToMany(mappedBy = "post")
+    private List<Reply> replies = new ArrayList<>();
 
     public void update(UpdatePostRequest request) {
 

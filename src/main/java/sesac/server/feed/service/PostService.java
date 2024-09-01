@@ -13,6 +13,7 @@ import sesac.server.common.exception.BaseException;
 import sesac.server.feed.dto.CreatePostRequest;
 import sesac.server.feed.dto.PostListResponse;
 import sesac.server.feed.dto.PostResponse;
+import sesac.server.feed.dto.ReplyResponse;
 import sesac.server.feed.dto.UpdatePostRequest;
 import sesac.server.feed.entity.Post;
 import sesac.server.feed.entity.PostType;
@@ -49,16 +50,11 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BaseException(PostErrorCode.NO_POST));
 
-        return new PostResponse(
-                post.getId(),
-                post.getUser().getStudent().getNickname(),
-                post.getTitle(),
-                post.getContent(),
-                post.getCreatedAt(),
-                post.getImage(),
-                post.getLikesCount(),
-                post.getReplyCount()
-        );
+        List<ReplyResponse> replies = post.getReplies().stream()
+                .map(ReplyResponse::new)
+                .toList();
+
+        return new PostResponse(post, replies);
     }
 
     public List<PostListResponse> getPosts(Pageable pageable) {
