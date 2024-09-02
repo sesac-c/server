@@ -2,6 +2,7 @@ package sesac.server.feed.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
 
 public record CreatePostRequest(
@@ -18,4 +19,9 @@ public record CreatePostRequest(
         String imageUrl
 ) {
 
+    public CreatePostRequest {
+        if (hashtag == null) {
+            hashtag = new ArrayList<>();
+        }
+    }
 }
