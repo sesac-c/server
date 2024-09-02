@@ -1,6 +1,5 @@
 package sesac.server.account.service;
 
-import io.lettuce.core.RedisException;
 import jakarta.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -17,7 +16,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import sesac.server.account.dto.LoginRequest;
 import sesac.server.account.dto.LoginResponse;
-import sesac.server.account.dto.PasswordRecoveryResponse;
+import sesac.server.account.dto.PasswordResetResponse;
 import sesac.server.account.dto.SignupRequest;
 import sesac.server.account.exception.AccountErrorCode;
 import sesac.server.account.exception.AccountException;
@@ -25,6 +24,7 @@ import sesac.server.campus.entity.Course;
 import sesac.server.campus.repository.CourseRepository;
 import sesac.server.common.util.EmailUtil;
 import sesac.server.common.util.JwtUtil;
+import sesac.server.common.util.RedisUtil;
 import sesac.server.user.entity.Student;
 import sesac.server.user.entity.User;
 import sesac.server.user.entity.UserRole;
@@ -43,6 +43,7 @@ public class AccountService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final EmailUtil emailUtil;
+    private final RedisUtil<String> redisUtil;
     private final TokenBlacklistService tokenBlacklistService;
     private final StringRedisTemplate redisTemplate;
 
@@ -153,31 +154,31 @@ public class AccountService {
     }
 
     @Transactional
-    public PasswordRecoveryResponse checkEmailAndGenerateCode(String email) {
+    public PasswordResetResponse checkEmailAndGenerateCode(String email) throws Exception {
         boolean exists = userRepository.existsByEmail(email);
 
         if (!exists) {                                                      // 이메일 존재하지 않음
-            return PasswordRecoveryResponse.emailVerificationFailure();
+            return PasswordResetResponse.emailVerificationFailure();
         }
 
-        String code = createAuthenticationCode();
-        try {
-            saveCode(email, code);
-        } catch (RedisException e) {
-            return PasswordRecoveryResponse.codeSaveFailure();               // Redis Error
-        }
+        String code = createAuthenticationCode();                           // 인증번호 생성, 저장
+        redisUtil.setValue(getPasswordResetCodeKey(email), code, Duration.ofMinutes(3));
 
         sendCode(email, code);                                              // 이메일 전송(비동기)
 
-        return PasswordRecoveryResponse.emailVerificationSuccess(code);
+        return PasswordResetResponse.emailVerificationSuccess(code);
     }
 
     private String createAuthenticationCode() {
         return RandomStringUtils.random(10, true, true);  // 인증번호 생성
     }
 
-    private void saveCode(String email, String code) {
-        redisTemplate.opsForValue().set(email, code, Duration.ofMinutes(3)); // Redis 저장
+    private String getPasswordResetCodeKey(String email) {
+        return "password_reset_code_" + email;
+    }
+
+    private String getPasswordResetUrlKey(String email) {
+        return "password_reset_url_" + email;
     }
 
     private void sendCode(String email, String code) {
