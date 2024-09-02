@@ -1,21 +1,29 @@
 package sesac.server.account.service;
 
+import io.lettuce.core.RedisException;
 import jakarta.transaction.Transactional;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
 import sesac.server.account.dto.LoginRequest;
 import sesac.server.account.dto.LoginResponse;
+import sesac.server.account.dto.PasswordRecoveryResponse;
 import sesac.server.account.dto.SignupRequest;
 import sesac.server.account.exception.AccountErrorCode;
 import sesac.server.account.exception.AccountException;
 import sesac.server.campus.entity.Course;
 import sesac.server.campus.repository.CourseRepository;
+import sesac.server.common.util.EmailUtil;
 import sesac.server.common.util.JwtUtil;
 import sesac.server.user.entity.Student;
 import sesac.server.user.entity.User;
@@ -34,7 +42,9 @@ public class AccountService {
     private final CourseRepository courseRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final EmailUtil emailUtil;
     private final TokenBlacklistService tokenBlacklistService;
+    private final StringRedisTemplate redisTemplate;
 
     public void checkEmail(String email) {
         boolean exits = userRepository.existsByEmail(email);
@@ -140,5 +150,48 @@ public class AccountService {
 
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
+    }
+
+    @Transactional
+    public PasswordRecoveryResponse checkEmailAndGenerateCode(String email) {
+        boolean exists = userRepository.existsByEmail(email);
+
+        if (!exists) {                                                      // 이메일 존재하지 않음
+            return PasswordRecoveryResponse.emailVerificationFailure();
+        }
+
+        String code = createAuthenticationCode();
+        try {
+            saveCode(email, code);
+        } catch (RedisException e) {
+            return PasswordRecoveryResponse.codeSaveFailure();               // Redis Error
+        }
+
+        sendCode(email, code);                                              // 이메일 전송(비동기)
+
+        return PasswordRecoveryResponse.emailVerificationSuccess(code);
+    }
+
+    private String createAuthenticationCode() {
+        return RandomStringUtils.random(10, true, true);  // 인증번호 생성
+    }
+
+    private void saveCode(String email, String code) {
+        redisTemplate.opsForValue().set(email, code, Duration.ofMinutes(3)); // Redis 저장
+    }
+
+    private void sendCode(String email, String code) {
+        String subject = "[SeSACC] 인증번호를 안내해 드립니다.";
+        String templateName = "email/find-password_send-code";
+
+        LocalDateTime currentTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss");
+        String formattedCurrentTime = currentTime.format(formatter);
+
+        Context context = new Context();
+        context.setVariable("code", code);
+        context.setVariable("currentTime", formattedCurrentTime);
+
+        emailUtil.sendTemplateEmail(email, subject, templateName, context);
     }
 }

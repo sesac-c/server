@@ -15,6 +15,7 @@ import sesac.server.account.dto.EmailCheckRequest;
 import sesac.server.account.dto.LoginRequest;
 import sesac.server.account.dto.LoginResponse;
 import sesac.server.account.dto.LogoutRequest;
+import sesac.server.account.dto.PasswordRecoveryResponse;
 import sesac.server.account.dto.SignupRequest;
 import sesac.server.account.exception.AccountErrorCode;
 import sesac.server.account.service.AccountService;
@@ -83,5 +84,13 @@ public class AccountController {
         accountService.deleteUser(principal.id());
 
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("find-password")
+    public ResponseEntity<PasswordRecoveryResponse> checkEmailAndSendCode(
+            @Valid @RequestBody EmailCheckRequest request) {
+        PasswordRecoveryResponse response = accountService.checkEmailAndGenerateCode(
+                request.email());
+        return ResponseEntity.ok().body(response);
     }
 }
