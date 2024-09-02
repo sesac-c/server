@@ -11,6 +11,7 @@ import sesac.server.auth.exception.TokenErrorCode;
 import sesac.server.auth.exception.TokenException;
 import sesac.server.common.exception.BaseException;
 import sesac.server.feed.dto.CreatePostRequest;
+import sesac.server.feed.dto.PostListRequest;
 import sesac.server.feed.dto.PostListResponse;
 import sesac.server.feed.dto.PostResponse;
 import sesac.server.feed.dto.ReplyResponse;
@@ -39,7 +40,7 @@ public class PostService {
     private final HashtagRepository hashtagRepository;
     private final PostHashtagRepository postHashtagRepository;
 
-    public void createPost(Long userId, CreatePostRequest request) {
+    public Post createPost(Long userId, CreatePostRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new TokenException(TokenErrorCode.UNACCEPT));
 
@@ -78,9 +79,10 @@ public class PostService {
 
         postHashtagRepository.saveAll(postHashtags);
 
+        return post;
     }
 
-    public PostResponse getPost(Long postId) {
+    public PostResponse getPostDetail(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BaseException(PostErrorCode.NO_POST));
 
@@ -91,8 +93,12 @@ public class PostService {
         return new PostResponse(post, replies);
     }
 
-    public List<PostListResponse> getPosts(Pageable pageable) {
-        List<PostListResponse> posts = postRepository.searchPost(pageable);
+    public List<PostListResponse> getPostList(
+            Pageable pageable,
+            PostListRequest request,
+            PostType type
+    ) {
+        List<PostListResponse> posts = postRepository.searchPost(pageable, request, type);
 
         return posts;
     }
@@ -121,6 +127,7 @@ public class PostService {
     }
 
     private boolean hasPermission(CustomPrincipal principal, Long userId) {
-        return principal.role().equals(UserRole.MANAGER) || userId == principal.id();
+        return principal.role().equals(UserRole.MANAGER.toString()) ||
+                principal.id().equals(userId);
     }
 }
