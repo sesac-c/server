@@ -12,8 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
-import sesac.server.feed.dto.PostListRequest;
-import sesac.server.feed.dto.PostListResponse;
+import sesac.server.feed.dto.request.PostListRequest;
+import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.entity.Post;
 import sesac.server.feed.entity.PostType;
 
