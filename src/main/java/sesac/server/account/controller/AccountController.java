@@ -93,8 +93,7 @@ public class AccountController {
     @PostMapping("find-password")
     public ResponseEntity<PasswordResetResponse> checkEmailAndSendCode(
             @Valid @RequestBody EmailCheckRequest request) throws Exception {
-        PasswordResetResponse response = accountService.checkEmailAndGenerateCode(
-                request.email());
+        PasswordResetResponse response = accountService.checkEmailAndGenerateCode(request);
         return ResponseEntity.ok().body(response);
     }
 
@@ -102,7 +101,7 @@ public class AccountController {
     public ResponseEntity<PasswordResetResponse> validateCodeAndRedirectToResetPage(
             @RequestBody VerifyCodeRequest request) throws Exception {
         PasswordResetResponse response = accountService.validateCodeAndGeneratePasswordResetUrl(
-                request.email(), request.code());
+                request);
         return ResponseEntity.ok().body(response);
     }
 

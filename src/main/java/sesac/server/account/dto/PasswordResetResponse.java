@@ -35,15 +35,6 @@ public record PasswordResetResponse(
         );
     }
 
-    public static PasswordResetResponse codeSaveFailure() {
-        return new PasswordResetResponse(
-                false,
-                "인증 코드 저장에 실패했습니다.",
-                Map.of()
-        );
-    }
-
-
     public static PasswordResetResponse codeVerificationSuccess(String uuid) {
         PasswordResetResponse response = new PasswordResetResponse(
                 true,
@@ -74,22 +65,6 @@ public record PasswordResetResponse(
         return new PasswordResetResponse(
                 false,
                 "비밀번호 재설정 uuid가 유효하지 않습니다.",
-                Map.of()
-        );
-    }
-
-    public static PasswordResetResponse passwordResetSuccess() {
-        return new PasswordResetResponse(
-                true,
-                "비밀번호가 성공적으로 재설정되었습니다.",
-                Map.of()
-        );
-    }
-
-    public static PasswordResetResponse passwordResetFailure() {
-        return new PasswordResetResponse(
-                false,
-                "비밀번호 재설정에 실패했습니다. 다시 시도해주세요.",
                 Map.of()
         );
     }

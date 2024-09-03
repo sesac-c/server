@@ -11,15 +11,16 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
+import sesac.server.account.dto.EmailCheckRequest;
 import sesac.server.account.dto.LoginRequest;
 import sesac.server.account.dto.LoginResponse;
 import sesac.server.account.dto.PasswordResetResponse;
 import sesac.server.account.dto.ResetPasswordRequest;
 import sesac.server.account.dto.SignupRequest;
+import sesac.server.account.dto.VerifyCodeRequest;
 import sesac.server.account.exception.AccountErrorCode;
 import sesac.server.account.exception.AccountException;
 import sesac.server.campus.entity.Course;
@@ -47,7 +48,6 @@ public class AccountService {
     private final EmailUtil emailUtil;
     private final RedisUtil<String> redisUtil;
     private final TokenBlacklistService tokenBlacklistService;
-    private final StringRedisTemplate redisTemplate;
 
     public void checkEmail(String email) {
         boolean exits = userRepository.existsByEmail(email);
@@ -156,7 +156,9 @@ public class AccountService {
     }
 
     @Transactional
-    public PasswordResetResponse checkEmailAndGenerateCode(String email) throws Exception {
+    public PasswordResetResponse checkEmailAndGenerateCode(EmailCheckRequest request)
+            throws Exception {
+        String email = request.email();
         boolean exists = userRepository.existsByEmail(email);
 
         if (!exists) {                                                      // 이메일 존재하지 않음
@@ -172,10 +174,12 @@ public class AccountService {
     }
 
     @Transactional
-    public PasswordResetResponse validateCodeAndGeneratePasswordResetUrl(String email,
-            String code) throws Exception {
-
+    public PasswordResetResponse validateCodeAndGeneratePasswordResetUrl(VerifyCodeRequest request)
+            throws Exception {
+        String email = request.email();
+        String code = request.code();
         String redisEmailKey = getPasswordResetCodeKey(email);
+
         boolean isCodeVerified = redisUtil.isValueEqual(redisEmailKey, code);
         if (!isCodeVerified) {                                               // 인증번호가 불일치
             return PasswordResetResponse.codeVerificationFailure();
