@@ -12,17 +12,19 @@ import sesac.server.auth.exception.TokenException;
 import sesac.server.common.exception.BaseException;
 import sesac.server.feed.dto.request.CreatePostRequest;
 import sesac.server.feed.dto.request.PostListRequest;
+import sesac.server.feed.dto.request.UpdatePostRequest;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
 import sesac.server.feed.dto.response.ReplyResponse;
-import sesac.server.feed.dto.request.UpdatePostRequest;
 import sesac.server.feed.entity.FeedType;
 import sesac.server.feed.entity.Hashtag;
+import sesac.server.feed.entity.Likes;
 import sesac.server.feed.entity.Post;
 import sesac.server.feed.entity.PostHashtag;
 import sesac.server.feed.entity.PostType;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.feed.repository.HashtagRepository;
+import sesac.server.feed.repository.LikesRepository;
 import sesac.server.feed.repository.PostHashtagRepository;
 import sesac.server.feed.repository.PostRepository;
 import sesac.server.user.entity.User;
@@ -39,6 +41,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final HashtagRepository hashtagRepository;
     private final PostHashtagRepository postHashtagRepository;
+    private final LikesRepository likesRepository;
 
     public Post createPost(Long userId, CreatePostRequest request) {
         User user = userRepository.findById(userId)
@@ -126,8 +129,30 @@ public class PostService {
         postRepository.delete(post);
     }
 
+    @Transactional
+    public void likePost(CustomPrincipal principal, Long postId) {
+        boolean alreadyLiked = isLiked(principal.id(), postId, FeedType.POST);   // 좋아요 여부 검사
+        if (alreadyLiked) {
+            throw new BaseException(PostErrorCode.ALREADY_LIKED);
+        }
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BaseException(PostErrorCode.NO_POST));
+
+        Likes like = Likes.builder()
+                .user(userRepository.getReferenceById(principal.id()))
+                .post(post)
+                .type(FeedType.POST)
+                .build();
+        likesRepository.save(like);
+    }
+
     private boolean hasPermission(CustomPrincipal principal, Long userId) {
         return principal.role().equals(UserRole.MANAGER.toString()) ||
                 principal.id().equals(userId);
+    }
+
+    private boolean isLiked(Long userId, Long postId, FeedType feedType) {
+        return likesRepository.existsByUserIdAndPostIdAndType(userId, postId, feedType);
     }
 }
