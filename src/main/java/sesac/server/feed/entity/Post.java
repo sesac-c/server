@@ -21,7 +21,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Formula;
 import sesac.server.common.entity.BaseEntity;
-import sesac.server.feed.dto.UpdatePostRequest;
+import sesac.server.feed.dto.request.UpdatePostRequest;
 import sesac.server.user.entity.User;
 
 @Entity

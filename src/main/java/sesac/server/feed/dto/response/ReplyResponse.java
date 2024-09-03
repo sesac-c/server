@@ -1,4 +1,4 @@
-package sesac.server.feed.dto;
+package sesac.server.feed.dto.response;
 
 import java.time.LocalDateTime;
 import sesac.server.feed.entity.Reply;
