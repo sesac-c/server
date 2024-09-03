@@ -7,15 +7,23 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import sesac.server.account.dto.PasswordResetResponse;
+import sesac.server.account.dto.ResetPasswordRequest;
+import sesac.server.account.dto.VerifyCodeRequest;
+
 import sesac.server.account.dto.request.EmailCheckRequest;
 import sesac.server.account.dto.request.LoginRequest;
 import sesac.server.account.dto.response.LoginResponse;
 import sesac.server.account.dto.request.LogoutRequest;
 import sesac.server.account.dto.request.SignupRequest;
+
 import sesac.server.account.exception.AccountErrorCode;
 import sesac.server.account.service.AccountService;
 import sesac.server.auth.dto.AuthPrincipal;
@@ -82,6 +90,45 @@ public class AccountController {
     public ResponseEntity<Void> deleteUser(@AuthPrincipal CustomPrincipal principal) {
         accountService.deleteUser(principal.id());
 
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("find-password")
+    public ResponseEntity<PasswordResetResponse> checkEmailAndSendCode(
+            @Valid @RequestBody EmailCheckRequest request) throws Exception {
+        PasswordResetResponse response = accountService.checkEmailAndGenerateCode(request);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("find-password/verify-code")
+    public ResponseEntity<PasswordResetResponse> validateCodeAndRedirectToResetPage(
+            @RequestBody VerifyCodeRequest request) throws Exception {
+        PasswordResetResponse response = accountService.validateCodeAndGeneratePasswordResetUrl(
+                request);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("find-password/verify/{uuid}")
+    public ResponseEntity<PasswordResetResponse> validateResetPageUuid(
+            @PathVariable String uuid) {
+        PasswordResetResponse response = accountService.validateResetPageUuid(uuid);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PatchMapping("reset-password")
+    public ResponseEntity<Void> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request,
+            BindingResult bindingResult) throws Exception {
+
+        bindingResultHandler.handleBindingResult(bindingResult, List.of(
+                AccountErrorCode.REQUIRED_UUID,
+                AccountErrorCode.REQUIRED_PASSWORD,
+                AccountErrorCode.INVALID_PASSWORD_PATTERN,
+                AccountErrorCode.REQUIRED_PASSWORD_CONFIRM,
+                AccountErrorCode.DIFFERENT_PASSWORD_CONFIRM
+        ));
+
+        accountService.updatePassword(request);
         return ResponseEntity.ok().build();
     }
 }

@@ -1,22 +1,36 @@
 package sesac.server.account.service;
 
 import jakarta.transaction.Transactional;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import org.thymeleaf.context.Context;
+import sesac.server.account.dto.EmailCheckRequest;
+import sesac.server.account.dto.PasswordResetResponse;
+import sesac.server.account.dto.ResetPasswordRequest;
+import sesac.server.account.dto.VerifyCodeRequest;
+
 import sesac.server.account.dto.request.LoginRequest;
 import sesac.server.account.dto.response.LoginResponse;
 import sesac.server.account.dto.request.SignupRequest;
+
 import sesac.server.account.exception.AccountErrorCode;
 import sesac.server.account.exception.AccountException;
 import sesac.server.campus.entity.Course;
 import sesac.server.campus.repository.CourseRepository;
+import sesac.server.common.util.EmailUtil;
 import sesac.server.common.util.JwtUtil;
+import sesac.server.common.util.RedisUtil;
 import sesac.server.user.entity.Student;
 import sesac.server.user.entity.User;
 import sesac.server.user.entity.UserRole;
@@ -34,6 +48,8 @@ public class AccountService {
     private final CourseRepository courseRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final EmailUtil emailUtil;
+    private final RedisUtil<String> redisUtil;
     private final TokenBlacklistService tokenBlacklistService;
 
     public void checkEmail(String email) {
@@ -140,5 +156,107 @@ public class AccountService {
 
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
+    }
+
+    @Transactional
+    public PasswordResetResponse checkEmailAndGenerateCode(EmailCheckRequest request)
+            throws Exception {
+        String email = request.email();
+        boolean exists = userRepository.existsByEmail(email);
+
+        if (!exists) {                                                      // 이메일 존재하지 않음
+            return PasswordResetResponse.emailVerificationFailure();
+        }
+
+        String code = createAuthenticationCode();                           // 인증번호 생성, 저장
+        redisUtil.setValue(getPasswordResetCodeKey(email), code, Duration.ofMinutes(3));
+
+        sendCode(email, code);                                              // 이메일 전송(비동기)
+
+        return PasswordResetResponse.emailVerificationSuccess(code);
+    }
+
+    @Transactional
+    public PasswordResetResponse validateCodeAndGeneratePasswordResetUrl(VerifyCodeRequest request)
+            throws Exception {
+        String email = request.email();
+        String code = request.code();
+        String redisEmailKey = getPasswordResetCodeKey(email);
+
+        boolean isCodeVerified = redisUtil.isValueEqual(redisEmailKey, code);
+        if (!isCodeVerified) {                                               // 인증번호가 불일치
+            return PasswordResetResponse.codeVerificationFailure();
+        }
+
+        redisUtil.deleteValue(redisEmailKey);                                // 인증 코드 삭제
+
+        String uuid = UUID.randomUUID().toString();                         // url의 uuid 생성, 저장
+        redisUtil.setValue(getPasswordResetUuidKey(uuid), email);
+
+        return PasswordResetResponse.codeVerificationSuccess(uuid);
+    }
+
+    public PasswordResetResponse validateResetPageUuid(String uuid) {
+
+        String redisUuidKey = getPasswordResetUuidKey(uuid);
+
+        try {
+            redisUtil.getValue(redisUuidKey);
+        } catch (Exception e) {                                               // 없는 uuid
+            return PasswordResetResponse.uuidVerificationFailure();
+        }
+
+        return PasswordResetResponse.uuidVerificationSuccess();
+    }
+
+    @Transactional
+    public void updatePassword(ResetPasswordRequest request) throws Exception {
+
+        String redisUuidKey = getPasswordResetUuidKey(request.uuid());
+        String email;
+        try {
+            email = redisUtil.getValue(redisUuidKey);                   // 없는 uuid는 throw
+        } catch (Exception e) {
+            throw e;
+        }
+
+        User user = userRepository.findByEmail(email)                   // value인 email로 user get
+                .orElseThrow(() -> new AccountException(AccountErrorCode.EMAIL_NOT_FOUND));
+
+        if (passwordEncoder.matches(request.password(), user.getPassword())) {
+            // 이전 비밀번호와 같은지 확인
+            throw new AccountException(AccountErrorCode.PASSWORD_SAME_AS_PREVIOUS);
+        }
+        user.updatePassword(passwordEncoder.encode(request.password()));// 비밀번호 업데이트
+
+        redisUtil.deleteValue(redisUuidKey);                            // 재설정 페이지 삭제
+    }
+
+
+    private String createAuthenticationCode() {
+        return RandomStringUtils.random(10, true, true);  // 인증번호 생성
+    }
+
+    private String getPasswordResetCodeKey(String email) {
+        return "password_reset_code_" + email;
+    }
+
+    private String getPasswordResetUuidKey(String uuid) {
+        return "password_reset_uuid_" + uuid;
+    }
+
+    private void sendCode(String email, String code) {
+        String subject = "[SeSACC] 인증번호를 안내해 드립니다.";
+        String templateName = "email/find-password_send-code";
+
+        LocalDateTime currentTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss");
+        String formattedCurrentTime = currentTime.format(formatter);
+
+        Context context = new Context();
+        context.setVariable("code", code);
+        context.setVariable("currentTime", formattedCurrentTime);
+
+        emailUtil.sendTemplateEmail(email, subject, templateName, context);
     }
 }

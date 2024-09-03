@@ -37,4 +37,8 @@ public class User extends BaseEntity {
 
     @OneToOne(mappedBy = "user")
     private Student student;
+    
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+    }
 }

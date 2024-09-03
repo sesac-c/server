@@ -41,7 +41,10 @@ public enum AccountErrorCode implements ErrorCode {
     //    APPROVED_ACCOUNT(HttpStatus.BAD_REQUEST, "", ""),
     HOLD_ACCOUNT(HttpStatus.UNAUTHORIZED, "HOLD_ACCOUNT", "승인 보류된 회원입니다."),
     REJECTED_ACCOUNT(HttpStatus.UNAUTHORIZED, "REJECTED_ACCOUNT", "승인 거절된 회원입니다."),
-    ;
+    EMAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "EMAIL_NOT_FOUND", "해당 이메일로 등록된 계정을 찾을 수 없습니다."),
+    REQUIRED_UUID(HttpStatus.BAD_REQUEST, "REQUIRED_UUID", "UUID가 필요합니다."),
+    PASSWORD_SAME_AS_PREVIOUS(HttpStatus.BAD_REQUEST, "PASSWORD_SAME_AS_PREVIOUS",
+            "새 비밀번호가 이전 비밀번호와 동일합니다.");
 
 
     private final HttpStatus status;
