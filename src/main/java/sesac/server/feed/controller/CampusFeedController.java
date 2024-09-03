@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -18,10 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.exception.BindingResultHandler;
-import sesac.server.feed.dto.CreatePostRequest;
-import sesac.server.feed.dto.PostListResponse;
-import sesac.server.feed.dto.PostResponse;
-import sesac.server.feed.dto.UpdatePostRequest;
+import sesac.server.feed.dto.request.CreatePostRequest;
+import sesac.server.feed.dto.request.PostListRequest;
+import sesac.server.feed.dto.response.PostListResponse;
+import sesac.server.feed.dto.response.PostResponse;
+import sesac.server.feed.dto.request.UpdatePostRequest;
+import sesac.server.feed.entity.PostType;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.feed.service.PostService;
 
@@ -53,22 +56,25 @@ public class CampusFeedController {
     }
 
     @GetMapping("posts")
-    public ResponseEntity<List<PostListResponse>> posts(Pageable pageable) {
-        List<PostListResponse> posts = postService.getPosts(pageable);
+    public ResponseEntity<List<PostListResponse>> getPostList(
+            Pageable pageable,
+            @ModelAttribute PostListRequest request
+    ) {
+        List<PostListResponse> posts = postService.getPostList(pageable, request, PostType.CAMPUS);
 
         return ResponseEntity.ok(posts);
     }
 
     @GetMapping("posts/{postId}")
-    public ResponseEntity<PostResponse> post(@PathVariable Long postId) {
-        PostResponse response = postService.getPost(postId);
+    public ResponseEntity<PostResponse> getPostDetail(@PathVariable Long postId) {
+        PostResponse response = postService.getPostDetail(postId);
 
         return ResponseEntity.ok().body(response);
     }
 
 
     @PutMapping("posts/{postId}")
-    public void updatePost(
+    public ResponseEntity<Void> updatePost(
             @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId,
             @Valid @RequestBody UpdatePostRequest updatePostRequest,
@@ -80,10 +86,15 @@ public class CampusFeedController {
         ));
 
         postService.updatePost(principal, postId, updatePostRequest);
+
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("posts/{postId}")
-    public void deletePost(@AuthPrincipal CustomPrincipal principal, @PathVariable Long postId) {
+    public ResponseEntity<Void> deletePost(@AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long postId) {
         postService.deletePost(principal, postId);
+
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,4 +1,4 @@
-package sesac.server.account.dto;
+package sesac.server.account.dto.response;
 
 import sesac.server.user.entity.UserRole;
 

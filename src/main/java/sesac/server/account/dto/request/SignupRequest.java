@@ -1,4 +1,4 @@
-package sesac.server.account.dto;
+package sesac.server.account.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
