@@ -7,6 +7,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +18,7 @@ import sesac.server.account.dto.LoginRequest;
 import sesac.server.account.dto.LoginResponse;
 import sesac.server.account.dto.LogoutRequest;
 import sesac.server.account.dto.PasswordResetResponse;
+import sesac.server.account.dto.ResetPasswordRequest;
 import sesac.server.account.dto.SignupRequest;
 import sesac.server.account.dto.VerifyCodeRequest;
 import sesac.server.account.exception.AccountErrorCode;
@@ -106,8 +108,25 @@ public class AccountController {
 
     @PostMapping("find-password/verify/{uuid}")
     public ResponseEntity<PasswordResetResponse> validateResetPageUuid(
-            @PathVariable String uuid) throws Exception {
+            @PathVariable String uuid) {
         PasswordResetResponse response = accountService.validateResetPageUuid(uuid);
         return ResponseEntity.ok().body(response);
+    }
+
+    @PatchMapping("reset-password")
+    public ResponseEntity<Void> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request,
+            BindingResult bindingResult) throws Exception {
+
+        bindingResultHandler.handleBindingResult(bindingResult, List.of(
+                AccountErrorCode.REQUIRED_UUID,
+                AccountErrorCode.REQUIRED_PASSWORD,
+                AccountErrorCode.INVALID_PASSWORD_PATTERN,
+                AccountErrorCode.REQUIRED_PASSWORD_CONFIRM,
+                AccountErrorCode.DIFFERENT_PASSWORD_CONFIRM
+        ));
+
+        accountService.updatePassword(request);
+        return ResponseEntity.ok().build();
     }
 }

@@ -18,6 +18,7 @@ import org.thymeleaf.context.Context;
 import sesac.server.account.dto.LoginRequest;
 import sesac.server.account.dto.LoginResponse;
 import sesac.server.account.dto.PasswordResetResponse;
+import sesac.server.account.dto.ResetPasswordRequest;
 import sesac.server.account.dto.SignupRequest;
 import sesac.server.account.exception.AccountErrorCode;
 import sesac.server.account.exception.AccountException;
@@ -188,17 +189,40 @@ public class AccountService {
         return PasswordResetResponse.codeVerificationSuccess(uuid);
     }
 
-    public PasswordResetResponse validateResetPageUuid(String uuid) throws Exception {
+    public PasswordResetResponse validateResetPageUuid(String uuid) {
 
         String redisUuidKey = getPasswordResetUuidKey(uuid);
 
         try {
-            String email = redisUtil.getValue(redisUuidKey);
+            redisUtil.getValue(redisUuidKey);
         } catch (Exception e) {                                               // 없는 uuid
             return PasswordResetResponse.uuidVerificationFailure();
         }
 
         return PasswordResetResponse.uuidVerificationSuccess();
+    }
+
+    @Transactional
+    public void updatePassword(ResetPasswordRequest request) throws Exception {
+
+        String redisUuidKey = getPasswordResetUuidKey(request.uuid());
+        String email;
+        try {
+            email = redisUtil.getValue(redisUuidKey);                   // 없는 uuid는 throw
+        } catch (Exception e) {
+            throw e;
+        }
+
+        User user = userRepository.findByEmail(email)                   // value인 email로 user get
+                .orElseThrow(() -> new AccountException(AccountErrorCode.EMAIL_NOT_FOUND));
+
+        if (passwordEncoder.matches(request.password(), user.getPassword())) {
+            // 이전 비밀번호와 같은지 확인
+            throw new AccountException(AccountErrorCode.PASSWORD_SAME_AS_PREVIOUS);
+        }
+        user.updatePassword(passwordEncoder.encode(request.password()));// 비밀번호 업데이트
+
+        redisUtil.deleteValue(redisUuidKey);                            // 재설정 페이지 삭제
     }
 
 
