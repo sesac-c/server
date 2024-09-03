@@ -44,12 +44,14 @@ public record PasswordResetResponse(
     }
 
 
-    public static PasswordResetResponse codeVerificationSuccess() {
-        return new PasswordResetResponse(
+    public static PasswordResetResponse codeVerificationSuccess(String uuid) {
+        PasswordResetResponse response = new PasswordResetResponse(
                 true,
                 "인증 코드가 확인되었습니다. 새 비밀번호를 설정해주세요.",
                 Map.of()
         );
+        response.addData("uuid", uuid);
+        return response;
     }
 
     public static PasswordResetResponse codeVerificationFailure() {

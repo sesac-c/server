@@ -17,6 +17,7 @@ import sesac.server.account.dto.LoginResponse;
 import sesac.server.account.dto.LogoutRequest;
 import sesac.server.account.dto.PasswordResetResponse;
 import sesac.server.account.dto.SignupRequest;
+import sesac.server.account.dto.VerifyCodeRequest;
 import sesac.server.account.exception.AccountErrorCode;
 import sesac.server.account.service.AccountService;
 import sesac.server.auth.dto.AuthPrincipal;
@@ -91,6 +92,14 @@ public class AccountController {
             @Valid @RequestBody EmailCheckRequest request) throws Exception {
         PasswordResetResponse response = accountService.checkEmailAndGenerateCode(
                 request.email());
+        return ResponseEntity.ok().body(response);
+    }
+    
+    @PostMapping("find-password/verify/code")
+    public ResponseEntity<PasswordResetResponse> validateCodeAndRedirectToResetPage(
+            @RequestBody VerifyCodeRequest request) throws Exception {
+        PasswordResetResponse response = accountService.validateCodeAndGeneratePasswordResetUrl(
+                request.email(), request.code());
         return ResponseEntity.ok().body(response);
     }
 }

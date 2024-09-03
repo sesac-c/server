@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -169,6 +170,24 @@ public class AccountService {
         return PasswordResetResponse.emailVerificationSuccess(code);
     }
 
+    @Transactional
+    public PasswordResetResponse validateCodeAndGeneratePasswordResetUrl(String email,
+            String code) throws Exception {
+
+        String redisEmailKey = getPasswordResetCodeKey(email);
+        boolean isCodeVerified = redisUtil.isValueEqual(redisEmailKey, code);
+        if (!isCodeVerified) {                                               // 인증번호가 불일치
+            return PasswordResetResponse.codeVerificationFailure();
+        }
+
+        redisUtil.deleteValue(redisEmailKey);                                // 인증 코드 삭제
+
+        String uuid = UUID.randomUUID().toString();                         // url의 uuid 생성, 저장
+        redisUtil.setValue(getPasswordResetUuidKey(uuid), email);
+
+        return PasswordResetResponse.codeVerificationSuccess(uuid);
+    }
+
     private String createAuthenticationCode() {
         return RandomStringUtils.random(10, true, true);  // 인증번호 생성
     }
@@ -177,8 +196,8 @@ public class AccountService {
         return "password_reset_code_" + email;
     }
 
-    private String getPasswordResetUrlKey(String email) {
-        return "password_reset_url_" + email;
+    private String getPasswordResetUuidKey(String uuid) {
+        return "password_reset_uuid_" + uuid;
     }
 
     private void sendCode(String email, String code) {
