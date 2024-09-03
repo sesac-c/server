@@ -13,17 +13,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import sesac.server.account.dto.PasswordResetResponse;
-import sesac.server.account.dto.ResetPasswordRequest;
-import sesac.server.account.dto.VerifyCodeRequest;
-
 import sesac.server.account.dto.request.EmailCheckRequest;
 import sesac.server.account.dto.request.LoginRequest;
-import sesac.server.account.dto.response.LoginResponse;
 import sesac.server.account.dto.request.LogoutRequest;
+import sesac.server.account.dto.request.ResetPasswordRequest;
 import sesac.server.account.dto.request.SignupRequest;
-
+import sesac.server.account.dto.request.VerifyCodeRequest;
+import sesac.server.account.dto.response.LoginResponse;
+import sesac.server.account.dto.response.PasswordResetResponse;
 import sesac.server.account.exception.AccountErrorCode;
 import sesac.server.account.service.AccountService;
 import sesac.server.auth.dto.AuthPrincipal;
