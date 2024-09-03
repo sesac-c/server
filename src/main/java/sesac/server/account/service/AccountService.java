@@ -188,6 +188,20 @@ public class AccountService {
         return PasswordResetResponse.codeVerificationSuccess(uuid);
     }
 
+    public PasswordResetResponse validateResetPageUuid(String uuid) throws Exception {
+
+        String redisUuidKey = getPasswordResetUuidKey(uuid);
+
+        try {
+            String email = redisUtil.getValue(redisUuidKey);
+        } catch (Exception e) {                                               // 없는 uuid
+            return PasswordResetResponse.uuidVerificationFailure();
+        }
+
+        return PasswordResetResponse.uuidVerificationSuccess();
+    }
+
+
     private String createAuthenticationCode() {
         return RandomStringUtils.random(10, true, true);  // 인증번호 생성
     }

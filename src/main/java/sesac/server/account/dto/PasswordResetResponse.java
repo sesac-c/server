@@ -62,6 +62,22 @@ public record PasswordResetResponse(
         );
     }
 
+    public static PasswordResetResponse uuidVerificationSuccess() {
+        return new PasswordResetResponse(
+                true,
+                "비밀번호 재설정 페이지 uuid 유효성이 확인되었습니다.",
+                Map.of()
+        );
+    }
+
+    public static PasswordResetResponse uuidVerificationFailure() {
+        return new PasswordResetResponse(
+                false,
+                "비밀번호 재설정 uuid가 유효하지 않습니다.",
+                Map.of()
+        );
+    }
+
     public static PasswordResetResponse passwordResetSuccess() {
         return new PasswordResetResponse(
                 true,
