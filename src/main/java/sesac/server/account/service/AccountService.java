@@ -13,17 +13,14 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import org.thymeleaf.context.Context;
-import sesac.server.account.dto.EmailCheckRequest;
 import sesac.server.account.dto.PasswordResetResponse;
 import sesac.server.account.dto.ResetPasswordRequest;
 import sesac.server.account.dto.VerifyCodeRequest;
-
+import sesac.server.account.dto.request.EmailCheckRequest;
 import sesac.server.account.dto.request.LoginRequest;
-import sesac.server.account.dto.response.LoginResponse;
 import sesac.server.account.dto.request.SignupRequest;
-
+import sesac.server.account.dto.response.LoginResponse;
 import sesac.server.account.exception.AccountErrorCode;
 import sesac.server.account.exception.AccountException;
 import sesac.server.campus.entity.Course;
