@@ -27,8 +27,12 @@ public class PostHashtag {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
+    @JoinColumn(name = "post_id", nullable = true)
     private Post post;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "notice_id", nullable = true)
+    private Notice notice;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
