@@ -7,6 +7,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,7 @@ import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.feed.dto.request.ReplyRequest;
+import sesac.server.feed.dto.response.ReplyResponse;
 import sesac.server.feed.entity.ArticleType;
 import sesac.server.feed.exception.ReplyErrorCode;
 import sesac.server.feed.service.LikesService;
@@ -65,6 +67,12 @@ public class FeedNoticeController {
         likesService.cancelLikeFeed(principal, noticeId, ArticleType.NOTICE);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("notices/{noticeId}/replies")
+    public ResponseEntity<List<ReplyResponse>> getReplyList(@PathVariable Long noticeId) {
+        List<ReplyResponse> response = replyService.getReplyList(noticeId);
+        return ResponseEntity.ok().body(response);
     }
 
     @PostMapping("notices/{noticeId}/replies")

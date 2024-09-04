@@ -1,12 +1,15 @@
 package sesac.server.feed.service;
 
 import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.exception.BaseException;
 import sesac.server.feed.dto.request.ReplyRequest;
+import sesac.server.feed.dto.response.ReplyResponse;
 import sesac.server.feed.entity.ArticleType;
 import sesac.server.feed.entity.Notice;
 import sesac.server.feed.entity.Post;
@@ -29,6 +32,13 @@ public class ReplyService {
     private final UserRepository userRepository;
     private final ReplyRepository replyRepository;
     private final NoticeRepository noticeRepository;
+
+    public List<ReplyResponse> getReplyList(Long postId) {
+        List<Reply> replies = replyRepository.findByPostId(postId);
+        return replies.stream()
+                .map(ReplyResponse::new)
+                .collect(Collectors.toList());
+    }
 
     public void createReply(CustomPrincipal principal, Long articleId, ReplyRequest request,
             ArticleType articleType) {
