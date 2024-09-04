@@ -155,7 +155,6 @@ public class AccountService {
         userRepository.deleteById(userId);
     }
 
-    @Transactional
     public PasswordResetResponse checkEmailAndGenerateCode(EmailCheckRequest request)
             throws Exception {
         String email = request.email();
@@ -173,7 +172,6 @@ public class AccountService {
         return PasswordResetResponse.emailVerificationSuccess(code);
     }
 
-    @Transactional
     public PasswordResetResponse validateCodeAndGeneratePasswordResetUrl(VerifyCodeRequest request)
             throws Exception {
         String email = request.email();
@@ -206,7 +204,6 @@ public class AccountService {
         return PasswordResetResponse.uuidVerificationSuccess();
     }
 
-    @Transactional
     public void updatePassword(ResetPasswordRequest request) throws Exception {
 
         String redisUuidKey = getPasswordResetUuidKey(request.uuid());
