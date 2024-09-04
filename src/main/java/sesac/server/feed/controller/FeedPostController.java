@@ -126,7 +126,7 @@ public class FeedPostController {
 
     @GetMapping("posts/{postId}/replies")
     public ResponseEntity<List<ReplyResponse>> getReplyList(@PathVariable Long postId) {
-        List<ReplyResponse> response = replyService.getReplyList(postId);
+        List<ReplyResponse> response = replyService.getReplyList(postId, ArticleType.POST);
         return ResponseEntity.ok().body(response);
     }
 

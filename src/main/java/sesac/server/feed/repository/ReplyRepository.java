@@ -7,4 +7,6 @@ import sesac.server.feed.entity.Reply;
 public interface ReplyRepository extends JpaRepository<Reply, Long> {
 
     List<Reply> findByPostId(Long postId);
+
+    List<Reply> findByNoticeId(Long noticeId);
 }

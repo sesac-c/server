@@ -71,7 +71,7 @@ public class FeedNoticeController {
 
     @GetMapping("notices/{noticeId}/replies")
     public ResponseEntity<List<ReplyResponse>> getReplyList(@PathVariable Long noticeId) {
-        List<ReplyResponse> response = replyService.getReplyList(noticeId);
+        List<ReplyResponse> response = replyService.getReplyList(noticeId, ArticleType.NOTICE);
         return ResponseEntity.ok().body(response);
     }
 

@@ -33,8 +33,12 @@ public class ReplyService {
     private final ReplyRepository replyRepository;
     private final NoticeRepository noticeRepository;
 
-    public List<ReplyResponse> getReplyList(Long postId) {
-        List<Reply> replies = replyRepository.findByPostId(postId);
+    public List<ReplyResponse> getReplyList(Long articleId, ArticleType articleType) {
+        List<Reply> replies = switch (articleType) {
+            case POST -> replyRepository.findByPostId(articleId);
+            case NOTICE -> replyRepository.findByNoticeId(articleId);
+            default -> throw new IllegalArgumentException("없는 글 타입입니다.");
+        };
         return replies.stream()
                 .map(ReplyResponse::new)
                 .collect(Collectors.toList());
