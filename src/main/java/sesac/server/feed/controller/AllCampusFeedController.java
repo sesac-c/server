@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
-import sesac.server.feed.entity.FeedType;
+import sesac.server.feed.entity.ArticleType;
 import sesac.server.feed.service.PostService;
 
 @Log4j2
@@ -24,7 +24,7 @@ public class AllCampusFeedController {
     @PostMapping("posts/{postId}/like")
     public ResponseEntity<Void> likePost(@AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId) {
-        postService.likeFeed(principal, postId, FeedType.POST);
+        postService.likeFeed(principal, postId, ArticleType.POST);
 
         return ResponseEntity.noContent().build();
     }
@@ -32,7 +32,7 @@ public class AllCampusFeedController {
     @DeleteMapping("posts/{postId}/like")
     public ResponseEntity<Void> cancelPostLike(@AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId) {
-        postService.cancelLikeFeed(principal, postId, FeedType.POST);
+        postService.cancelLikeFeed(principal, postId, ArticleType.POST);
 
         return ResponseEntity.noContent().build();
     }
@@ -40,7 +40,7 @@ public class AllCampusFeedController {
     @PostMapping("notices/{noticeId}/like")
     public ResponseEntity<Void> likeNotice(@AuthPrincipal CustomPrincipal principal,
             @PathVariable Long noticeId) {
-        postService.likeFeed(principal, noticeId, FeedType.NOTICE);
+        postService.likeFeed(principal, noticeId, ArticleType.NOTICE);
 
         return ResponseEntity.noContent().build();
     }
@@ -48,7 +48,7 @@ public class AllCampusFeedController {
     @DeleteMapping("notices/{noticeId}/like")
     public ResponseEntity<Void> cancelNoticeLike(@AuthPrincipal CustomPrincipal principal,
             @PathVariable Long noticeId) {
-        postService.cancelLikeFeed(principal, noticeId, FeedType.NOTICE);
+        postService.cancelLikeFeed(principal, noticeId, ArticleType.NOTICE);
 
         return ResponseEntity.noContent().build();
     }

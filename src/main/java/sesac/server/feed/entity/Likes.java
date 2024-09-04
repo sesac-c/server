@@ -48,7 +48,7 @@ public class Likes {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private FeedType type;
+    private ArticleType type;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)

@@ -43,7 +43,7 @@ public class PostHashtag {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private FeedType type;
+    private ArticleType type;
 
     @PrePersist
     @PreUpdate

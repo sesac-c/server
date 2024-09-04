@@ -15,7 +15,7 @@ import sesac.server.feed.dto.request.NoticeListRequest;
 import sesac.server.feed.dto.request.UpdateNoticeRequest;
 import sesac.server.feed.dto.response.NoticeListResponse;
 import sesac.server.feed.dto.response.NoticeResponse;
-import sesac.server.feed.entity.FeedType;
+import sesac.server.feed.entity.ArticleType;
 import sesac.server.feed.entity.Hashtag;
 import sesac.server.feed.entity.Notice;
 import sesac.server.feed.entity.NoticeType;
@@ -74,7 +74,7 @@ public class ManagerNoticeService {
                 .map(hashtag -> PostHashtag.builder()
                         .notice(notice)
                         .hashtag(hashtag)
-                        .type(FeedType.NOTICE)
+                        .type(ArticleType.NOTICE)
                         .build())
                 .toList();
 

@@ -47,7 +47,7 @@ public class Reply extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private FeedType type;
+    private ArticleType type;
 
     @PrePersist
     @PreUpdate

@@ -12,7 +12,7 @@ import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
 import sesac.server.feed.dto.response.ReplyResponse;
 import sesac.server.feed.entity.Post;
-import sesac.server.feed.entity.PostType;
+import sesac.server.feed.entity.FeedType;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.feed.repository.PostRepository;
 
@@ -24,7 +24,7 @@ public class ManagerPostService {
     private final PostRepository postRepository;
 
     public Page<PostListResponse> getPostList(Pageable pageable, PostListRequest request,
-            PostType type) {
+            FeedType type) {
         return postRepository.searchPostPage(pageable, request, type);
     }
 

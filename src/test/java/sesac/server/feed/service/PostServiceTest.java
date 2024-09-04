@@ -27,7 +27,7 @@ import sesac.server.feed.dto.request.UpdatePostRequest;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
 import sesac.server.feed.entity.Post;
-import sesac.server.feed.entity.PostType;
+import sesac.server.feed.entity.FeedType;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.user.entity.Student;
 import sesac.server.user.entity.User;
@@ -124,7 +124,7 @@ class PostServiceTest {
         assertThat(post.getTitle()).isEqualTo("제목");
         assertThat(post.getContent()).isEqualTo("내용");
         assertThat(post.getHashtags()).hasSize(2);
-        assertThat(post.getType()).isEqualTo(PostType.CAMPUS);
+        assertThat(post.getType()).isEqualTo(FeedType.CAMPUS);
     }
 
     @Test
@@ -160,7 +160,7 @@ class PostServiceTest {
             Post post = Post.builder()
                     .title("제목_" + i)
                     .content("내용_" + i)
-                    .type(PostType.CAMPUS)
+                    .type(FeedType.CAMPUS)
                     .user(student.getUser())
                     .build();
 
@@ -193,7 +193,7 @@ class PostServiceTest {
         Post created = Post.builder()
                 .title("제목")
                 .content("내용")
-                .type(PostType.CAMPUS)
+                .type(FeedType.CAMPUS)
                 .user(student1.getUser())
                 .build();
 
@@ -217,7 +217,7 @@ class PostServiceTest {
         Post created = Post.builder()
                 .title("제목")
                 .content("내용")
-                .type(PostType.CAMPUS)
+                .type(FeedType.CAMPUS)
                 .user(student1.getUser())
                 .build();
 
@@ -244,7 +244,7 @@ class PostServiceTest {
         Post created = Post.builder()
                 .title("제목")
                 .content("내용")
-                .type(PostType.CAMPUS)
+                .type(FeedType.CAMPUS)
                 .user(student2.getUser())
                 .build();
 
@@ -270,7 +270,7 @@ class PostServiceTest {
         Post created = Post.builder()
                 .title("제목")
                 .content("내용")
-                .type(PostType.CAMPUS)
+                .type(FeedType.CAMPUS)
                 .user(student1.getUser())
                 .build();
 
@@ -296,7 +296,7 @@ class PostServiceTest {
         Post created = Post.builder()
                 .title("제목")
                 .content("내용")
-                .type(PostType.CAMPUS)
+                .type(FeedType.CAMPUS)
                 .user(student2.getUser())
                 .build();
 

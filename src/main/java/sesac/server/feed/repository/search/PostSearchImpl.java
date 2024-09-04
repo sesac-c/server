@@ -15,7 +15,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import sesac.server.feed.dto.request.PostListRequest;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.entity.Post;
-import sesac.server.feed.entity.PostType;
+import sesac.server.feed.entity.FeedType;
 
 @RequiredArgsConstructor
 public class PostSearchImpl implements PostSearch {
@@ -26,7 +26,7 @@ public class PostSearchImpl implements PostSearch {
     public List<PostListResponse> searchPost(
             Pageable pageable,
             PostListRequest request,
-            PostType type
+            FeedType type
     ) {
 
         List<Post> postList = queryFactory
@@ -50,7 +50,7 @@ public class PostSearchImpl implements PostSearch {
     public Page<PostListResponse> searchPostPage(
             Pageable pageable,
             PostListRequest request,
-            PostType type
+            FeedType type
     ) {
 
         List<PostListResponse> posts = this.searchPost(pageable, request, type);
@@ -66,7 +66,7 @@ public class PostSearchImpl implements PostSearch {
         return PageableExecutionUtils.getPage(posts, pageable, countQuery::fetchCount);
     }
 
-    private BooleanExpression typeEq(PostType type) {
+    private BooleanExpression typeEq(FeedType type) {
         return type != null ? post.type.eq(type) : null;
     }
 

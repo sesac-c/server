@@ -24,8 +24,8 @@ import sesac.server.feed.dto.request.PostListRequest;
 import sesac.server.feed.dto.request.UpdatePostRequest;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
+import sesac.server.feed.entity.ArticleType;
 import sesac.server.feed.entity.FeedType;
-import sesac.server.feed.entity.PostType;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.feed.service.PostService;
 
@@ -61,7 +61,7 @@ public class CampusFeedController {
             Pageable pageable,
             @ModelAttribute PostListRequest request
     ) {
-        List<PostListResponse> posts = postService.getPostList(pageable, request, PostType.CAMPUS);
+        List<PostListResponse> posts = postService.getPostList(pageable, request, FeedType.CAMPUS);
 
         return ResponseEntity.ok(posts);
     }
@@ -102,7 +102,7 @@ public class CampusFeedController {
     @PostMapping("posts/{postId}/like")
     public ResponseEntity<Void> likePost(@AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId) {
-        postService.likeFeed(principal, postId, FeedType.POST);
+        postService.likeFeed(principal, postId, ArticleType.POST);
 
         return ResponseEntity.noContent().build();
     }
@@ -110,7 +110,7 @@ public class CampusFeedController {
     @DeleteMapping("posts/{postId}/like")
     public ResponseEntity<Void> cancelPostLike(@AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId) {
-        postService.cancelLikeFeed(principal, postId, FeedType.POST);
+        postService.cancelLikeFeed(principal, postId, ArticleType.POST);
 
         return ResponseEntity.noContent().build();
     }
