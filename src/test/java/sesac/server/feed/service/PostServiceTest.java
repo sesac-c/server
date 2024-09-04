@@ -26,8 +26,8 @@ import sesac.server.feed.dto.request.PostListRequest;
 import sesac.server.feed.dto.request.UpdatePostRequest;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
-import sesac.server.feed.entity.Post;
 import sesac.server.feed.entity.FeedType;
+import sesac.server.feed.entity.Post;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.user.entity.Student;
 import sesac.server.user.entity.User;
@@ -115,7 +115,7 @@ class PostServiceTest {
         CreatePostRequest request = new CreatePostRequest("제목", "내용", List.of("해시1", "해시2"), null);
 
         // when
-        Post created = postService.createPost(student1.getId(), request);
+        Post created = postService.createPost(student1.getId(), FeedType.CAMPUS, request);
         em.flush();
         em.clear();
 
@@ -136,8 +136,8 @@ class PostServiceTest {
                 null);
 
         // when
-        Post created1 = postService.createPost(student1.getId(), request1);
-        Post created2 = postService.createPost(student1.getId(), request2);
+        Post created1 = postService.createPost(student1.getId(), FeedType.CAMPUS, request1);
+        Post created2 = postService.createPost(student1.getId(), FeedType.CAMPUS, request2);
 
         em.flush();
         em.clear();

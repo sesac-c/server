@@ -10,7 +10,6 @@ import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.auth.exception.TokenErrorCode;
 import sesac.server.auth.exception.TokenException;
 import sesac.server.common.exception.BaseException;
-import sesac.server.common.exception.GlobalErrorCode;
 import sesac.server.feed.dto.request.CreatePostRequest;
 import sesac.server.feed.dto.request.PostListRequest;
 import sesac.server.feed.dto.request.UpdatePostRequest;
@@ -40,12 +39,12 @@ public class PostService {
     private final HashtagRepository hashtagRepository;
     private final PostHashtagRepository postHashtagRepository;
 
-    public Post createPost(Long userId, String feedType, CreatePostRequest request) {
+    public Post createPost(Long userId, FeedType feedType, CreatePostRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new TokenException(TokenErrorCode.UNACCEPT));
 
         Post post = Post.builder()
-                .type(getEnumType(feedType))
+                .type(feedType)
                 .title(request.title())
                 .content(request.content())
                 .user(user)
@@ -92,10 +91,9 @@ public class PostService {
     public List<PostListResponse> getPostList(
             Pageable pageable,
             PostListRequest request,
-            String feedType
+            FeedType feedType
     ) {
-        List<PostListResponse> posts = postRepository.searchPost(pageable, request,
-                getEnumType(feedType));
+        List<PostListResponse> posts = postRepository.searchPost(pageable, request, feedType);
 
         return posts;
     }
@@ -128,11 +126,4 @@ public class PostService {
                 principal.id().equals(userId);
     }
 
-    private FeedType getEnumType(String value) {
-        try {
-            return FeedType.valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new BaseException(GlobalErrorCode.NOT_FOUND_PAGE);
-        }
-    }
 }
