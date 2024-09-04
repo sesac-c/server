@@ -10,35 +10,40 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
+import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.feed.entity.ArticleType;
 import sesac.server.feed.service.PostService;
 
 @Log4j2
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("feed/all-campus")
-public class AllCampusFeedController {
+@RequestMapping("feed/{feedType}")
+public class FeedNoticeController {
 
     private final PostService postService;
+    private final BindingResultHandler bindingResultHandler;
 
-    @PostMapping("posts/{postId}/like")
-    public ResponseEntity<Void> likePost(@AuthPrincipal CustomPrincipal principal,
-            @PathVariable Long postId) {
-        postService.likeFeed(principal, postId, ArticleType.POST);
+//    @GetMapping("posts")
+//    public ResponseEntity<List<PostListResponse>> getPostList(
+//            Pageable pageable,
+//            @PathVariable String feedType,
+//            @ModelAttribute PostListRequest request
+//    ) {
+//        List<PostListResponse> posts = postService.getPostList(pageable, request, feedType);
+//
+//        return ResponseEntity.ok(posts);
+//    }
+//
+//    @GetMapping("posts/{postId}")
+//    public ResponseEntity<PostResponse> getPostDetail(@PathVariable Long postId) {
+//        PostResponse response = postService.getPostDetail(postId);
+//
+//        return ResponseEntity.ok().body(response);
+//    }
 
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping("posts/{postId}/like")
-    public ResponseEntity<Void> cancelPostLike(@AuthPrincipal CustomPrincipal principal,
-            @PathVariable Long postId) {
-        postService.cancelLikeFeed(principal, postId, ArticleType.POST);
-
-        return ResponseEntity.noContent().build();
-    }
 
     @PostMapping("notices/{noticeId}/like")
-    public ResponseEntity<Void> likeNotice(@AuthPrincipal CustomPrincipal principal,
+    public ResponseEntity<Void> likePost(@AuthPrincipal CustomPrincipal principal,
             @PathVariable Long noticeId) {
         postService.likeFeed(principal, noticeId, ArticleType.NOTICE);
 
@@ -46,7 +51,7 @@ public class AllCampusFeedController {
     }
 
     @DeleteMapping("notices/{noticeId}/like")
-    public ResponseEntity<Void> cancelNoticeLike(@AuthPrincipal CustomPrincipal principal,
+    public ResponseEntity<Void> cancelPostLike(@AuthPrincipal CustomPrincipal principal,
             @PathVariable Long noticeId) {
         postService.cancelLikeFeed(principal, noticeId, ArticleType.NOTICE);
 

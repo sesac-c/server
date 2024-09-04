@@ -10,6 +10,7 @@ import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.auth.exception.TokenErrorCode;
 import sesac.server.auth.exception.TokenException;
 import sesac.server.common.exception.BaseException;
+import sesac.server.common.exception.GlobalErrorCode;
 import sesac.server.feed.dto.request.CreatePostRequest;
 import sesac.server.feed.dto.request.PostListRequest;
 import sesac.server.feed.dto.request.UpdatePostRequest;
@@ -46,12 +47,12 @@ public class PostService {
     private final PostHashtagRepository postHashtagRepository;
     private final LikesRepository likesRepository;
 
-    public Post createPost(Long userId, CreatePostRequest request) {
+    public Post createPost(Long userId, String feedType, CreatePostRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new TokenException(TokenErrorCode.UNACCEPT));
 
         Post post = Post.builder()
-                .type(FeedType.CAMPUS)
+                .type(getEnumType(feedType))
                 .title(request.title())
                 .content(request.content())
                 .user(user)
@@ -102,9 +103,10 @@ public class PostService {
     public List<PostListResponse> getPostList(
             Pageable pageable,
             PostListRequest request,
-            FeedType type
+            String feedType
     ) {
-        List<PostListResponse> posts = postRepository.searchPost(pageable, request, type);
+        List<PostListResponse> posts = postRepository.searchPost(pageable, request,
+                getEnumType(feedType));
 
         return posts;
     }
@@ -209,6 +211,14 @@ public class PostService {
             likesRepository.deleteByUserAndNoticeAndType(user, (Notice) feed, articleType);
         } else {
             throw new IllegalArgumentException("없는 피드 타입입니다.");
+        }
+    }
+
+    private FeedType getEnumType(String value) {
+        try {
+            return FeedType.valueOf(value.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BaseException(GlobalErrorCode.NOT_FOUND_PAGE);
         }
     }
 }

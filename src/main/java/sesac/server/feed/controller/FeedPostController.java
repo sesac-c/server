@@ -25,15 +25,14 @@ import sesac.server.feed.dto.request.UpdatePostRequest;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
 import sesac.server.feed.entity.ArticleType;
-import sesac.server.feed.entity.FeedType;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.feed.service.PostService;
 
 @Log4j2
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("feed/campus")
-public class CampusFeedController {
+@RequestMapping("feed/{feedType}")
+public class FeedPostController {
 
     private final PostService postService;
     private final BindingResultHandler bindingResultHandler;
@@ -42,6 +41,7 @@ public class CampusFeedController {
     public ResponseEntity<Void> createPost(
             @AuthPrincipal CustomPrincipal principal,
             @Valid @RequestBody CreatePostRequest createPostRequest,
+            @PathVariable String feedType,
             BindingResult bindingResult
     ) {
 
@@ -51,7 +51,7 @@ public class CampusFeedController {
                 PostErrorCode.REQUIRED_CONTENT,
                 PostErrorCode.INVALID_CONTENT_SIZE
         ));
-        postService.createPost(principal.id(), createPostRequest);
+        postService.createPost(principal.id(), feedType, createPostRequest);
 
         return ResponseEntity.ok().build();
     }
@@ -59,9 +59,10 @@ public class CampusFeedController {
     @GetMapping("posts")
     public ResponseEntity<List<PostListResponse>> getPostList(
             Pageable pageable,
+            @PathVariable String feedType,
             @ModelAttribute PostListRequest request
     ) {
-        List<PostListResponse> posts = postService.getPostList(pageable, request, FeedType.CAMPUS);
+        List<PostListResponse> posts = postService.getPostList(pageable, request, feedType);
 
         return ResponseEntity.ok(posts);
     }
