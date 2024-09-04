@@ -20,6 +20,7 @@ import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.feed.dto.request.ReplyRequest;
 import sesac.server.feed.dto.response.ReplyResponse;
 import sesac.server.feed.entity.ArticleType;
+import sesac.server.feed.entity.FeedType;
 import sesac.server.feed.exception.ReplyErrorCode;
 import sesac.server.feed.service.LikesService;
 import sesac.server.feed.service.ReplyService;
@@ -55,7 +56,7 @@ public class FeedNoticeController {
 
     @PostMapping("notices/{noticeId}/like")
     public ResponseEntity<Void> likePost(@AuthPrincipal CustomPrincipal principal,
-            @PathVariable Long noticeId) {
+            @PathVariable Long noticeId, @PathVariable FeedType feedType) {
         likesService.likeFeed(principal, noticeId, ArticleType.NOTICE);
 
         return ResponseEntity.noContent().build();
@@ -63,13 +64,14 @@ public class FeedNoticeController {
 
     @DeleteMapping("notices/{noticeId}/like")
     public ResponseEntity<Void> cancelPostLike(@AuthPrincipal CustomPrincipal principal,
-            @PathVariable Long noticeId) {
+            @PathVariable Long noticeId, @PathVariable FeedType feedType) {
         likesService.cancelLikeFeed(principal, noticeId, ArticleType.NOTICE);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("notices/{noticeId}/replies")
-    public ResponseEntity<List<ReplyResponse>> getReplyList(@PathVariable Long noticeId) {
+    public ResponseEntity<List<ReplyResponse>> getReplyList(@PathVariable Long noticeId,
+            @PathVariable FeedType feedType) {
         List<ReplyResponse> response = replyService.getReplyList(noticeId, ArticleType.NOTICE);
         return ResponseEntity.ok().body(response);
     }
@@ -78,6 +80,7 @@ public class FeedNoticeController {
     public ResponseEntity<Void> createReply(
             @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long noticeId,
+            @PathVariable FeedType feedType,
             @Valid @RequestBody ReplyRequest request,
             BindingResult bindingResult
     ) {
@@ -94,6 +97,7 @@ public class FeedNoticeController {
     public ResponseEntity<Void> updateReply(
             @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long replyId,
+            @PathVariable FeedType feedType,
             @Valid @RequestBody ReplyRequest request,
             BindingResult bindingResult
     ) {
@@ -109,7 +113,8 @@ public class FeedNoticeController {
     @DeleteMapping("notices/{noticeId}/replies/{replyId}")
     public ResponseEntity<Void> deleteReply(
             @AuthPrincipal CustomPrincipal principal,
-            @PathVariable Long replyId
+            @PathVariable Long replyId,
+            @PathVariable FeedType feedType
     ) {
         replyService.deleteReply(principal, replyId);
 

@@ -111,7 +111,7 @@ public class FeedPostController {
 
     @PostMapping("posts/{postId}/like")
     public ResponseEntity<Void> likePost(@AuthPrincipal CustomPrincipal principal,
-            @PathVariable Long postId) {
+            @PathVariable Long postId, @PathVariable FeedType feedType) {
         likesService.likeFeed(principal, postId, ArticleType.POST);
 
         return ResponseEntity.noContent().build();
@@ -119,13 +119,14 @@ public class FeedPostController {
 
     @DeleteMapping("posts/{postId}/like")
     public ResponseEntity<Void> cancelPostLike(@AuthPrincipal CustomPrincipal principal,
-            @PathVariable Long postId) {
+            @PathVariable Long postId, @PathVariable FeedType feedType) {
         likesService.cancelLikeFeed(principal, postId, ArticleType.POST);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("posts/{postId}/replies")
-    public ResponseEntity<List<ReplyResponse>> getReplyList(@PathVariable Long postId) {
+    public ResponseEntity<List<ReplyResponse>> getReplyList(@PathVariable Long postId,
+            @PathVariable FeedType feedType) {
         List<ReplyResponse> response = replyService.getReplyList(postId, ArticleType.POST);
         return ResponseEntity.ok().body(response);
     }
@@ -134,6 +135,7 @@ public class FeedPostController {
     public ResponseEntity<Void> createReply(
             @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId,
+            @PathVariable FeedType feedType,
             @Valid @RequestBody ReplyRequest request,
             BindingResult bindingResult
     ) {
@@ -150,6 +152,7 @@ public class FeedPostController {
     public ResponseEntity<Void> updateReply(
             @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long replyId,
+            @PathVariable FeedType feedType,
             @Valid @RequestBody ReplyRequest request,
             BindingResult bindingResult
     ) {
@@ -165,7 +168,8 @@ public class FeedPostController {
     @DeleteMapping("posts/{postId}/replies/{replyId}")
     public ResponseEntity<Void> deleteReply(
             @AuthPrincipal CustomPrincipal principal,
-            @PathVariable Long replyId
+            @PathVariable Long replyId,
+            @PathVariable FeedType feedType
     ) {
         replyService.deleteReply(principal, replyId);
 
