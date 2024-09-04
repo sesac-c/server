@@ -16,7 +16,6 @@ import sesac.server.feed.dto.request.PostListRequest;
 import sesac.server.feed.dto.request.UpdatePostRequest;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
-import sesac.server.feed.dto.response.ReplyResponse;
 import sesac.server.feed.entity.ArticleType;
 import sesac.server.feed.entity.FeedType;
 import sesac.server.feed.entity.Hashtag;
@@ -87,11 +86,7 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BaseException(PostErrorCode.NO_POST));
 
-        List<ReplyResponse> replies = post.getReplies().stream()
-                .map(ReplyResponse::new)
-                .toList();
-
-        return new PostResponse(post, replies);
+        return new PostResponse(post);
     }
 
     public List<PostListResponse> getPostList(

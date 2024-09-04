@@ -14,11 +14,10 @@ public record PostResponse(
         String imageUrl,
         Long likesCount,
         Long replyCount,
-        String profileImage,
-        List<ReplyResponse> replies
+        String profileImage
 ) {
 
-    public PostResponse(Post post, List<ReplyResponse> replies) {
+    public PostResponse(Post post) {
         this(
                 post.getId(),
                 post.getUser().getStudent().getNickname(),
@@ -30,9 +29,7 @@ public record PostResponse(
                 post.getImage(),
                 post.getLikesCount(),
                 post.getReplyCount(),
-                post.getUser().getStudent().getProfileImage(),
-                replies
+                post.getUser().getStudent().getProfileImage()
         );
     }
 }
-

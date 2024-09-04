@@ -1,6 +1,5 @@
 package sesac.server.manager.service;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -10,9 +9,8 @@ import sesac.server.common.exception.BaseException;
 import sesac.server.feed.dto.request.PostListRequest;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
-import sesac.server.feed.dto.response.ReplyResponse;
-import sesac.server.feed.entity.Post;
 import sesac.server.feed.entity.FeedType;
+import sesac.server.feed.entity.Post;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.feed.repository.PostRepository;
 
@@ -32,11 +30,7 @@ public class ManagerPostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BaseException(PostErrorCode.NO_POST));
 
-        List<ReplyResponse> replies = post.getReplies().stream()
-                .map(ReplyResponse::new)
-                .toList();
-
-        return new PostResponse(post, replies);
+        return new PostResponse(post);
     }
 
     public void deletePost(Long postId) {

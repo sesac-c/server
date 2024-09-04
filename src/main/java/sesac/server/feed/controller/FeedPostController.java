@@ -10,6 +10,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -21,13 +22,17 @@ import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.feed.dto.request.CreatePostRequest;
 import sesac.server.feed.dto.request.PostListRequest;
+import sesac.server.feed.dto.request.ReplyRequest;
 import sesac.server.feed.dto.request.UpdatePostRequest;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
+import sesac.server.feed.dto.response.ReplyResponse;
 import sesac.server.feed.entity.ArticleType;
 import sesac.server.feed.exception.PostErrorCode;
+import sesac.server.feed.exception.ReplyErrorCode;
 import sesac.server.feed.service.LikesService;
 import sesac.server.feed.service.PostService;
+import sesac.server.feed.service.ReplyService;
 
 @Log4j2
 @RestController
@@ -37,6 +42,7 @@ public class FeedPostController {
 
     private final PostService postService;
     private final LikesService likesService;
+    private final ReplyService replyService;
     private final BindingResultHandler bindingResultHandler;
 
     @PostMapping("posts")
@@ -114,6 +120,53 @@ public class FeedPostController {
     public ResponseEntity<Void> cancelPostLike(@AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId) {
         likesService.cancelLikeFeed(principal, postId, ArticleType.POST);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("posts/{postId}/replies")
+    public ResponseEntity<List<ReplyResponse>> getReplyList(@PathVariable Long postId) {
+        List<ReplyResponse> response = replyService.getReplyList(postId, ArticleType.POST);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("posts/{postId}/replies")
+    public ResponseEntity<Void> createReply(
+            @AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long postId,
+            @Valid @RequestBody ReplyRequest request,
+            BindingResult bindingResult
+    ) {
+        bindingResultHandler.handleBindingResult(bindingResult, List.of(
+                ReplyErrorCode.REQUIRED_CONTENT,
+                ReplyErrorCode.INVALID_CONTENT_SIZE
+        ));
+        replyService.createReply(principal, postId, request, ArticleType.POST);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("posts/{postId}/replies/{replyId}")
+    public ResponseEntity<Void> updateReply(
+            @AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long replyId,
+            @Valid @RequestBody ReplyRequest request,
+            BindingResult bindingResult
+    ) {
+        bindingResultHandler.handleBindingResult(bindingResult, List.of(
+                ReplyErrorCode.REQUIRED_CONTENT,
+                ReplyErrorCode.INVALID_CONTENT_SIZE
+        ));
+        replyService.updateReply(principal, replyId, request);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("posts/{postId}/replies/{replyId}")
+    public ResponseEntity<Void> deleteReply(
+            @AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long replyId
+    ) {
+        replyService.deleteReply(principal, replyId);
 
         return ResponseEntity.noContent().build();
     }
