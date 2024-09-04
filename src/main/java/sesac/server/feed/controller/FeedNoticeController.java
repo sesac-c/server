@@ -98,4 +98,14 @@ public class FeedNoticeController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("notices/{noticeId}/replies/{replyId}")
+    public ResponseEntity<Void> deleteReply(
+            @AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long replyId
+    ) {
+        replyService.deleteReply(principal, replyId);
+
+        return ResponseEntity.noContent().build();
+    }
 }

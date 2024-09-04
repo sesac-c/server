@@ -56,6 +56,18 @@ public class ReplyService {
         reply.updateReply(request.content());
     }
 
+    public void deleteReply(CustomPrincipal principal, Long replyId) {
+        Reply reply = replyRepository.findById(replyId).orElseThrow(
+                () -> new BaseException(ReplyErrorCode.NO_REPLY)
+        );
+
+        if (!hasPermission(principal.id(), reply.getUser().getId())) {  // 댓글 삭제 권한은 본인에게만
+            throw new BaseException(ReplyErrorCode.NO_PERMISSION);
+        }
+
+        replyRepository.delete(reply);
+    }
+
     private Object getFeedById(Long articleId, ArticleType articleType) {
         switch (articleType) {
             case POST:
