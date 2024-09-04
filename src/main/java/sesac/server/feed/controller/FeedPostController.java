@@ -26,6 +26,7 @@ import sesac.server.feed.dto.request.ReplyRequest;
 import sesac.server.feed.dto.request.UpdatePostRequest;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
+import sesac.server.feed.dto.response.ReplyResponse;
 import sesac.server.feed.entity.ArticleType;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.feed.exception.ReplyErrorCode;
@@ -121,6 +122,12 @@ public class FeedPostController {
         likesService.cancelLikeFeed(principal, postId, ArticleType.POST);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("posts/{postId}/replies")
+    public ResponseEntity<List<ReplyResponse>> getReplyList(@PathVariable Long postId) {
+        List<ReplyResponse> response = replyService.getReplyList(postId);
+        return ResponseEntity.ok().body(response);
     }
 
     @PostMapping("posts/{postId}/replies")
