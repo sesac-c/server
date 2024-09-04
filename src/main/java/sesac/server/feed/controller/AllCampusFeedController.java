@@ -36,4 +36,20 @@ public class AllCampusFeedController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("notices/{noticeId}/like")
+    public ResponseEntity<Void> likeNotice(@AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long noticeId) {
+        postService.likeFeed(principal, noticeId, FeedType.NOTICE);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("notices/{noticeId}/like")
+    public ResponseEntity<Void> cancelNoticeLike(@AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long noticeId) {
+        postService.cancelLikeFeed(principal, noticeId, FeedType.NOTICE);
+
+        return ResponseEntity.noContent().build();
+    }
 }
