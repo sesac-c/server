@@ -27,7 +27,6 @@ import sesac.server.user.repository.UserRepository;
 @Transactional
 @RequiredArgsConstructor
 public class ReplyService {
-
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final ReplyRepository replyRepository;

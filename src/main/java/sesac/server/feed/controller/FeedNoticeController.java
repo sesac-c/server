@@ -65,7 +65,6 @@ public class FeedNoticeController {
     public ResponseEntity<Void> cancelPostLike(@AuthPrincipal CustomPrincipal principal,
             @PathVariable Long noticeId) {
         likesService.cancelLikeFeed(principal, noticeId, ArticleType.NOTICE);
-
         return ResponseEntity.noContent().build();
     }
 
