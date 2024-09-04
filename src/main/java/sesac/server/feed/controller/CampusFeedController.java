@@ -24,6 +24,7 @@ import sesac.server.feed.dto.request.PostListRequest;
 import sesac.server.feed.dto.request.UpdatePostRequest;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
+import sesac.server.feed.entity.FeedType;
 import sesac.server.feed.entity.PostType;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.feed.service.PostService;
@@ -101,7 +102,7 @@ public class CampusFeedController {
     @PostMapping("posts/{postId}/like")
     public ResponseEntity<Void> likePost(@AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId) {
-        postService.likePost(principal, postId);
+        postService.likeFeed(principal, postId, FeedType.POST);
 
         return ResponseEntity.noContent().build();
     }

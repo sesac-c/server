@@ -8,4 +8,5 @@ public interface LikesRepository extends JpaRepository<Likes, Long> {
 
     boolean existsByUserIdAndPostIdAndType(Long userId, Long postId, FeedType type);
 
+    boolean existsByUserIdAndNoticeIdAndType(Long userId, Long feedId, FeedType feedType);
 }

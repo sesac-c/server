@@ -19,12 +19,14 @@ import sesac.server.feed.dto.response.ReplyResponse;
 import sesac.server.feed.entity.FeedType;
 import sesac.server.feed.entity.Hashtag;
 import sesac.server.feed.entity.Likes;
+import sesac.server.feed.entity.Notice;
 import sesac.server.feed.entity.Post;
 import sesac.server.feed.entity.PostHashtag;
 import sesac.server.feed.entity.PostType;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.feed.repository.HashtagRepository;
 import sesac.server.feed.repository.LikesRepository;
+import sesac.server.feed.repository.NoticeRepository;
 import sesac.server.feed.repository.PostHashtagRepository;
 import sesac.server.feed.repository.PostRepository;
 import sesac.server.user.entity.User;
@@ -38,6 +40,7 @@ import sesac.server.user.repository.UserRepository;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final NoticeRepository noticeRepository;
     private final UserRepository userRepository;
     private final HashtagRepository hashtagRepository;
     private final PostHashtagRepository postHashtagRepository;
@@ -130,20 +133,17 @@ public class PostService {
     }
 
     @Transactional
-    public void likePost(CustomPrincipal principal, Long postId) {
-        boolean alreadyLiked = isLiked(principal.id(), postId, FeedType.POST);   // 좋아요 여부 검사
+    public void likeFeed(CustomPrincipal principal, Long feedId, FeedType feedType) {
+        boolean alreadyLiked = isLiked(principal.id(), feedId, feedType);
         if (alreadyLiked) {
             throw new BaseException(PostErrorCode.ALREADY_LIKED);
         }
 
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new BaseException(PostErrorCode.NO_POST));
+        Object feed = getFeedById(feedId, feedType);
+        User user = userRepository.getReferenceById(principal.id());
 
-        Likes like = Likes.builder()
-                .user(userRepository.getReferenceById(principal.id()))
-                .post(post)
-                .type(FeedType.POST)
-                .build();
+        Likes like = getLikes(feed, user, feedType);
+
         likesRepository.save(like);
     }
 
@@ -152,7 +152,39 @@ public class PostService {
                 principal.id().equals(userId);
     }
 
-    private boolean isLiked(Long userId, Long postId, FeedType feedType) {
-        return likesRepository.existsByUserIdAndPostIdAndType(userId, postId, feedType);
+    private boolean isLiked(Long userId, Long feedId, FeedType feedType) {
+        return switch (feedType) {
+            case POST -> likesRepository.existsByUserIdAndPostIdAndType(userId, feedId, feedType);
+            case NOTICE ->
+                    likesRepository.existsByUserIdAndNoticeIdAndType(userId, feedId, feedType);
+            default -> throw new IllegalArgumentException("없는 피드 타입입니다.");
+        };
+    }
+
+    private Object getFeedById(Long feedId, FeedType feedType) {
+        switch (feedType) {
+            case POST:
+                return postRepository.findById(feedId)
+                        .orElseThrow(() -> new BaseException(PostErrorCode.NO_POST));
+            case NOTICE:
+                return noticeRepository.findById(feedId)
+                        .orElseThrow(() -> new BaseException(PostErrorCode.NO_NOTICE));
+            default:
+                throw new IllegalArgumentException("없는 피드 타입입니다.");
+        }
+    }
+
+    private Likes getLikes(Object feed, User user, FeedType feedType) {
+        Likes.LikesBuilder builder = Likes.builder()
+                .user(user)
+                .type(feedType);
+
+        if (feed instanceof Post) {
+            return builder.post((Post) feed).build();
+        } else if (feed instanceof Notice) {
+            return builder.notice((Notice) feed).build();
+        } else {
+            throw new IllegalArgumentException("없는 피드 타입입니다.");
+        }
     }
 }
