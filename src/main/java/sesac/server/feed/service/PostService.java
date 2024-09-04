@@ -147,6 +147,19 @@ public class PostService {
         likesRepository.save(like);
     }
 
+    @Transactional
+    public void cancelLikeFeed(CustomPrincipal principal, Long feedId, FeedType feedType) {
+        boolean isLiked = isLiked(principal.id(), feedId, feedType);
+        if (!isLiked) {
+            throw new BaseException(PostErrorCode.NOT_LIKED);
+        }
+
+        Object feed = getFeedById(feedId, feedType);
+        User user = userRepository.getReferenceById(principal.id());
+
+        deleteLike(feed, user, feedType);
+    }
+
     private boolean hasPermission(CustomPrincipal principal, Long userId) {
         return principal.role().equals(UserRole.MANAGER.toString()) ||
                 principal.id().equals(userId);
@@ -183,6 +196,16 @@ public class PostService {
             return builder.post((Post) feed).build();
         } else if (feed instanceof Notice) {
             return builder.notice((Notice) feed).build();
+        } else {
+            throw new IllegalArgumentException("없는 피드 타입입니다.");
+        }
+    }
+
+    private void deleteLike(Object feed, User user, FeedType feedType) {
+        if (feed instanceof Post) {
+            likesRepository.deleteByUserAndPostAndType(user, (Post) feed, feedType);
+        } else if (feed instanceof Notice) {
+            likesRepository.deleteByUserAndNoticeAndType(user, (Notice) feed, feedType);
         } else {
             throw new IllegalArgumentException("없는 피드 타입입니다.");
         }

@@ -106,4 +106,12 @@ public class CampusFeedController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("posts/{postId}/like")
+    public ResponseEntity<Void> cancelLike(@AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long postId) {
+        postService.cancelLikeFeed(principal, postId, FeedType.POST);
+
+        return ResponseEntity.noContent().build();
+    }
 }

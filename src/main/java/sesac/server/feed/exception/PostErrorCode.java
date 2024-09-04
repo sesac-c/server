@@ -16,7 +16,8 @@ public enum PostErrorCode implements ErrorCode {
     NO_POST(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다"),
     NO_NOTICE(HttpStatus.NOT_FOUND, "공지가 존재하지 않습니다"),
     NO_PERMISSION(HttpStatus.FORBIDDEN, "권한이 없습니다."),
-    ALREADY_LIKED(HttpStatus.CONFLICT, "사용자가 이미 해당 게시글에 좋아요를 눌렀습니다.");
+    ALREADY_LIKED(HttpStatus.CONFLICT, "사용자가 이미 해당 게시글에 좋아요를 눌렀습니다."),
+    NOT_LIKED(HttpStatus.BAD_REQUEST, "사용자가 아직 해당 게시글에 좋아요를 누르지 않았습니다.");
 
     private final HttpStatus status;
     private final String message;
