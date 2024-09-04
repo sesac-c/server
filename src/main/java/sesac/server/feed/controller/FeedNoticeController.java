@@ -12,7 +12,7 @@ import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.feed.entity.ArticleType;
-import sesac.server.feed.service.PostService;
+import sesac.server.feed.service.LikesService;
 
 @Log4j2
 @RestController
@@ -20,7 +20,7 @@ import sesac.server.feed.service.PostService;
 @RequestMapping("feed/{feedType}")
 public class FeedNoticeController {
 
-    private final PostService postService;
+    private final LikesService likesService;
     private final BindingResultHandler bindingResultHandler;
 
 //    @GetMapping("posts")
@@ -45,7 +45,7 @@ public class FeedNoticeController {
     @PostMapping("notices/{noticeId}/like")
     public ResponseEntity<Void> likePost(@AuthPrincipal CustomPrincipal principal,
             @PathVariable Long noticeId) {
-        postService.likeFeed(principal, noticeId, ArticleType.NOTICE);
+        likesService.likeFeed(principal, noticeId, ArticleType.NOTICE);
 
         return ResponseEntity.noContent().build();
     }
@@ -53,7 +53,7 @@ public class FeedNoticeController {
     @DeleteMapping("notices/{noticeId}/like")
     public ResponseEntity<Void> cancelPostLike(@AuthPrincipal CustomPrincipal principal,
             @PathVariable Long noticeId) {
-        postService.cancelLikeFeed(principal, noticeId, ArticleType.NOTICE);
+        likesService.cancelLikeFeed(principal, noticeId, ArticleType.NOTICE);
 
         return ResponseEntity.noContent().build();
     }

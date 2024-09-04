@@ -26,6 +26,7 @@ import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
 import sesac.server.feed.entity.ArticleType;
 import sesac.server.feed.exception.PostErrorCode;
+import sesac.server.feed.service.LikesService;
 import sesac.server.feed.service.PostService;
 
 @Log4j2
@@ -35,6 +36,7 @@ import sesac.server.feed.service.PostService;
 public class FeedPostController {
 
     private final PostService postService;
+    private final LikesService likesService;
     private final BindingResultHandler bindingResultHandler;
 
     @PostMapping("posts")
@@ -103,7 +105,7 @@ public class FeedPostController {
     @PostMapping("posts/{postId}/like")
     public ResponseEntity<Void> likePost(@AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId) {
-        postService.likeFeed(principal, postId, ArticleType.POST);
+        likesService.likeFeed(principal, postId, ArticleType.POST);
 
         return ResponseEntity.noContent().build();
     }
@@ -111,7 +113,7 @@ public class FeedPostController {
     @DeleteMapping("posts/{postId}/like")
     public ResponseEntity<Void> cancelPostLike(@AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId) {
-        postService.cancelLikeFeed(principal, postId, ArticleType.POST);
+        likesService.cancelLikeFeed(principal, postId, ArticleType.POST);
 
         return ResponseEntity.noContent().build();
     }
