@@ -10,6 +10,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,8 +29,12 @@ public class PostHashtag {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
+    @JoinColumn(name = "post_id", nullable = true)
     private Post post;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "notice_id", nullable = true)
+    private Notice notice;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -39,4 +45,11 @@ public class PostHashtag {
     @Column(nullable = false)
     private FeedType type;
 
+    @PrePersist
+    @PreUpdate
+    private void validatePostOrNotice() {
+        if ((post == null && notice == null) || (post != null && notice != null)) {
+            throw new IllegalStateException();
+        }
+    }
 }

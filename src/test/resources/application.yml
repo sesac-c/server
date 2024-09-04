@@ -21,6 +21,12 @@ spring:
       org:
         springframework:
           security: TRACE
+  mail:
+    host: smtp.gmail.com
+  email:
+    sender:
+      name: SeSACC
+      address: test@example.com
 
 jwt-secret: developmentjwtkeydmdoiwj2398usd7ayf987124gugszdc9783287gf
 origins: http://localhost:3000

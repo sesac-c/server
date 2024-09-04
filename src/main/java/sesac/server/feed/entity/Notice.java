@@ -1,5 +1,7 @@
 package sesac.server.feed.entity;
 
+import static org.springframework.util.StringUtils.hasText;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,6 +21,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Formula;
 import sesac.server.common.entity.BaseEntity;
+import sesac.server.feed.dto.request.UpdateNoticeRequest;
 import sesac.server.user.entity.User;
 
 
@@ -55,10 +58,12 @@ public class Notice extends BaseEntity {
 
     private Boolean status;
 
+
     @Formula("(SELECT COUNT(*) FROM likes l WHERE l.notice_id = id AND l.type = 'NOTICE')")
     private Long likesCount;
 
     @Formula("(SELECT COUNT(*) FROM reply r WHERE r.notice_id = id AND r.type = 'NOTICE')")
+
     private Long replyCount;
 
     @OneToMany(mappedBy = "notice")
@@ -68,4 +73,28 @@ public class Notice extends BaseEntity {
     @OneToMany(mappedBy = "notice")
     @Builder.Default
     private List<Likes> likes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "notice")
+    @Builder.Default
+    private List<PostHashtag> hashtags = new ArrayList<>();
+
+    public void update(UpdateNoticeRequest request) {
+        if (hasText(request.title())) {
+            title = request.title();
+        }
+
+        if (hasText(request.content())) {
+            content = request.content();
+        }
+
+        if (request.importance() != null) {
+            importance = request.importance();
+        }
+
+        if (request.type() != null) {
+            type = request.type();
+        }
+
+    }
+
 }
