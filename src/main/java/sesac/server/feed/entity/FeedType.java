@@ -1,5 +1,5 @@
 package sesac.server.feed.entity;
 
 public enum FeedType {
-    CAMPUS, ALL
+    CAMPUS, ALL, GROUP
 }
