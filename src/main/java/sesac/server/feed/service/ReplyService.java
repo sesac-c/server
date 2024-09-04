@@ -6,12 +6,13 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.exception.BaseException;
-import sesac.server.feed.dto.request.CreateReplyRequest;
+import sesac.server.feed.dto.request.ReplyRequest;
 import sesac.server.feed.entity.ArticleType;
 import sesac.server.feed.entity.Notice;
 import sesac.server.feed.entity.Post;
 import sesac.server.feed.entity.Reply;
 import sesac.server.feed.exception.PostErrorCode;
+import sesac.server.feed.exception.ReplyErrorCode;
 import sesac.server.feed.repository.NoticeRepository;
 import sesac.server.feed.repository.PostRepository;
 import sesac.server.feed.repository.ReplyRepository;
@@ -29,7 +30,7 @@ public class ReplyService {
     private final ReplyRepository replyRepository;
     private final NoticeRepository noticeRepository;
 
-    public void createReply(CustomPrincipal principal, Long articleId, CreateReplyRequest request,
+    public void createReply(CustomPrincipal principal, Long articleId, ReplyRequest request,
             ArticleType articleType) {
 
         Object feed = getFeedById(articleId, articleType);
@@ -38,6 +39,21 @@ public class ReplyService {
         Reply reply = getReply(feed, user, request.content(), articleType);
 
         replyRepository.save(reply);
+    }
+
+    public void updateReply(CustomPrincipal principal, Long replyId, ReplyRequest request) {
+        Reply reply = replyRepository.findById(replyId).orElseThrow(
+                () -> new BaseException(ReplyErrorCode.NO_REPLY)
+        );
+
+        if (reply.getContent().equals(request.content())) {             // 이전 댓글내용과 같은지 확인
+            throw new BaseException(ReplyErrorCode.CONTENT_SAME_AS_PREVIOUS);
+        }
+        if (!hasPermission(principal.id(), reply.getUser().getId())) {  // 댓글 수정 권한은 본인에게만
+            throw new BaseException(ReplyErrorCode.NO_PERMISSION);
+        }
+
+        reply.updateReply(request.content());
     }
 
     private Object getFeedById(Long articleId, ArticleType articleType) {
@@ -66,5 +82,9 @@ public class ReplyService {
         } else {
             throw new IllegalArgumentException("없는 글 타입입니다.");
         }
+    }
+
+    private boolean hasPermission(Long userId, Long replyUserId) {
+        return userId.equals(replyUserId);
     }
 }

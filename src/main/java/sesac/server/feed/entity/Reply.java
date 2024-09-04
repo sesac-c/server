@@ -56,4 +56,8 @@ public class Reply extends BaseEntity {
             throw new IllegalStateException("Post나 Notice 둘 중 하나만 참조할 수 있습니다.");
         }
     }
+
+    public void updateReply(String newContent) {
+        this.content = newContent;
+    }
 }
