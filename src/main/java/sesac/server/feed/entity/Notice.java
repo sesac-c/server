@@ -10,10 +10,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 import sesac.server.common.entity.BaseEntity;
 import sesac.server.user.entity.User;
 
@@ -50,4 +54,18 @@ public class Notice extends BaseEntity {
     private Integer importance;
 
     private Boolean status;
+
+    @Formula("(SELECT COUNT(*) FROM likes l WHERE l.notice_id = id AND l.type = 'NOTICE')")
+    private Long likesCount;
+
+    @Formula("(SELECT COUNT(*) FROM reply r WHERE r.notice_id = id AND r.type = 'NOTICE')")
+    private Long replyCount;
+
+    @OneToMany(mappedBy = "notice")
+    @Builder.Default
+    private List<Reply> replies = new ArrayList<>();
+
+    @OneToMany(mappedBy = "notice")
+    @Builder.Default
+    private List<Likes> likes = new ArrayList<>();
 }
