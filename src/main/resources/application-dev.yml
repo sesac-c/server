@@ -7,7 +7,7 @@ spring:
   data:
     redis:
       host: localhost
-      port: 6397
+      port: 6379
   mail:
     host: smtp.gmail.com
   email:
