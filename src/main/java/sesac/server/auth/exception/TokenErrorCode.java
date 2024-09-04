@@ -8,13 +8,16 @@ import sesac.server.common.exception.ErrorCode;
 @Getter
 @RequiredArgsConstructor
 public enum TokenErrorCode implements ErrorCode {
-    UNACCEPT(HttpStatus.UNAUTHORIZED, "UNACCEPT", "Token is null or too short"),
-    BADTYPE(HttpStatus.UNAUTHORIZED, "BADTYPE", "Token type Bearer"),
-    MALFORM(HttpStatus.FORBIDDEN, "MALFORM", "Malformed Token"),
-    BADSIGN(HttpStatus.FORBIDDEN, "BADSIGN", "BadSignatured Token"),
-    EXPIRED(HttpStatus.FORBIDDEN, "EXPIRED", "Expired Token");;
+    UNACCEPT(HttpStatus.UNAUTHORIZED, "Token is null or too short"),
+    BADTYPE(HttpStatus.UNAUTHORIZED, "Token type Bearer"),
+    MALFORM(HttpStatus.FORBIDDEN, "Malformed Token"),
+    BADSIGN(HttpStatus.FORBIDDEN, "BadSignatured Token"),
+    EXPIRED(HttpStatus.FORBIDDEN, "Expired Token");;
 
     private final HttpStatus status;
-    private final String code;
     private final String message;
+
+    public String getCode() {
+        return this.name();
+    }
 }
