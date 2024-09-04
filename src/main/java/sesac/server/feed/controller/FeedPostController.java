@@ -154,4 +154,14 @@ public class FeedPostController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("posts/{postId}/replies/{replyId}")
+    public ResponseEntity<Void> deleteReply(
+            @AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long replyId
+    ) {
+        replyService.deleteReply(principal, replyId);
+
+        return ResponseEntity.noContent().build();
+    }
 }
