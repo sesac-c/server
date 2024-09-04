@@ -10,6 +10,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -20,8 +21,8 @@ import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.feed.dto.request.CreatePostRequest;
-import sesac.server.feed.dto.request.CreateReplyRequest;
 import sesac.server.feed.dto.request.PostListRequest;
+import sesac.server.feed.dto.request.ReplyRequest;
 import sesac.server.feed.dto.request.UpdatePostRequest;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
@@ -126,7 +127,7 @@ public class FeedPostController {
     public ResponseEntity<Void> createReply(
             @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId,
-            @Valid @RequestBody CreateReplyRequest request,
+            @Valid @RequestBody ReplyRequest request,
             BindingResult bindingResult
     ) {
         bindingResultHandler.handleBindingResult(bindingResult, List.of(
@@ -134,6 +135,22 @@ public class FeedPostController {
                 ReplyErrorCode.INVALID_CONTENT_SIZE
         ));
         replyService.createReply(principal, postId, request, ArticleType.POST);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("posts/{postId}/replies/{replyId}")
+    public ResponseEntity<Void> updateReply(
+            @AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long replyId,
+            @Valid @RequestBody ReplyRequest request,
+            BindingResult bindingResult
+    ) {
+        bindingResultHandler.handleBindingResult(bindingResult, List.of(
+                ReplyErrorCode.REQUIRED_CONTENT,
+                ReplyErrorCode.INVALID_CONTENT_SIZE
+        ));
+        replyService.updateReply(principal, replyId, request);
 
         return ResponseEntity.noContent().build();
     }

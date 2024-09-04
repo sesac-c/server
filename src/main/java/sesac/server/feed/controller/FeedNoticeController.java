@@ -7,6 +7,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.exception.BindingResultHandler;
-import sesac.server.feed.dto.request.CreateReplyRequest;
+import sesac.server.feed.dto.request.ReplyRequest;
 import sesac.server.feed.entity.ArticleType;
 import sesac.server.feed.exception.ReplyErrorCode;
 import sesac.server.feed.service.LikesService;
@@ -70,7 +71,7 @@ public class FeedNoticeController {
     public ResponseEntity<Void> createReply(
             @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long noticeId,
-            @Valid @RequestBody CreateReplyRequest request,
+            @Valid @RequestBody ReplyRequest request,
             BindingResult bindingResult
     ) {
         bindingResultHandler.handleBindingResult(bindingResult, List.of(
@@ -78,6 +79,22 @@ public class FeedNoticeController {
                 ReplyErrorCode.INVALID_CONTENT_SIZE
         ));
         replyService.createReply(principal, noticeId, request, ArticleType.NOTICE);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("notices/{noticeId}/replies/{replyId}")
+    public ResponseEntity<Void> updateReply(
+            @AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long replyId,
+            @Valid @RequestBody ReplyRequest request,
+            BindingResult bindingResult
+    ) {
+        bindingResultHandler.handleBindingResult(bindingResult, List.of(
+                ReplyErrorCode.REQUIRED_CONTENT,
+                ReplyErrorCode.INVALID_CONTENT_SIZE
+        ));
+        replyService.updateReply(principal, replyId, request);
 
         return ResponseEntity.noContent().build();
     }
