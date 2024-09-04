@@ -28,6 +28,7 @@ import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
 import sesac.server.feed.dto.response.ReplyResponse;
 import sesac.server.feed.entity.ArticleType;
+import sesac.server.feed.entity.FeedType;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.feed.exception.ReplyErrorCode;
 import sesac.server.feed.service.LikesService;
@@ -49,7 +50,7 @@ public class FeedPostController {
     public ResponseEntity<Void> createPost(
             @AuthPrincipal CustomPrincipal principal,
             @Valid @RequestBody CreatePostRequest createPostRequest,
-            @PathVariable String feedType,
+            @PathVariable FeedType feedType,
             BindingResult bindingResult
     ) {
 
@@ -67,7 +68,7 @@ public class FeedPostController {
     @GetMapping("posts")
     public ResponseEntity<List<PostListResponse>> getPostList(
             Pageable pageable,
-            @PathVariable String feedType,
+            @PathVariable FeedType feedType,
             @ModelAttribute PostListRequest request
     ) {
         List<PostListResponse> posts = postService.getPostList(pageable, request, feedType);
