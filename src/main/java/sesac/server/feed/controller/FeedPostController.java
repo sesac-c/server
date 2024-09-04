@@ -20,14 +20,17 @@ import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.feed.dto.request.CreatePostRequest;
+import sesac.server.feed.dto.request.CreateReplyRequest;
 import sesac.server.feed.dto.request.PostListRequest;
 import sesac.server.feed.dto.request.UpdatePostRequest;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
 import sesac.server.feed.entity.ArticleType;
 import sesac.server.feed.exception.PostErrorCode;
+import sesac.server.feed.exception.ReplyErrorCode;
 import sesac.server.feed.service.LikesService;
 import sesac.server.feed.service.PostService;
+import sesac.server.feed.service.ReplyService;
 
 @Log4j2
 @RestController
@@ -37,6 +40,7 @@ public class FeedPostController {
 
     private final PostService postService;
     private final LikesService likesService;
+    private final ReplyService replyService;
     private final BindingResultHandler bindingResultHandler;
 
     @PostMapping("posts")
@@ -114,6 +118,22 @@ public class FeedPostController {
     public ResponseEntity<Void> cancelPostLike(@AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId) {
         likesService.cancelLikeFeed(principal, postId, ArticleType.POST);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("posts/{postId}/replies")
+    public ResponseEntity<Void> createReply(
+            @AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long postId,
+            @Valid @RequestBody CreateReplyRequest request,
+            BindingResult bindingResult
+    ) {
+        bindingResultHandler.handleBindingResult(bindingResult, List.of(
+                ReplyErrorCode.REQUIRED_CONTENT,
+                ReplyErrorCode.INVALID_CONTENT_SIZE
+        ));
+        replyService.createReply(principal, postId, request, ArticleType.POST);
 
         return ResponseEntity.noContent().build();
     }
