@@ -66,16 +66,13 @@ public class LikesService {
 
 
     private Object getFeedById(Long articleId, ArticleType articleType) {
-        switch (articleType) {
-            case POST:
-                return postRepository.findById(articleId)
-                        .orElseThrow(() -> new BaseException(PostErrorCode.NO_POST));
-            case NOTICE:
-                return noticeRepository.findById(articleId)
-                        .orElseThrow(() -> new BaseException(PostErrorCode.NO_NOTICE));
-            default:
-                throw new IllegalArgumentException("없는 글 타입입니다.");
-        }
+        return switch (articleType) {
+            case POST -> postRepository.findById(articleId)
+                    .orElseThrow(() -> new BaseException(PostErrorCode.NO_POST));
+            case NOTICE -> noticeRepository.findById(articleId)
+                    .orElseThrow(() -> new BaseException(PostErrorCode.NO_NOTICE));
+            default -> throw new IllegalArgumentException("없는 글 타입입니다.");
+        };
     }
 
     private Likes getLikes(Object feed, User user, ArticleType articleType) {
