@@ -60,9 +60,11 @@ public class Post extends BaseEntity {
     private Long replyCount;
 
     @OneToMany(mappedBy = "post")
+    @Builder.Default
     private List<PostHashtag> hashtags = new ArrayList<>();
 
     @OneToMany(mappedBy = "post")
+    @Builder.Default
     private List<Reply> replies = new ArrayList<>();
 
     public void update(UpdatePostRequest request) {
