@@ -11,6 +11,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,8 +39,12 @@ public class Likes {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
+    @JoinColumn(name = "post_id", nullable = true)
     private Post post;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "notice_id", nullable = true)
+    private Notice notice;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -48,4 +54,11 @@ public class Likes {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @PrePersist
+    @PreUpdate
+    private void validatePostOrNotice() {
+        if ((post == null && notice == null) || (post != null && notice != null)) {
+            throw new IllegalStateException("Post나 Notice 둘 중 하나만 참조할 수 있습니다.");
+        }
+    }
 }

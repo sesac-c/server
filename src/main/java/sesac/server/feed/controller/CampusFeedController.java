@@ -21,9 +21,10 @@ import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.feed.dto.request.CreatePostRequest;
 import sesac.server.feed.dto.request.PostListRequest;
+import sesac.server.feed.dto.request.UpdatePostRequest;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
-import sesac.server.feed.dto.request.UpdatePostRequest;
+import sesac.server.feed.entity.FeedType;
 import sesac.server.feed.entity.PostType;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.feed.service.PostService;
@@ -94,6 +95,22 @@ public class CampusFeedController {
     public ResponseEntity<Void> deletePost(@AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId) {
         postService.deletePost(principal, postId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("posts/{postId}/like")
+    public ResponseEntity<Void> likePost(@AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long postId) {
+        postService.likeFeed(principal, postId, FeedType.POST);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("posts/{postId}/like")
+    public ResponseEntity<Void> cancelPostLike(@AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long postId) {
+        postService.cancelLikeFeed(principal, postId, FeedType.POST);
 
         return ResponseEntity.noContent().build();
     }
