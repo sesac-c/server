@@ -10,7 +10,7 @@ import sesac.server.common.exception.ErrorCode;
 @Getter
 @RequiredArgsConstructor
 public enum UserErrorCode implements ErrorCode {
-    USER_NOT_FOUND(NOT_FOUND, "제목은 필수입니다.");
+    NO_USER(NOT_FOUND, "회원이 존재하지 않습니다");
 
     private final HttpStatus status;
     private final String message;
