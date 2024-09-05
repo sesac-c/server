@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import sesac.server.user.dto.response.ManagerListResponse;
 import sesac.server.user.dto.response.StudentListResponse;
 import sesac.server.user.service.UserService;
 
@@ -23,6 +24,13 @@ public class UserController {
     public ResponseEntity<List<StudentListResponse>> getStudentList(
             @Param("nickname") String nickname) {
         List<StudentListResponse> response = userService.getStudentList(nickname);
+
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("managers")
+    public ResponseEntity<List<ManagerListResponse>> getManagerList() {
+        List<ManagerListResponse> response = userService.getManagerList();
 
         return ResponseEntity.ok().body(response);
     }
