@@ -38,15 +38,27 @@ import sesac.server.feed.service.ReplyService;
 @Log4j2
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("feed/{feedType}")
-public class FeedPostController {
+@RequestMapping("posts/{feedType}")             // feedType - CAMPUS, ALL
+public class PostController {
 
     private final PostService postService;
     private final LikesService likesService;
     private final ReplyService replyService;
     private final BindingResultHandler bindingResultHandler;
 
-    @PostMapping("posts")
+    // -----------------------------------------------------------게시글 CRUD
+    @GetMapping
+    public ResponseEntity<List<PostListResponse>> getPostList(
+            Pageable pageable,
+            @PathVariable FeedType feedType,
+            @ModelAttribute PostListRequest request
+    ) {
+        List<PostListResponse> posts = postService.getPostList(pageable, request, feedType);
+
+        return ResponseEntity.ok(posts);
+    }
+
+    @PostMapping
     public ResponseEntity<Void> createPost(
             @AuthPrincipal CustomPrincipal principal,
             @Valid @RequestBody CreatePostRequest createPostRequest,
@@ -65,26 +77,14 @@ public class FeedPostController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("posts")
-    public ResponseEntity<List<PostListResponse>> getPostList(
-            Pageable pageable,
-            @PathVariable FeedType feedType,
-            @ModelAttribute PostListRequest request
-    ) {
-        List<PostListResponse> posts = postService.getPostList(pageable, request, feedType);
-
-        return ResponseEntity.ok(posts);
-    }
-
-    @GetMapping("posts/{postId}")
+    @GetMapping("{postId}")
     public ResponseEntity<PostResponse> getPostDetail(@PathVariable Long postId) {
         PostResponse response = postService.getPostDetail(postId);
 
         return ResponseEntity.ok().body(response);
     }
 
-
-    @PutMapping("posts/{postId}")
+    @PutMapping("{postId}")
     public ResponseEntity<Void> updatePost(
             @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId,
@@ -101,7 +101,7 @@ public class FeedPostController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("posts/{postId}")
+    @DeleteMapping("{postId}")
     public ResponseEntity<Void> deletePost(@AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId) {
         postService.deletePost(principal, postId);
@@ -109,7 +109,18 @@ public class FeedPostController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("posts/{postId}/like")
+    @GetMapping("popular")
+    public ResponseEntity<Void> getPopularPostList(@PathVariable FeedType feedType) {
+        return null;
+    }
+
+    @GetMapping("search")
+    public ResponseEntity<Void> searchPostList(@PathVariable FeedType feedType) {
+        return null;
+    }
+
+    // -----------------------------------------------------------좋아요
+    @PostMapping("{postId}/like")
     public ResponseEntity<Void> likePost(@AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId, @PathVariable FeedType feedType) {
         likesService.likeFeed(principal, postId, ArticleType.POST);
@@ -117,21 +128,22 @@ public class FeedPostController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("posts/{postId}/like")
+    @DeleteMapping("{postId}/like")
     public ResponseEntity<Void> cancelPostLike(@AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId, @PathVariable FeedType feedType) {
         likesService.cancelLikeFeed(principal, postId, ArticleType.POST);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("posts/{postId}/replies")
+    // -----------------------------------------------------------댓글
+    @GetMapping("{postId}/replies")
     public ResponseEntity<List<ReplyResponse>> getReplyList(@PathVariable Long postId,
             @PathVariable FeedType feedType) {
         List<ReplyResponse> response = replyService.getReplyList(postId, ArticleType.POST);
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping("posts/{postId}/replies")
+    @PostMapping("{postId}/replies")
     public ResponseEntity<Void> createReply(
             @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId,
@@ -148,7 +160,7 @@ public class FeedPostController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("posts/{postId}/replies/{replyId}")
+    @PatchMapping("{postId}/replies/{replyId}")
     public ResponseEntity<Void> updateReply(
             @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long replyId,
@@ -165,7 +177,7 @@ public class FeedPostController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("posts/{postId}/replies/{replyId}")
+    @DeleteMapping("{postId}/replies/{replyId}")
     public ResponseEntity<Void> deleteReply(
             @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long replyId,

@@ -1,4 +1,4 @@
-package sesac.server.groupChat.entity;
+package sesac.server.group.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

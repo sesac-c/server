@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -27,6 +28,7 @@ import sesac.server.auth.handler.CustomAuthenticationEntryPoint;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 @Log4j2
 public class SecurityConfig {
@@ -46,10 +48,37 @@ public class SecurityConfig {
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.authorizeHttpRequests(requests -> requests
+                // accounts
                 .requestMatchers(HttpMethod.DELETE, "/accounts/**").authenticated()
-                .requestMatchers("/accounts/**", "/campuses", "/campuses/{campusId}/courses")
+                .requestMatchers("/accounts/**").permitAll()
+
+                // campuses
+                .requestMatchers(HttpMethod.GET, "/campuses", "/campuses/{campusId}/courses")
                 .permitAll()
-                .requestMatchers("/manager/**").hasRole("MANAGER")
+                .requestMatchers("/campuses/**").hasRole("MANAGER")
+
+                // restaurants
+                .requestMatchers(HttpMethod.GET, "/restaurants/**").authenticated()
+                .requestMatchers("/restaurants/**").hasRole("MANAGER")
+
+                // user
+                .requestMatchers("/user/students/**").hasRole("MANAGER")
+
+                // runningmates
+                .requestMatchers(HttpMethod.GET, "/runningmates/{runningmateId}/activities")
+                .authenticated()
+                .requestMatchers(HttpMethod.POST, "/runningmates/{runningmateId}/activities")
+                .authenticated()
+                .requestMatchers(HttpMethod.GET, "/runningmates/{runningmateId}/activity-form")
+                .authenticated()
+                .requestMatchers(HttpMethod.GET,
+                        "/runningmates/{runningmateId}/activities/{activityId}").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/runningmates/{runningmateId}/trans-leader")
+                .authenticated()
+                .requestMatchers(HttpMethod.DELETE,
+                        "/runningmates/{runningmateId}/members/{memberId}").authenticated()
+                .requestMatchers("/runningmates/**").hasRole("MANAGER")
+                
                 .anyRequest().authenticated());
 
         http.exceptionHandling(handler -> handler
@@ -92,5 +121,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 }

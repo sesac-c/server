@@ -21,7 +21,7 @@ public class UserService {
     private final StudentRepository studentRepository;
     private final ManagerRepository managerRepository;
 
-    public List<StudentListResponse> getStudentList(String nickname) {
+    public List<StudentListResponse> getSearchStudentList(String nickname) {
         List<Student> studentList = studentRepository.findByNicknameContainingIgnoreCase(nickname);
 
         List<StudentListResponse> response = studentList.stream().map(StudentListResponse::new)
