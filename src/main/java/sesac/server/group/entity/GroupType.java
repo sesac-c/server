@@ -1,5 +1,5 @@
 package sesac.server.group.entity;
 
-public enum RestaurantType {
+public enum GroupType {
     CAMPUS, RUNNINGMATE
 }
