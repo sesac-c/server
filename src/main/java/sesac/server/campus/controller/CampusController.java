@@ -32,7 +32,7 @@ public class CampusController {
         return ResponseEntity.ok(campuses);
     }
 
-    @GetMapping("/{campusId}/courses")
+    @GetMapping("{campusId}/courses")
     public ResponseEntity<List<CourseResponse>> getCourses(@PathVariable Long campusId) {
         List<CourseResponse> courseResponses = courseService.findAll(campusId);
         return ResponseEntity.ok(courseResponses);
@@ -45,46 +45,46 @@ public class CampusController {
     }
 
     // 매니저 권한: 캠퍼스 상세
-    @GetMapping("/{campusId}")
+    @GetMapping("{campusId}")
     public ResponseEntity<Void> getCampus(@PathVariable Long campusId) {
         return null;
     }
 
     // 매니저 권한: 캠퍼스 수정
-    @PutMapping("/{campusId}")
+    @PutMapping("{campusId}")
     public ResponseEntity<Void> updateCampus(@PathVariable Long campusId) {
         return null;
     }
 
     // 매니저 권한: 캠퍼스 삭제
-    @DeleteMapping("/{campusId}")
+    @DeleteMapping("{campusId}")
     public ResponseEntity<Void> deleteCampus(@PathVariable Long campusId) {
         return null;
     }
 
     // 매니저 권한: 과정 등록
-    @PostMapping("/{campusId}/courses")
+    @PostMapping("{campusId}/courses")
     public ResponseEntity<Void> createCourse(@PathVariable Long campusId,
             @RequestBody CourseResponse courseResponse) {
         return null;
     }
 
     // 매니저 권한: 과정 상세
-    @GetMapping("/{campusId}/courses/{courseId}")
+    @GetMapping("{campusId}/courses/{courseId}")
     public ResponseEntity<Void> getCourse(@PathVariable Long campusId,
             @PathVariable Long courseId) {
         return null;
     }
 
     // 매니저 권한: 과정 수정
-    @PutMapping("/{campusId}/courses/{courseId}")
+    @PutMapping("{campusId}/courses/{courseId}")
     public ResponseEntity<Void> updateCourse(@PathVariable Long campusId,
             @PathVariable Long courseId) {
         return null;
     }
 
     // 매니저 권한: 과정 삭제
-    @DeleteMapping("/{campusId}/courses/{courseId}")
+    @DeleteMapping("{campusId}/courses/{courseId}")
     public ResponseEntity<Void> deleteCourse(@PathVariable Long campusId,
             @PathVariable Long courseId) {
         return null;
