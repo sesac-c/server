@@ -1,4 +1,4 @@
-package sesac.server.restaurant.entity;
+package sesac.server.group.entity;
 
 
 import jakarta.persistence.Column;

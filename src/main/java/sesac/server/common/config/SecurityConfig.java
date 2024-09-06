@@ -48,13 +48,18 @@ public class SecurityConfig {
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.authorizeHttpRequests(requests -> requests
+                // accounts
                 .requestMatchers(HttpMethod.DELETE, "/accounts/**").authenticated()
                 .requestMatchers("/accounts/**").permitAll()
+                // campuses
                 .requestMatchers(HttpMethod.GET, "/campuses", "/campuses/{campusId}/courses")
                 .permitAll()
                 .requestMatchers("/campuses/**").hasRole("MANAGER")
+                // restaurants
+                .requestMatchers(HttpMethod.GET, "/restaurants/**").authenticated()
+                .requestMatchers("/restaurants/**").hasRole("MANAGER")
+                // user
                 .requestMatchers("/user/students/**").hasRole("MANAGER")
-                .requestMatchers("/manager/**").hasRole("MANAGER")
                 .anyRequest().authenticated());
 
         http.exceptionHandling(handler -> handler
