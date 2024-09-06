@@ -51,7 +51,7 @@ public class Post extends BaseEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private FeedType type;
+    private PostType type;
 
     @Formula("(SELECT COUNT(*) FROM likes l WHERE l.post_id = id AND l.type = 'POST')")
     private Long likesCount;

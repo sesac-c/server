@@ -36,7 +36,7 @@ import sesac.server.feed.dto.response.NoticeListResponse;
 import sesac.server.feed.dto.response.NoticeResponse;
 import sesac.server.feed.dto.response.ReplyResponse;
 import sesac.server.feed.entity.ArticleType;
-import sesac.server.feed.entity.FeedType;
+import sesac.server.feed.entity.NoticeType;
 import sesac.server.feed.exception.ReplyErrorCode;
 import sesac.server.feed.service.LikesService;
 import sesac.server.feed.service.NoticeService;
@@ -45,7 +45,7 @@ import sesac.server.feed.service.ReplyService;
 @Log4j2
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("notices/{feedType}")             // feedType - ALL, GROUP
+@RequestMapping("notices/{noticeType}")             // noticeType - ALL, GROUP
 public class NoticeController {
 
     private final NoticeService noticeService;
@@ -56,7 +56,7 @@ public class NoticeController {
     // -----------------------------------------------------------공지 CRUD
     @GetMapping
     public ResponseEntity<Page<NoticeListResponse>> getNoticeList(
-            @PathVariable String feedType,
+            @PathVariable NoticeType noticeType,
             Pageable pageable,
             @ModelAttribute NoticeListRequest request
     ) {
@@ -67,13 +67,13 @@ public class NoticeController {
     }
 
     @GetMapping("important")
-    public ResponseEntity<Void> getImportantNotices(@PathVariable String feedType) {
+    public ResponseEntity<Void> getImportantNotices(@PathVariable NoticeType noticeType) {
         return null;
     }
 
     @GetMapping("{noticeId}")
     public ResponseEntity<NoticeResponse> getNotice(
-            @PathVariable String feedType, @PathVariable Long noticeId
+            @PathVariable NoticeType noticeType, @PathVariable Long noticeId
     ) {
         NoticeResponse response = noticeService.getNotice(noticeId);
 
@@ -84,7 +84,7 @@ public class NoticeController {
     @PreAuthorize("hasRole('MANAGER')")
     @PostMapping
     public ResponseEntity<Void> createNotice(
-            @PathVariable String feedType,
+            @PathVariable NoticeType noticeType,
             @AuthPrincipal CustomPrincipal principal,
             @Valid @RequestBody CreateNoticeRequest request,
             BindingResult bindingResult
@@ -106,7 +106,7 @@ public class NoticeController {
     @PreAuthorize("hasRole('MANAGER')")
     @PutMapping("{noticeId}")
     public ResponseEntity<Void> updateNotice(
-            @PathVariable String feedType,
+            @PathVariable NoticeType noticeType,
             @PathVariable Long noticeId,
             @Valid @RequestBody UpdateNoticeRequest request,
             BindingResult bindingResult
@@ -125,7 +125,7 @@ public class NoticeController {
     @PreAuthorize("hasRole('MANAGER')")
     @DeleteMapping("{noticeId}")
     public ResponseEntity<Void> deleteNotice(
-            @PathVariable String feedType,
+            @PathVariable NoticeType noticeType,
             @PathVariable Long noticeId
     ) {
         noticeService.deleteNotice(noticeId);
@@ -138,7 +138,7 @@ public class NoticeController {
     public ResponseEntity<Void> likePost(
             @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long noticeId,
-            @PathVariable FeedType feedType
+            @PathVariable NoticeType noticeType
     ) {
         likesService.likeFeed(principal, noticeId, ArticleType.NOTICE);
 
@@ -149,7 +149,7 @@ public class NoticeController {
     public ResponseEntity<Void> cancelPostLike(
             @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long noticeId,
-            @PathVariable FeedType feedType
+            @PathVariable NoticeType noticeType
     ) {
         likesService.cancelLikeFeed(principal, noticeId, ArticleType.NOTICE);
         return ResponseEntity.noContent().build();
@@ -158,7 +158,7 @@ public class NoticeController {
     // -----------------------------------------------------------댓글
     @GetMapping("{noticeId}/replies")
     public ResponseEntity<List<ReplyResponse>> getReplyList(@PathVariable Long noticeId,
-            @PathVariable FeedType feedType) {
+            @PathVariable NoticeType noticeType) {
         List<ReplyResponse> response = replyService.getReplyList(noticeId, ArticleType.NOTICE);
         return ResponseEntity.ok().body(response);
     }
@@ -167,7 +167,7 @@ public class NoticeController {
     public ResponseEntity<Void> createReply(
             @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long noticeId,
-            @PathVariable FeedType feedType,
+            @PathVariable NoticeType noticeType,
             @Valid @RequestBody ReplyRequest request,
             BindingResult bindingResult
     ) {
@@ -184,7 +184,7 @@ public class NoticeController {
     public ResponseEntity<Void> updateReply(
             @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long replyId,
-            @PathVariable FeedType feedType,
+            @PathVariable NoticeType noticeType,
             @Valid @RequestBody ReplyRequest request,
             BindingResult bindingResult
     ) {
@@ -201,7 +201,7 @@ public class NoticeController {
     public ResponseEntity<Void> deleteReply(
             @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long replyId,
-            @PathVariable FeedType feedType
+            @PathVariable NoticeType noticeType
     ) {
         replyService.deleteReply(principal, replyId);
 

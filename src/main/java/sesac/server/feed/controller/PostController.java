@@ -28,7 +28,7 @@ import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
 import sesac.server.feed.dto.response.ReplyResponse;
 import sesac.server.feed.entity.ArticleType;
-import sesac.server.feed.entity.FeedType;
+import sesac.server.feed.entity.PostType;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.feed.exception.ReplyErrorCode;
 import sesac.server.feed.service.LikesService;
@@ -38,7 +38,7 @@ import sesac.server.feed.service.ReplyService;
 @Log4j2
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("posts/{feedType}")             // feedType - CAMPUS, ALL
+@RequestMapping("posts/{postType}")             // postType - CAMPUS, ALL
 public class PostController {
 
     private final PostService postService;
@@ -50,10 +50,10 @@ public class PostController {
     @GetMapping
     public ResponseEntity<List<PostListResponse>> getPostList(
             Pageable pageable,
-            @PathVariable FeedType feedType,
+            @PathVariable PostType postType,
             @ModelAttribute PostListRequest request
     ) {
-        List<PostListResponse> posts = postService.getPostList(pageable, request, feedType);
+        List<PostListResponse> posts = postService.getPostList(pageable, request, postType);
 
         return ResponseEntity.ok(posts);
     }
@@ -62,7 +62,7 @@ public class PostController {
     public ResponseEntity<Void> createPost(
             @AuthPrincipal CustomPrincipal principal,
             @Valid @RequestBody CreatePostRequest createPostRequest,
-            @PathVariable FeedType feedType,
+            @PathVariable PostType postType,
             BindingResult bindingResult
     ) {
 
@@ -72,13 +72,16 @@ public class PostController {
                 PostErrorCode.REQUIRED_CONTENT,
                 PostErrorCode.INVALID_CONTENT_SIZE
         ));
-        postService.createPost(principal.id(), feedType, createPostRequest);
+        postService.createPost(principal.id(), postType, createPostRequest);
 
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("{postId}")
-    public ResponseEntity<PostResponse> getPostDetail(@PathVariable Long postId) {
+    public ResponseEntity<PostResponse> getPostDetail(
+            @PathVariable PostType postType,
+            @PathVariable Long postId
+    ) {
         PostResponse response = postService.getPostDetail(postId);
 
         return ResponseEntity.ok().body(response);
@@ -87,6 +90,7 @@ public class PostController {
     @PutMapping("{postId}")
     public ResponseEntity<Void> updatePost(
             @AuthPrincipal CustomPrincipal principal,
+            @PathVariable PostType postType,
             @PathVariable Long postId,
             @Valid @RequestBody UpdatePostRequest updatePostRequest,
             BindingResult bindingResult
@@ -102,43 +106,53 @@ public class PostController {
     }
 
     @DeleteMapping("{postId}")
-    public ResponseEntity<Void> deletePost(@AuthPrincipal CustomPrincipal principal,
-            @PathVariable Long postId) {
+    public ResponseEntity<Void> deletePost(
+            @AuthPrincipal CustomPrincipal principal,
+            @PathVariable PostType postType,
+            @PathVariable Long postId
+    ) {
         postService.deletePost(principal, postId);
 
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("popular")
-    public ResponseEntity<Void> getPopularPostList(@PathVariable FeedType feedType) {
+    public ResponseEntity<Void> getPopularPostList(@PathVariable PostType postType) {
         return null;
     }
 
     @GetMapping("search")
-    public ResponseEntity<Void> searchPostList(@PathVariable FeedType feedType) {
+    public ResponseEntity<Void> searchPostList(@PathVariable PostType postType) {
         return null;
     }
 
     // -----------------------------------------------------------좋아요
     @PostMapping("{postId}/like")
-    public ResponseEntity<Void> likePost(@AuthPrincipal CustomPrincipal principal,
-            @PathVariable Long postId, @PathVariable FeedType feedType) {
+    public ResponseEntity<Void> likePost(
+            @AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long postId,
+            @PathVariable PostType postType
+    ) {
         likesService.likeFeed(principal, postId, ArticleType.POST);
 
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("{postId}/like")
-    public ResponseEntity<Void> cancelPostLike(@AuthPrincipal CustomPrincipal principal,
-            @PathVariable Long postId, @PathVariable FeedType feedType) {
+    public ResponseEntity<Void> cancelPostLike(
+            @AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long postId,
+            @PathVariable PostType postType
+    ) {
         likesService.cancelLikeFeed(principal, postId, ArticleType.POST);
         return ResponseEntity.noContent().build();
     }
 
     // -----------------------------------------------------------댓글
     @GetMapping("{postId}/replies")
-    public ResponseEntity<List<ReplyResponse>> getReplyList(@PathVariable Long postId,
-            @PathVariable FeedType feedType) {
+    public ResponseEntity<List<ReplyResponse>> getReplyList(
+            @PathVariable Long postId, @PathVariable PostType postType
+    ) {
         List<ReplyResponse> response = replyService.getReplyList(postId, ArticleType.POST);
         return ResponseEntity.ok().body(response);
     }
@@ -147,7 +161,7 @@ public class PostController {
     public ResponseEntity<Void> createReply(
             @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId,
-            @PathVariable FeedType feedType,
+            @PathVariable PostType postType,
             @Valid @RequestBody ReplyRequest request,
             BindingResult bindingResult
     ) {
@@ -164,7 +178,7 @@ public class PostController {
     public ResponseEntity<Void> updateReply(
             @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long replyId,
-            @PathVariable FeedType feedType,
+            @PathVariable PostType postType,
             @Valid @RequestBody ReplyRequest request,
             BindingResult bindingResult
     ) {
@@ -181,7 +195,7 @@ public class PostController {
     public ResponseEntity<Void> deleteReply(
             @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long replyId,
-            @PathVariable FeedType feedType
+            @PathVariable PostType postType
     ) {
         replyService.deleteReply(principal, replyId);
 

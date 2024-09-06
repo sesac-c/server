@@ -16,10 +16,10 @@ import sesac.server.feed.dto.request.UpdatePostRequest;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
 import sesac.server.feed.entity.ArticleType;
-import sesac.server.feed.entity.FeedType;
 import sesac.server.feed.entity.Hashtag;
 import sesac.server.feed.entity.Post;
 import sesac.server.feed.entity.PostHashtag;
+import sesac.server.feed.entity.PostType;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.feed.repository.HashtagRepository;
 import sesac.server.feed.repository.PostHashtagRepository;
@@ -39,12 +39,12 @@ public class PostService {
     private final HashtagRepository hashtagRepository;
     private final PostHashtagRepository postHashtagRepository;
 
-    public Post createPost(Long userId, FeedType feedType, CreatePostRequest request) {
+    public Post createPost(Long userId, PostType postType, CreatePostRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new TokenException(TokenErrorCode.UNACCEPT));
 
         Post post = Post.builder()
-                .type(feedType)
+                .type(postType)
                 .title(request.title())
                 .content(request.content())
                 .user(user)
@@ -91,9 +91,9 @@ public class PostService {
     public List<PostListResponse> getPostList(
             Pageable pageable,
             PostListRequest request,
-            FeedType feedType
+            PostType postType
     ) {
-        List<PostListResponse> posts = postRepository.searchPost(pageable, request, feedType);
+        List<PostListResponse> posts = postRepository.searchPost(pageable, request, postType);
 
         return posts;
     }
