@@ -51,15 +51,34 @@ public class SecurityConfig {
                 // accounts
                 .requestMatchers(HttpMethod.DELETE, "/accounts/**").authenticated()
                 .requestMatchers("/accounts/**").permitAll()
+
                 // campuses
                 .requestMatchers(HttpMethod.GET, "/campuses", "/campuses/{campusId}/courses")
                 .permitAll()
                 .requestMatchers("/campuses/**").hasRole("MANAGER")
+
                 // restaurants
                 .requestMatchers(HttpMethod.GET, "/restaurants/**").authenticated()
                 .requestMatchers("/restaurants/**").hasRole("MANAGER")
+
                 // user
                 .requestMatchers("/user/students/**").hasRole("MANAGER")
+
+                // runningmates
+                .requestMatchers(HttpMethod.GET, "/runningmates/{runningmateId}/activities")
+                .authenticated()
+                .requestMatchers(HttpMethod.POST, "/runningmates/{runningmateId}/activities")
+                .authenticated()
+                .requestMatchers(HttpMethod.GET, "/runningmates/{runningmateId}/activity-form")
+                .authenticated()
+                .requestMatchers(HttpMethod.GET,
+                        "/runningmates/{runningmateId}/activities/{activityId}").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/runningmates/{runningmateId}/trans-leader")
+                .authenticated()
+                .requestMatchers(HttpMethod.DELETE,
+                        "/runningmates/{runningmateId}/members/{memberId}").authenticated()
+                .requestMatchers("/runningmates/**").hasRole("MANAGER")
+                
                 .anyRequest().authenticated());
 
         http.exceptionHandling(handler -> handler
