@@ -36,7 +36,7 @@ public class AccountController {
     private final AccountService accountService;
     private final BindingResultHandler bindingResultHandler;
 
-    @PostMapping("signup")
+    @PostMapping
     public ResponseEntity<Void> signup(@Valid @RequestBody SignupRequest signupRequest,
             BindingResult bindingResult) {
 
@@ -68,6 +68,13 @@ public class AccountController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping
+    public ResponseEntity<Void> deleteUser(@AuthPrincipal CustomPrincipal principal) {
+        accountService.deleteUser(principal.id());
+
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         LoginResponse response = accountService.login(loginRequest);
@@ -79,13 +86,6 @@ public class AccountController {
     public ResponseEntity<Void> logout(@RequestBody LogoutRequest logoutRequest) {
         accountService.logout(logoutRequest.accessToken());
         accountService.logout(logoutRequest.refreshToken());
-
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("withdraw")
-    public ResponseEntity<Void> deleteUser(@AuthPrincipal CustomPrincipal principal) {
-        accountService.deleteUser(principal.id());
 
         return ResponseEntity.ok().build();
     }
