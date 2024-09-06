@@ -56,10 +56,8 @@ public class LikesService {
 
     private boolean isLiked(Long userId, Long articleId, ArticleType articleType) {
         return switch (articleType) {
-            case POST ->
-                    likesRepository.existsByUserIdAndPostIdAndType(userId, articleId, articleType);
-            case NOTICE -> likesRepository.existsByUserIdAndNoticeIdAndType(userId, articleId,
-                    articleType);
+            case POST -> likesRepository.existsByUserIdAndPostId(userId, articleId);
+            case NOTICE -> likesRepository.existsByUserIdAndNoticeId(userId, articleId);
             default -> throw new IllegalArgumentException("없는 글 타입입니다.");
         };
     }
@@ -77,8 +75,7 @@ public class LikesService {
 
     private Likes getLikes(Object feed, User user, ArticleType articleType) {
         Likes.LikesBuilder builder = Likes.builder()
-                .user(user)
-                .type(articleType);
+                .user(user);
 
         if (feed instanceof Post) {
             return builder.post((Post) feed).build();
@@ -91,9 +88,9 @@ public class LikesService {
 
     private void deleteLike(Object feed, User user, ArticleType articleType) {
         if (feed instanceof Post) {
-            likesRepository.deleteByUserAndPostAndType(user, (Post) feed, articleType);
+            likesRepository.deleteByUserAndPost(user, (Post) feed);
         } else if (feed instanceof Notice) {
-            likesRepository.deleteByUserAndNoticeAndType(user, (Notice) feed, articleType);
+            likesRepository.deleteByUserAndNotice(user, (Notice) feed);
         } else {
             throw new IllegalArgumentException("없는 글 타입입니다.");
         }

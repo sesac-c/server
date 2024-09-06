@@ -3,8 +3,6 @@ package sesac.server.feed.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -45,10 +43,6 @@ public class Likes {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "notice_id", nullable = true)
     private Notice notice;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ArticleType type;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)

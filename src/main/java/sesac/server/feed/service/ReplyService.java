@@ -95,8 +95,7 @@ public class ReplyService {
     private Reply getReply(Object feed, User user, String content, ArticleType articleType) {
         Reply.ReplyBuilder builder = Reply.builder()
                 .user(user)
-                .content(content)
-                .type(articleType);
+                .content(content);
 
         if (feed instanceof Post) {
             return builder.post((Post) feed).build();

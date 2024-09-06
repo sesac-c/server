@@ -59,10 +59,10 @@ public class Notice extends BaseEntity {
     private Boolean status;
 
 
-    @Formula("(SELECT COUNT(*) FROM likes l WHERE l.notice_id = id AND l.type = 'NOTICE')")
+    @Formula("(SELECT COUNT(*) FROM likes l WHERE l.notice_id = id)")
     private Long likesCount;
 
-    @Formula("(SELECT COUNT(*) FROM reply r WHERE r.notice_id = id AND r.type = 'NOTICE')")
+    @Formula("(SELECT COUNT(*) FROM reply r WHERE r.notice_id = id)")
 
     private Long replyCount;
 

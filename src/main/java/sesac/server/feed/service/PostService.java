@@ -15,7 +15,6 @@ import sesac.server.feed.dto.request.PostListRequest;
 import sesac.server.feed.dto.request.UpdatePostRequest;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
-import sesac.server.feed.entity.ArticleType;
 import sesac.server.feed.entity.Hashtag;
 import sesac.server.feed.entity.Post;
 import sesac.server.feed.entity.PostHashtag;
@@ -72,7 +71,6 @@ public class PostService {
                 .map(hashtag -> PostHashtag.builder()
                         .post(post)
                         .hashtag(hashtag)
-                        .type(ArticleType.POST)
                         .build())
                 .toList();
 
