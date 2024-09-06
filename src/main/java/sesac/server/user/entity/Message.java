@@ -1,4 +1,4 @@
-package sesac.server.message.entity;
+package sesac.server.user.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,7 +16,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import sesac.server.user.entity.User;
 
 @Entity
 @Getter

@@ -1,4 +1,4 @@
-package sesac.server.notification.entity;
+package sesac.server.user.entity;
 
 public enum NotificationType {
     LIKE, REPLY, FOLLOW

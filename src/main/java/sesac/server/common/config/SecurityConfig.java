@@ -53,6 +53,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/campuses", "/campuses/{campusId}/courses")
                 .permitAll()
                 .requestMatchers("/campuses/**").hasRole("MANAGER")
+                .requestMatchers("/user/students/**").hasRole("MANAGER")
                 .requestMatchers("/manager/**").hasRole("MANAGER")
                 .anyRequest().authenticated());
 
