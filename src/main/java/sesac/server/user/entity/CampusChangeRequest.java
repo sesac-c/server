@@ -1,7 +1,17 @@
 package sesac.server.user.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import sesac.server.campus.entity.Course;
 import sesac.server.common.entity.BaseEntity;
 
@@ -26,4 +36,7 @@ public class CampusChangeRequest extends BaseEntity {
 
     @Column(name = "status_code", nullable = false)
     private int statusCode;
+
+    @Column(columnDefinition = "TEXT")
+    private String rejectReason;
 }

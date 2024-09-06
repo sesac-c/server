@@ -59,6 +59,9 @@ public class Student {
 
     @Column(nullable = false)
     private int statusCode;
+    
+    @Column(columnDefinition = "TEXT")
+    private String rejectReason;
 
     @LastModifiedDate
     @Column(name = "updated_at")

@@ -37,6 +37,12 @@ public class ActivityReport {
 
     private String photo;
 
+    @Column(nullable = false)
+    private int statusCode;
+
+    @Column(columnDefinition = "TEXT")
+    private String rejectReason;
+
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
