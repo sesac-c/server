@@ -47,8 +47,10 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(requests -> requests
                 .requestMatchers(HttpMethod.DELETE, "/accounts/**").authenticated()
-                .requestMatchers("/accounts/**", "/campuses", "/campuses/{campusId}/courses")
+                .requestMatchers("/accounts/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/campuses", "/campuses/{campusId}/courses")
                 .permitAll()
+                .requestMatchers("/campuses/**").hasRole("MANAGER")
                 .requestMatchers("/manager/**").hasRole("MANAGER")
                 .anyRequest().authenticated());
 
