@@ -72,7 +72,9 @@ public class CampusController {
     // 매니저 권한: 캠퍼스 삭제
     @DeleteMapping("{campusId}")
     public ResponseEntity<Void> deleteCampus(@PathVariable Long campusId) {
-        return null;
+        campusService.deleteCampus(campusId);
+        
+        return ResponseEntity.noContent().build();
     }
 
     // 매니저 권한: 과정 등록

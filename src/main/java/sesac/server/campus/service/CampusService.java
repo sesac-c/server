@@ -44,10 +44,18 @@ public class CampusService {
     }
 
     public CampusDetailResponse getCampus(Long campusId) {
-        Campus campus = campusRepository.findById(campusId).orElseThrow(
-                () -> new BaseException(CampusErrorCode.NO_CAMPUS)
-        );
+        Campus campus = getCampusEntity(campusId);
 
         return CampusDetailResponse.from(campus);
+    }
+
+    public void deleteCampus(Long campusId) {
+        Campus campus = getCampusEntity(campusId);
+        campusRepository.delete(campus);
+    }
+
+    private Campus getCampusEntity(Long campusId) {
+        return campusRepository.findById(campusId).orElseThrow(
+                () -> new BaseException(CampusErrorCode.NO_CAMPUS));
     }
 }
