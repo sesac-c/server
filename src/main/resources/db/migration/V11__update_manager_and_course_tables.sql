@@ -56,3 +56,23 @@ UPDATE course SET start_date = CURDATE(), end_date = CURDATE() WHERE start_date 
 -- NOT NULL 제약조건 추가
 ALTER TABLE course MODIFY COLUMN start_date DATE NOT NULL;
 ALTER TABLE course MODIFY COLUMN end_date DATE NOT NULL;
+
+-- 강의명 + 기수 조합이 유니크해야한다는 제약 조건 추가
+SET @constraint_exists = (
+    SELECT COUNT(*)
+    FROM information_schema.table_constraints
+    WHERE constraint_type = 'UNIQUE'
+      AND table_schema = 'sesacc'
+      AND table_name = 'course'
+      AND constraint_name = 'unique_course_class_number'
+);
+
+-- 해당 제약 조건이 적용되지 않았을 경우 추가
+SET @sql = IF(@constraint_exists = 0,
+              'ALTER TABLE course ADD CONSTRAINT unique_course_class_number UNIQUE (name, class_number);',
+              'SELECT "Constraint already exists"');
+
+-- 실행
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;

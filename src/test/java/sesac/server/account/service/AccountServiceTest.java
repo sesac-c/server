@@ -54,11 +54,14 @@ class AccountServiceTest {
 
         em.persist(campus);
 
+        LocalDate now = LocalDate.now();
         course = Course.builder()
                 .campus(campus)
                 .name("Course")
                 .classNumber("course number")
                 .instructorName("instructor name")
+                .startDate(now)
+                .endDate(now.plusMonths(1))
                 .build();
 
         em.persist(course);
