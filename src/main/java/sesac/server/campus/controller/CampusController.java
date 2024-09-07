@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import sesac.server.campus.dto.request.CourseResponse;
-import sesac.server.campus.dto.request.CreateCampusRequest;
+import sesac.server.campus.dto.request.CampusRequest;
 import sesac.server.campus.dto.response.CampusDetailResponse;
 import sesac.server.campus.dto.response.CampusResponse;
+import sesac.server.campus.dto.response.CourseResponse;
 import sesac.server.campus.exception.CampusErrorCode;
 import sesac.server.campus.service.CampusService;
 import sesac.server.campus.service.CourseService;
@@ -48,7 +48,7 @@ public class CampusController {
     // 매니저 권한: 캠퍼스 등록
     @PostMapping
     public ResponseEntity<Void> createCampus(
-            @Valid @RequestBody CreateCampusRequest request, BindingResult bindingResult
+            @Valid @RequestBody CampusRequest request, BindingResult bindingResult
     ) {
         validateCampusInput(bindingResult);
         campusService.createCampus(request);
@@ -65,15 +65,23 @@ public class CampusController {
 
     // 매니저 권한: 캠퍼스 수정
     @PutMapping("{campusId}")
-    public ResponseEntity<Void> updateCampus(@PathVariable Long campusId) {
-        return null;
+    public ResponseEntity<Void> updateCampus(
+            @Valid @RequestBody CampusRequest request,
+            BindingResult bindingResult,
+            @PathVariable Long campusId
+    ) {
+        validateCampusInput(bindingResult);
+
+        campusService.updateCampus(request, campusId);
+
+        return ResponseEntity.noContent().build();
     }
 
     // 매니저 권한: 캠퍼스 삭제
     @DeleteMapping("{campusId}")
     public ResponseEntity<Void> deleteCampus(@PathVariable Long campusId) {
         campusService.deleteCampus(campusId);
-        
+
         return ResponseEntity.noContent().build();
     }
 

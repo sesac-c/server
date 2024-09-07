@@ -12,7 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import sesac.server.campus.dto.request.CourseResponse;
+import sesac.server.campus.dto.response.CourseResponse;
 import sesac.server.campus.entity.Campus;
 import sesac.server.campus.entity.Course;
 
