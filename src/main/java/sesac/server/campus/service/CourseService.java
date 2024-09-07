@@ -4,7 +4,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
-import sesac.server.campus.dto.CourseResponse;
+import sesac.server.campus.dto.request.CourseResponse;
 import sesac.server.campus.entity.Course;
 import sesac.server.campus.repository.CourseRepository;
 

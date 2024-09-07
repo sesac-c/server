@@ -1,9 +1,11 @@
 package sesac.server.campus.controller;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,10 +14,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import sesac.server.campus.dto.CampusResponse;
-import sesac.server.campus.dto.CourseResponse;
+import sesac.server.campus.dto.request.CourseResponse;
+import sesac.server.campus.dto.request.CreateCampusRequest;
+import sesac.server.campus.dto.response.CampusResponse;
+import sesac.server.campus.exception.CampusErrorCode;
 import sesac.server.campus.service.CampusService;
 import sesac.server.campus.service.CourseService;
+import sesac.server.common.exception.BindingResultHandler;
 
 @Log4j2
 @RestController
@@ -25,6 +30,7 @@ public class CampusController {
 
     private final CampusService campusService;
     private final CourseService courseService;
+    private final BindingResultHandler bindingResultHandler;
 
     @GetMapping
     public ResponseEntity<List<CampusResponse>> getCampuses() {
@@ -40,8 +46,13 @@ public class CampusController {
 
     // 매니저 권한: 캠퍼스 등록
     @PostMapping
-    public ResponseEntity<Void> createCampus() {
-        return null;
+    public ResponseEntity<Void> createCampus(
+            @Valid @RequestBody CreateCampusRequest request, BindingResult bindingResult
+    ) {
+        validateCampusInput(bindingResult);
+        campusService.createCampus(request);
+
+        return ResponseEntity.noContent().build();
     }
 
     // 매니저 권한: 캠퍼스 상세
@@ -88,5 +99,14 @@ public class CampusController {
     public ResponseEntity<Void> deleteCourse(@PathVariable Long campusId,
             @PathVariable Long courseId) {
         return null;
+    }
+
+    private void validateCampusInput(BindingResult bindingResult) {
+        bindingResultHandler.handleBindingResult(bindingResult, List.of(
+                CampusErrorCode.REQUIRED_NAME,
+                CampusErrorCode.INVALID_NAME_SIZE,
+                CampusErrorCode.REQUIRED_ADDRESS,
+                CampusErrorCode.INVALID_ADDRESS_SIZE
+        ));
     }
 }
