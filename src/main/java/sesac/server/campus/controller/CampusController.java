@@ -19,11 +19,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import sesac.server.campus.dto.request.CampusRequest;
+import sesac.server.campus.dto.request.CourseRequest;
 import sesac.server.campus.dto.response.CampusDetailResponse;
 import sesac.server.campus.dto.response.CampusResponse;
 import sesac.server.campus.dto.response.CourseResponse;
 import sesac.server.campus.dto.response.ExtendedCourseResponse;
 import sesac.server.campus.exception.CampusErrorCode;
+import sesac.server.campus.exception.CourseErrorCode;
 import sesac.server.campus.service.CampusService;
 import sesac.server.campus.service.CourseService;
 import sesac.server.common.dto.PageResponse;
@@ -93,9 +95,14 @@ public class CampusController {
 
     // 매니저 권한: 과정 등록
     @PostMapping("{campusId}/courses")
-    public ResponseEntity<Void> createCourse(@PathVariable Long campusId,
-            @RequestBody CourseResponse courseResponse) {
-        return null;
+    public ResponseEntity<Void> createCourse(
+            @PathVariable Long campusId, @Valid @RequestBody CourseRequest request,
+            BindingResult bindingResult
+    ) {
+        validateCourseInput(bindingResult);
+
+        courseService.createCourse(campusId, request);
+        return ResponseEntity.noContent().build();
     }
 
     // 매니저 권한: 과정 상세 리스트
@@ -147,6 +154,23 @@ public class CampusController {
                 CampusErrorCode.INVALID_NAME_SIZE,
                 CampusErrorCode.REQUIRED_ADDRESS,
                 CampusErrorCode.INVALID_ADDRESS_SIZE
+        ));
+    }
+
+    private void validateCourseInput(BindingResult bindingResult) {
+        bindingResultHandler.handleBindingResult(bindingResult, List.of(
+                CourseErrorCode.REQUIRED_NAME,
+                CourseErrorCode.INVALID_NAME_SIZE,
+
+                CourseErrorCode.REQUIRED_CLASS_NUMBER,
+                CourseErrorCode.INVALID_CLASS_NUMBER_SIZE,
+
+                CourseErrorCode.REQUIRED_INSTRUCTOR_NAME,
+                CourseErrorCode.INVALID_INSTRUCTOR_NAME_PATTERN,
+                CourseErrorCode.INVALID_INSTRUCTOR_NAME_SIZE,
+
+                CourseErrorCode.REQUIRED_START_DATE,
+                CourseErrorCode.REQUIRED_END_DATE
         ));
     }
 }
