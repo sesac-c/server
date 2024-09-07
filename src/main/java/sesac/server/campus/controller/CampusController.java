@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sesac.server.campus.dto.request.CourseResponse;
 import sesac.server.campus.dto.request.CreateCampusRequest;
+import sesac.server.campus.dto.response.CampusDetailResponse;
 import sesac.server.campus.dto.response.CampusResponse;
 import sesac.server.campus.exception.CampusErrorCode;
 import sesac.server.campus.service.CampusService;
@@ -57,8 +58,9 @@ public class CampusController {
 
     // 매니저 권한: 캠퍼스 상세
     @GetMapping("{campusId}")
-    public ResponseEntity<Void> getCampus(@PathVariable Long campusId) {
-        return null;
+    public ResponseEntity<CampusDetailResponse> getCampus(@PathVariable Long campusId) {
+        CampusDetailResponse response = campusService.getCampus(campusId);
+        return ResponseEntity.ok().body(response);
     }
 
     // 매니저 권한: 캠퍼스 수정

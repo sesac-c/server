@@ -1,6 +1,7 @@
 package sesac.server.campus.exception;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +16,8 @@ public enum CampusErrorCode implements ErrorCode {
     INVALID_NAME_SIZE(BAD_REQUEST, "캠퍼스 이름은 1자 이상 50자 이하로 입력해야 합니다."),
     REQUIRED_ADDRESS(BAD_REQUEST, "캠퍼스 주소는 필수입니다."),
     INVALID_ADDRESS_SIZE(BAD_REQUEST,
-            "캠퍼스 주소는 1자 이상 100자 이하로 입력해야 합니다.");
-
+            "캠퍼스 주소는 1자 이상 100자 이하로 입력해야 합니다."),
+    NO_CAMPUS(NOT_FOUND, "캠퍼스가 존재하지 않습니다");
 
     private final HttpStatus status;
     private final String message;

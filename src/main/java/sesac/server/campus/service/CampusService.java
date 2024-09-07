@@ -6,9 +6,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import sesac.server.campus.dto.request.CreateCampusRequest;
+import sesac.server.campus.dto.response.CampusDetailResponse;
 import sesac.server.campus.dto.response.CampusResponse;
 import sesac.server.campus.entity.Campus;
+import sesac.server.campus.exception.CampusErrorCode;
 import sesac.server.campus.repository.CampusRepository;
+import sesac.server.common.exception.BaseException;
 
 @Service
 @Transactional
@@ -38,5 +41,13 @@ public class CampusService {
                 .address(request.address())
                 .build();
         campusRepository.save(campus);
+    }
+
+    public CampusDetailResponse getCampus(Long campusId) {
+        Campus campus = campusRepository.findById(campusId).orElseThrow(
+                () -> new BaseException(CampusErrorCode.NO_CAMPUS)
+        );
+
+        return CampusDetailResponse.from(campus);
     }
 }
