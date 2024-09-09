@@ -21,7 +21,7 @@ public record NoticeResponse(
     public NoticeResponse(Notice notice/*, List<ReplyResponse> replies*/) {
         this(
                 notice.getId(),
-                notice.getUser().getManager().getCampusName(),
+                notice.getUser().getManager().getCampus().getName(),
                 notice.getTitle(),
                 notice.getContent(),
                 notice.getCreatedAt(),

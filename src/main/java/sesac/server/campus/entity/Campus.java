@@ -27,4 +27,13 @@ public class Campus extends BaseEntity {
 
     @Column(nullable = false, unique = true, length = 100)
     private String address;
+
+    public void updateCampus(String name, String address) {
+        if (name != null) {
+            this.name = name;
+        }
+        if (address != null) {
+            this.address = address;
+        }
+    }
 }

@@ -12,8 +12,8 @@ public record ManagerListResponse(
     public ManagerListResponse(Manager manager) {
         this(
                 manager.getId(),
-                manager.getCampusName(),
-                manager.getAddress(),
+                manager.getCampus().getName(),
+                manager.getCampus().getAddress(),
                 manager.getProfileImage()
         );
     }

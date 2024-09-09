@@ -1,6 +1,7 @@
 package sesac.server.common.exception;
 
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -19,7 +20,10 @@ public enum GlobalErrorCode implements ErrorCode {
     REDIS_KEY_NOT_FOUND_ERROR(NOT_FOUND, "요청한 키를 찾을 수 없습니다."),
     REDIS_EXPIRATION_ERROR(INTERNAL_SERVER_ERROR, "edis 키 만료 설정 중 오류가 발생했습니다."),
     REDIS_KEY_CHECK_ERROR(INTERNAL_SERVER_ERROR,
-            "Redis 키 존재 여부 확인 중 오류가 발생했습니다.");
+            "Redis 키 존재 여부 확인 중 오류가 발생했습니다."),
+
+    SAME_AS_PREVIOUS(BAD_REQUEST, "수정 내용이 이전과 동일합니다."),
+    AT_LEAST_ONE_FIELD_REQUIRED(BAD_REQUEST, "적어도 하나의 필드는 포함해야 합니다.");
 
     private final HttpStatus status;
     private final String message;
