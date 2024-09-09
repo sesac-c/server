@@ -1,6 +1,8 @@
 package sesac.server.campus.exception;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +25,11 @@ public enum CourseErrorCode implements ErrorCode {
     INVALID_INSTRUCTOR_NAME_SIZE(BAD_REQUEST, "강사 이름은 1 ~ 5자로 입력해주세요"),
 
     REQUIRED_START_DATE(BAD_REQUEST, "개강일 입력은 필수입니다."),
-    REQUIRED_END_DATE(BAD_REQUEST, "종강일 입력은 필수입니다.");
-    
+    REQUIRED_END_DATE(BAD_REQUEST, "종강일 입력은 필수입니다."),
+
+    NO_COURSE(NOT_FOUND, "강의가 없습니다."),
+    NO_PERMISSION(FORBIDDEN, "해당 강의의 수정 권한이 없습니다.");
+
     private final HttpStatus status;
     private final String message;
 

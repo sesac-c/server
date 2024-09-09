@@ -18,9 +18,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import sesac.server.campus.dto.request.CourseRequest;
 import sesac.server.campus.dto.request.CreateCampusRequest;
+import sesac.server.campus.dto.request.CreateCourseRequest;
 import sesac.server.campus.dto.request.UpdateCampusRequest;
+import sesac.server.campus.dto.request.UpdateCourseRequest;
 import sesac.server.campus.dto.response.CampusDetailResponse;
 import sesac.server.campus.dto.response.CampusResponse;
 import sesac.server.campus.dto.response.CourseResponse;
@@ -97,7 +98,7 @@ public class CampusController {
     // 매니저 권한: 과정 등록
     @PostMapping("{campusId}/courses")
     public ResponseEntity<Void> createCourse(
-            @PathVariable Long campusId, @Valid @RequestBody CourseRequest request,
+            @PathVariable Long campusId, @Valid @RequestBody CreateCourseRequest request,
             BindingResult bindingResult
     ) {
         validateCourseInput(bindingResult);
@@ -137,9 +138,14 @@ public class CampusController {
 
     // 매니저 권한: 과정 수정
     @PutMapping("{campusId}/courses/{courseId}")
-    public ResponseEntity<Void> updateCourse(@PathVariable Long campusId,
-            @PathVariable Long courseId) {
-        return null;
+    public ResponseEntity<Void> updateCourse(
+            @PathVariable Long campusId, @PathVariable Long courseId,
+            @Valid @RequestBody UpdateCourseRequest request, BindingResult bindingResult
+    ) {
+        validateCourseInput(bindingResult);
+
+        courseService.updateCourse(campusId, courseId, request);
+        return ResponseEntity.noContent().build();
     }
 
     // 매니저 권한: 과정 삭제

@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import sesac.server.campus.dto.request.UpdateCourseRequest;
 import sesac.server.common.entity.BaseEntity;
 
 @Entity
@@ -40,4 +41,26 @@ public class Course extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "campus_id")
     private Campus campus;
+
+
+    public void updateCourse(UpdateCourseRequest updateCourseRequest, Campus newCampus) {
+        if (updateCourseRequest.name() != null) {
+            this.name = updateCourseRequest.name();
+        }
+        if (updateCourseRequest.classNumber() != null) {
+            this.classNumber = updateCourseRequest.classNumber();
+        }
+        if (updateCourseRequest.instructorName() != null) {
+            this.instructorName = updateCourseRequest.instructorName();
+        }
+        if (updateCourseRequest.startDate() != null) {
+            this.startDate = updateCourseRequest.startDate();
+        }
+        if (updateCourseRequest.endDate() != null) {
+            this.endDate = updateCourseRequest.endDate();
+        }
+        if (newCampus != null) {
+            this.campus = newCampus;
+        }
+    }
 }

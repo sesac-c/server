@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
-public record CourseRequest(
+public record CreateCourseRequest(
         @NotBlank(message = "REQUIRED_NAME")
         @Size(min = 1, max = 50, message = "INVALID_NAME_SIZE")
         String name,
