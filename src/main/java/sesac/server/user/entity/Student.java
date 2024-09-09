@@ -17,7 +17,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.util.StringUtils;
 import sesac.server.campus.entity.Course;
+import sesac.server.user.dto.request.UpdateStudentRequest;
 
 @Entity
 @Getter
@@ -59,11 +61,27 @@ public class Student {
 
     @Column(nullable = false)
     private int statusCode;
-    
+
     @Column(columnDefinition = "TEXT")
     private String rejectReason;
 
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public void update(UpdateStudentRequest request) {
+        if (StringUtils.hasText(request.name())) {
+            this.name = request.name();
+        }
+
+        if (StringUtils.hasText(request.nickname())) {
+            this.nickname = request.nickname();
+        }
+    }
+
+    public void setStatus(Integer statusCode) {
+        if (statusCode != null) {
+            this.statusCode = statusCode;
+        }
+    }
 }
