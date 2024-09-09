@@ -18,8 +18,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import sesac.server.campus.dto.request.CampusRequest;
 import sesac.server.campus.dto.request.CourseRequest;
+import sesac.server.campus.dto.request.CreateCampusRequest;
+import sesac.server.campus.dto.request.UpdateCampusRequest;
 import sesac.server.campus.dto.response.CampusDetailResponse;
 import sesac.server.campus.dto.response.CampusResponse;
 import sesac.server.campus.dto.response.CourseResponse;
@@ -56,7 +57,7 @@ public class CampusController {
     // 매니저 권한: 캠퍼스 등록
     @PostMapping
     public ResponseEntity<Void> createCampus(
-            @Valid @RequestBody CampusRequest request, BindingResult bindingResult
+            @Valid @RequestBody CreateCampusRequest request, BindingResult bindingResult
     ) {
         validateCampusInput(bindingResult);
         campusService.createCampus(request);
@@ -74,7 +75,7 @@ public class CampusController {
     // 매니저 권한: 캠퍼스 수정
     @PutMapping("{campusId}")
     public ResponseEntity<Void> updateCampus(
-            @Valid @RequestBody CampusRequest request,
+            @Valid @RequestBody UpdateCampusRequest request,
             BindingResult bindingResult,
             @PathVariable Long campusId
     ) {
@@ -149,28 +150,32 @@ public class CampusController {
     }
 
     private void validateCampusInput(BindingResult bindingResult) {
-        bindingResultHandler.handleBindingResult(bindingResult, List.of(
-                CampusErrorCode.REQUIRED_NAME,
-                CampusErrorCode.INVALID_NAME_SIZE,
-                CampusErrorCode.REQUIRED_ADDRESS,
-                CampusErrorCode.INVALID_ADDRESS_SIZE
-        ));
+        if (bindingResult.hasErrors()) {
+            bindingResultHandler.handleBindingResult(bindingResult, List.of(
+                    CampusErrorCode.REQUIRED_NAME,
+                    CampusErrorCode.INVALID_NAME_SIZE,
+                    CampusErrorCode.REQUIRED_ADDRESS,
+                    CampusErrorCode.INVALID_ADDRESS_SIZE
+            ));
+        }
     }
 
     private void validateCourseInput(BindingResult bindingResult) {
-        bindingResultHandler.handleBindingResult(bindingResult, List.of(
-                CourseErrorCode.REQUIRED_NAME,
-                CourseErrorCode.INVALID_NAME_SIZE,
+        if (bindingResult.hasErrors()) {
+            bindingResultHandler.handleBindingResult(bindingResult, List.of(
+                    CourseErrorCode.REQUIRED_NAME,
+                    CourseErrorCode.INVALID_NAME_SIZE,
 
-                CourseErrorCode.REQUIRED_CLASS_NUMBER,
-                CourseErrorCode.INVALID_CLASS_NUMBER_SIZE,
+                    CourseErrorCode.REQUIRED_CLASS_NUMBER,
+                    CourseErrorCode.INVALID_CLASS_NUMBER_SIZE,
 
-                CourseErrorCode.REQUIRED_INSTRUCTOR_NAME,
-                CourseErrorCode.INVALID_INSTRUCTOR_NAME_PATTERN,
-                CourseErrorCode.INVALID_INSTRUCTOR_NAME_SIZE,
+                    CourseErrorCode.REQUIRED_INSTRUCTOR_NAME,
+                    CourseErrorCode.INVALID_INSTRUCTOR_NAME_PATTERN,
+                    CourseErrorCode.INVALID_INSTRUCTOR_NAME_SIZE,
 
-                CourseErrorCode.REQUIRED_START_DATE,
-                CourseErrorCode.REQUIRED_END_DATE
-        ));
+                    CourseErrorCode.REQUIRED_START_DATE,
+                    CourseErrorCode.REQUIRED_END_DATE
+            ));
+        }
     }
 }
