@@ -6,6 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.campus.dto.request.CreateCourseRequest;
 import sesac.server.campus.dto.request.UpdateCourseRequest;
 import sesac.server.campus.dto.response.CourseDetailResponse;
@@ -19,6 +20,9 @@ import sesac.server.campus.repository.CampusRepository;
 import sesac.server.campus.repository.CourseRepository;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
+import sesac.server.user.entity.Manager;
+import sesac.server.user.exception.UserErrorCode;
+import sesac.server.user.repository.ManagerRepository;
 
 @Service
 @Log4j2
@@ -27,6 +31,7 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
     private final CampusRepository campusRepository;
+    private final ManagerRepository managerRepository;
     private final CourseUpdateValidationService updateValidationService;
 
     public List<CourseResponse> findAll(Long campusId) {
@@ -64,12 +69,12 @@ public class CourseService {
         courseRepository.save(course);
     }
 
-    public void updateCourse(Long campusId, Long courseId, UpdateCourseRequest request) {
+    public void updateCourse(CustomPrincipal principal, Long campusId, Long courseId,
+            UpdateCourseRequest request) {
+
         Course course = (Course) getEntity("course", courseId);// 코스 존재 여부 확인
 
-        log.info(course.getCampus().getId());
-        log.info(campusId);
-        if (!course.getCampus().getId().equals(campusId)) {   // 권한 검사
+        if (!hasCoursePermssion(course, principal)) { // 권한 검사
             throw new BaseException(CourseErrorCode.NO_PERMISSION);
         }
 
@@ -91,8 +96,28 @@ public class CourseService {
         return CourseDetailResponse.from(course);
     }
 
+    public void deleteCourse(CustomPrincipal principal, Long campusId, Long courseId) {
+
+        Course course = (Course) getEntity("course", courseId);// 코스 존재 여부 확인
+
+        if (!hasCoursePermssion(course, principal)) { // 권한 검사
+            throw new BaseException(CourseErrorCode.NO_PERMISSION);
+        }
+
+        courseRepository.delete(course);
+    }
+
     private CourseResponse campusToResponse(Course course) {
         return new CourseResponse(course.getId(), course.getName(), course.getClassNumber());
+    }
+
+    private boolean hasCoursePermssion(Course course, CustomPrincipal principal) {
+        Manager manager = (Manager) getEntity("manager", principal.id());
+
+        Long courseCampusId = course.getCampus().getId();
+        Long managerCampusId = manager.getCampus().getId();
+
+        return courseCampusId.equals(managerCampusId);
     }
 
     private Object getEntity(String entityType, Long id) {
@@ -103,8 +128,10 @@ public class CourseService {
             case "course" -> courseRepository.findById(id).orElseThrow(
                     () -> new BaseException(CourseErrorCode.NO_COURSE)
             );
+            case "manager" -> managerRepository.findById(id).orElseThrow(
+                    () -> new BaseException(UserErrorCode.NO_USER)
+            );
             default -> null;
         };
     }
-
 }

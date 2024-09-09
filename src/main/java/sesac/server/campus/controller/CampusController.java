@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import sesac.server.auth.dto.AuthPrincipal;
+import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.campus.dto.request.CreateCampusRequest;
 import sesac.server.campus.dto.request.CreateCourseRequest;
 import sesac.server.campus.dto.request.UpdateCampusRequest;
@@ -141,20 +143,24 @@ public class CampusController {
     // 매니저 권한: 과정 수정
     @PutMapping("{campusId}/courses/{courseId}")
     public ResponseEntity<Void> updateCourse(
+            @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long campusId, @PathVariable Long courseId,
             @Valid @RequestBody UpdateCourseRequest request, BindingResult bindingResult
     ) {
         validateCourseInput(bindingResult);
 
-        courseService.updateCourse(campusId, courseId, request);
+        courseService.updateCourse(principal, campusId, courseId, request);
         return ResponseEntity.noContent().build();
     }
 
     // 매니저 권한: 과정 삭제
     @DeleteMapping("{campusId}/courses/{courseId}")
-    public ResponseEntity<Void> deleteCourse(@PathVariable Long campusId,
+    public ResponseEntity<Void> deleteCourse(
+            @AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long campusId,
             @PathVariable Long courseId) {
-        return null;
+        courseService.deleteCourse(principal, campusId, courseId);
+        return ResponseEntity.noContent().build();
     }
 
     private void validateCampusInput(BindingResult bindingResult) {
