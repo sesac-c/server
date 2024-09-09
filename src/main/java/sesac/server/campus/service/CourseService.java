@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sesac.server.campus.dto.request.CreateCourseRequest;
 import sesac.server.campus.dto.request.UpdateCourseRequest;
+import sesac.server.campus.dto.response.CourseDetailResponse;
 import sesac.server.campus.dto.response.CourseResponse;
 import sesac.server.campus.dto.response.ExtendedCourseResponse;
 import sesac.server.campus.entity.Campus;
@@ -85,6 +86,11 @@ public class CourseService {
         courseRepository.save(course);
     }
 
+    public CourseDetailResponse getCourseDetail(Long courseId) {
+        Course course = (Course) getEntity("course", courseId);
+        return CourseDetailResponse.from(course);
+    }
+
     private CourseResponse campusToResponse(Course course) {
         return new CourseResponse(course.getId(), course.getName(), course.getClassNumber());
     }
@@ -100,4 +106,5 @@ public class CourseService {
             default -> null;
         };
     }
+
 }

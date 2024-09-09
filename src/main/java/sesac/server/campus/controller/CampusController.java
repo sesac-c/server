@@ -24,6 +24,7 @@ import sesac.server.campus.dto.request.UpdateCampusRequest;
 import sesac.server.campus.dto.request.UpdateCourseRequest;
 import sesac.server.campus.dto.response.CampusDetailResponse;
 import sesac.server.campus.dto.response.CampusResponse;
+import sesac.server.campus.dto.response.CourseDetailResponse;
 import sesac.server.campus.dto.response.CourseResponse;
 import sesac.server.campus.dto.response.ExtendedCourseResponse;
 import sesac.server.campus.exception.CampusErrorCode;
@@ -131,9 +132,10 @@ public class CampusController {
 
     // 매니저 권한: 과정 상세
     @GetMapping("{campusId}/courses/{courseId}")
-    public ResponseEntity<Void> getCourse(@PathVariable Long campusId,
+    public ResponseEntity<CourseDetailResponse> getCourse(@PathVariable Long campusId,
             @PathVariable Long courseId) {
-        return null;
+        CourseDetailResponse response = courseService.getCourseDetail(courseId);
+        return ResponseEntity.ok().body(response);
     }
 
     // 매니저 권한: 과정 수정
