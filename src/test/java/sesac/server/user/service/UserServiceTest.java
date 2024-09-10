@@ -32,6 +32,7 @@ import sesac.server.user.entity.Manager;
 import sesac.server.user.entity.Student;
 import sesac.server.user.entity.User;
 import sesac.server.user.entity.UserRole;
+import sesac.server.user.exception.UserErrorCode;
 
 @SpringBootTest
 @Transactional
@@ -232,6 +233,21 @@ class UserServiceTest {
             // then
             Student student = em.find(Student.class, updatedId);
             assertThat(student.getStatusCode()).isEqualTo(20);
+        }
+
+        @Test
+        @DisplayName("학생 승인 거절 테스트(실패)")
+        public void acceptRejectStudent() {
+            // give
+            AcceptStatusRequest request = new AcceptStatusRequest(20, null);
+
+            // when
+            BaseException ex = Assertions.assertThrows(BaseException.class,
+                    () -> userService.acceptStudent(manager1.getId(), student1.getId(), request));
+
+            // then
+            // 보류 또는 거절 시 거절사유 필수 입력
+            assertThat(ex.getErrorCode()).isEqualTo(UserErrorCode.REQUIRED_REJECT_REASON);
         }
 
         @Test
