@@ -4,11 +4,16 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.GlobalErrorCode;
+import sesac.server.user.dto.request.SearchStudentRequest;
 import sesac.server.user.dto.request.UpdateStudentRequest;
 import sesac.server.user.dto.response.ManagerListResponse;
+import sesac.server.user.dto.response.SearchStudentResponse;
 import sesac.server.user.dto.response.StudentDetailResponse;
 import sesac.server.user.dto.response.StudentListResponse;
 import sesac.server.user.entity.Manager;
@@ -46,11 +51,12 @@ public class UserService {
         return response;
     }
 
-    // // -----------------------------------------------------------매니저 권한
-    //    @GetMapping("students")
-    //    public ResponseEntity<Void> getStudentList() {
-    //        return null;
-    //    }
+    public PageResponse<SearchStudentResponse> getStudentList(Pageable pageable,
+            SearchStudentRequest request) {
+        Page<SearchStudentResponse> students = studentRepository.searchStudent(pageable, request);
+
+        return new PageResponse<>(students);
+    }
 
     public StudentDetailResponse getStudent(Long userId) {
         Student student = studentRepository.findById(userId)
