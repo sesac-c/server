@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.GlobalErrorCode;
+import sesac.server.user.dto.request.AcceptStatusRequest;
 import sesac.server.user.dto.request.SearchStudentRequest;
 import sesac.server.user.dto.request.UpdateStudentRequest;
 import sesac.server.user.dto.response.ManagerListResponse;
@@ -81,7 +82,7 @@ public class UserService {
         return student.getId();
     }
 
-    public Long acceptStudent(Long managerId, Long userId, Integer statusCode) {
+    public Long acceptStudent(Long managerId, Long userId, AcceptStatusRequest request) {
         Manager manager = managerRepository.findById(managerId)
                 .orElseThrow(() -> new BaseException(UserErrorCode.NO_MANAGER));
 
@@ -92,7 +93,7 @@ public class UserService {
             throw new BaseException(GlobalErrorCode.NO_PERMISSIONS);
         }
 
-        student.setStatus(statusCode);
+        student.setStatus(request);
         studentRepository.save(student);
 
         return student.getId();

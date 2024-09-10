@@ -1,5 +1,7 @@
 package sesac.server.user.entity;
 
+import static org.springframework.util.StringUtils.hasText;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -9,6 +11,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -17,9 +21,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.util.StringUtils;
 import sesac.server.campus.entity.Course;
+import sesac.server.common.exception.BaseException;
+import sesac.server.user.dto.request.AcceptStatusRequest;
 import sesac.server.user.dto.request.UpdateStudentRequest;
+import sesac.server.user.exception.UserErrorCode;
 
 @Entity
 @Getter
@@ -69,19 +75,36 @@ public class Student {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @PrePersist
+    @PreUpdate
+    public void prePersist() {
+        if (this.statusCode < 20) {
+            this.rejectReason = null;
+        }
+    }
+
     public void update(UpdateStudentRequest request) {
-        if (StringUtils.hasText(request.name())) {
+        if (hasText(request.name())) {
             this.name = request.name();
         }
 
-        if (StringUtils.hasText(request.nickname())) {
+        if (hasText(request.nickname())) {
             this.nickname = request.nickname();
         }
     }
 
-    public void setStatus(Integer statusCode) {
-        if (statusCode != null) {
-            this.statusCode = statusCode;
+    public void setStatus(AcceptStatusRequest request) {
+        if (request.statusCode() != null) {
+            this.statusCode = request.statusCode();
+        }
+
+        if (request.statusCode() >= 20 && !hasText(this.rejectReason)
+                && !hasText(request.rejectReason())) {
+            throw new BaseException(UserErrorCode.REQUIRED_REJECT_REASON);
+        }
+
+        if (hasText(request.rejectReason())) {
+            this.rejectReason = request.rejectReason();
         }
     }
 }
