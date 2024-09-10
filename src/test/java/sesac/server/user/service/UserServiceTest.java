@@ -23,6 +23,7 @@ import sesac.server.campus.entity.Course;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.GlobalErrorCode;
+import sesac.server.user.dto.request.AcceptStatusRequest;
 import sesac.server.user.dto.request.SearchStudentRequest;
 import sesac.server.user.dto.request.UpdateStudentRequest;
 import sesac.server.user.dto.response.SearchStudentResponse;
@@ -220,8 +221,11 @@ class UserServiceTest {
         @Test
         @DisplayName("학생 승인 테스트")
         public void acceptStudent() {
+            // give
+            AcceptStatusRequest request = new AcceptStatusRequest(20, "그냥");
+
             // when
-            Long updatedId = userService.acceptStudent(manager1.getId(), student1.getId(), 20);
+            Long updatedId = userService.acceptStudent(manager1.getId(), student1.getId(), request);
             em.flush();
             em.clear();
 
@@ -233,8 +237,11 @@ class UserServiceTest {
         @Test
         @DisplayName("학생 승인 null 테스트")
         public void acceptStatusNullStudent() {
+            // give
+            AcceptStatusRequest request = new AcceptStatusRequest(null, null);
+
             // when
-            Long updatedId = userService.acceptStudent(manager1.getId(), student1.getId(), null);
+            Long updatedId = userService.acceptStudent(manager1.getId(), student1.getId(), request);
             em.flush();
             em.clear();
 
@@ -246,9 +253,12 @@ class UserServiceTest {
         @Test
         @DisplayName("다른 캠퍼스 학생 승인 테스트")
         public void acceptOtherCampusStudent() {
+            // give
+            AcceptStatusRequest request = new AcceptStatusRequest(20, "그냥");
+
             // when
             BaseException ex = Assertions.assertThrows(BaseException.class,
-                    () -> userService.acceptStudent(manager1.getId(), student2.getId(), 20));
+                    () -> userService.acceptStudent(manager1.getId(), student2.getId(), request));
 
             // then
             assertThat(ex.getErrorCode()).isEqualTo(GlobalErrorCode.NO_PERMISSIONS);

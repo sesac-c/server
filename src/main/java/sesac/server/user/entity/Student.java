@@ -98,7 +98,7 @@ public class Student {
             this.statusCode = request.statusCode();
         }
 
-        if (request.statusCode() >= 20 && !hasText(this.rejectReason)
+        if (this.statusCode >= 20 && !hasText(this.rejectReason)
                 && !hasText(request.rejectReason())) {
             throw new BaseException(UserErrorCode.REQUIRED_REJECT_REASON);
         }
