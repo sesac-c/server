@@ -3,10 +3,12 @@ package sesac.server.user.controller;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,9 +18,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
+import sesac.server.common.dto.PageResponse;
+import sesac.server.user.dto.request.SearchStudentRequest;
 import sesac.server.user.dto.request.UpdateStudentRequest;
 import sesac.server.user.dto.request.UpdateStudentStatusRequest;
 import sesac.server.user.dto.response.ManagerListResponse;
+import sesac.server.user.dto.response.SearchStudentResponse;
 import sesac.server.user.dto.response.StudentDetailResponse;
 import sesac.server.user.dto.response.StudentListResponse;
 import sesac.server.user.service.UserService;
@@ -146,8 +151,15 @@ public class UserController {
 
     // -----------------------------------------------------------매니저 권한
     @GetMapping("students")
-    public ResponseEntity<Void> getStudentList() {
-        return null;
+    public ResponseEntity<PageResponse<SearchStudentResponse>> getStudentList(
+            @ModelAttribute SearchStudentRequest searchStudentRequest,
+            Pageable pageable
+    ) {
+        PageResponse<SearchStudentResponse> response = userService.getStudentList(pageable,
+                searchStudentRequest);
+
+        return ResponseEntity.ok(response);
+
     }
 
     @GetMapping("students/{userId}")
