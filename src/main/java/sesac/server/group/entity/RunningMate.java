@@ -1,5 +1,7 @@
 package sesac.server.group.entity;
 
+import static org.springframework.util.StringUtils.hasText;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -14,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sesac.server.campus.entity.Course;
 import sesac.server.common.entity.BaseEntity;
+import sesac.server.group.dto.request.UpdateRunningMateRequest;
 
 @Entity
 @Getter
@@ -38,4 +41,18 @@ public class RunningMate extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
     private Course course;
+
+    public void update(UpdateRunningMateRequest request) {
+        if (hasText(request.name())) {
+            this.name = request.name();
+        }
+
+        if (hasText(request.subject())) {
+            this.subject = request.subject();
+        }
+
+        if (hasText(request.goal())) {
+            this.goal = request.goal();
+        }
+    }
 }
