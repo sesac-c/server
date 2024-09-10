@@ -28,9 +28,11 @@ import sesac.server.campus.repository.CourseRepository;
 import sesac.server.common.util.EmailUtil;
 import sesac.server.common.util.JwtUtil;
 import sesac.server.common.util.RedisUtil;
+import sesac.server.user.entity.Manager;
 import sesac.server.user.entity.Student;
 import sesac.server.user.entity.User;
 import sesac.server.user.entity.UserRole;
+import sesac.server.user.repository.ManagerRepository;
 import sesac.server.user.repository.StudentRepository;
 import sesac.server.user.repository.UserRepository;
 
@@ -48,6 +50,7 @@ public class AccountService {
     private final EmailUtil emailUtil;
     private final RedisUtil<String> redisUtil;
     private final TokenBlacklistService tokenBlacklistService;
+    private final ManagerRepository managerRepository;
 
     public void checkEmail(String email) {
         boolean exits = userRepository.existsByEmail(email);
@@ -110,19 +113,24 @@ public class AccountService {
             throw new AccountException(AccountErrorCode.NO_EMAIL_OR_PASSWORD);
         }
 
+        if (user.getRole() == UserRole.MANAGER) {
+            return loginManager(user);
+        }
+
+        return loginStudent(user);
+    }
+
+    public LoginResponse loginStudent(User user) {
         Student student = studentRepository.findById(user.getId())
                 .orElseThrow(() -> new AccountException(AccountErrorCode.NO_EMAIL_OR_PASSWORD));
 
-        if (student.getStatusCode() == 0) {
-            throw new AccountException(AccountErrorCode.PENDING_ACCOUNT);
-        }
-
-        if (student.getStatusCode() == 20) {
-            throw new AccountException(AccountErrorCode.HOLD_ACCOUNT);
-        }
-
-        if (student.getStatusCode() == 30) {
-            throw new AccountException(AccountErrorCode.REJECTED_ACCOUNT);
+        switch (student.getStatusCode()) {
+            case 0:
+                throw new AccountException(AccountErrorCode.PENDING_ACCOUNT);
+            case 20:
+                throw new AccountException(AccountErrorCode.HOLD_ACCOUNT);
+            case 30:
+                throw new AccountException(AccountErrorCode.REJECTED_ACCOUNT);
         }
 
         Map<String, Object> claims = new HashMap<>();
@@ -134,14 +142,33 @@ public class AccountService {
         String accessToken = jwtUtil.generateToken(claims, 1);
         String refreshToken = jwtUtil.generateToken(claims, 14);
 
-        LoginResponse response = new LoginResponse(
+        return new LoginResponse(
                 accessToken,
                 refreshToken,
                 student.getNickname(),
                 user.getRole()
         );
+    }
 
-        return response;
+    public LoginResponse loginManager(User user) {
+        Manager manager = managerRepository.findById(user.getId())
+                .orElseThrow(() -> new AccountException(AccountErrorCode.NO_EMAIL_OR_PASSWORD));
+
+        Map<String, Object> claims = new HashMap<>();
+
+        claims.put("id", user.getId().toString());
+        claims.put("role", user.getRole());
+        claims.put("nickname", manager.getCampus().getName());
+
+        String accessToken = jwtUtil.generateToken(claims, 1);
+        String refreshToken = jwtUtil.generateToken(claims, 14);
+
+        return new LoginResponse(
+                accessToken,
+                refreshToken,
+                manager.getCampus().getName(),
+                user.getRole()
+        );
     }
 
     public void logout(String token) {

@@ -2,6 +2,7 @@ package sesac.server.common.exception;
 
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -23,7 +24,8 @@ public enum GlobalErrorCode implements ErrorCode {
             "Redis 키 존재 여부 확인 중 오류가 발생했습니다."),
 
     SAME_AS_PREVIOUS(BAD_REQUEST, "수정 내용이 이전과 동일합니다."),
-    AT_LEAST_ONE_FIELD_REQUIRED(BAD_REQUEST, "적어도 하나의 필드는 포함해야 합니다.");
+    AT_LEAST_ONE_FIELD_REQUIRED(BAD_REQUEST, "적어도 하나의 필드는 포함해야 합니다."),
+    NO_PERMISSIONS(FORBIDDEN, "권한이 없습니다.");
 
     private final HttpStatus status;
     private final String message;
