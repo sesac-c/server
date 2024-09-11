@@ -24,6 +24,7 @@ import sesac.server.common.exception.BaseException;
 import sesac.server.group.dto.request.CreateRunningMateMemberRequest;
 import sesac.server.group.dto.request.CreateRunningMateRequest;
 import sesac.server.group.dto.request.SearchRunningMateRequest;
+import sesac.server.group.dto.request.UpdateRunningMateMemberRequest;
 import sesac.server.group.dto.request.UpdateRunningMateRequest;
 import sesac.server.group.dto.response.RunningMateDetailResponse;
 import sesac.server.group.dto.response.RunningMateMemberDetailResponse;
@@ -32,6 +33,7 @@ import sesac.server.group.entity.RunningMate;
 import sesac.server.group.entity.RunningMateMember;
 import sesac.server.group.entity.RunningMateMember.MemberRole;
 import sesac.server.group.exception.RunningMateErrorCode;
+import sesac.server.user.entity.Manager;
 import sesac.server.user.entity.Student;
 import sesac.server.user.entity.User;
 import sesac.server.user.entity.UserRole;
@@ -50,6 +52,9 @@ class RunningMateServiceTest {
     Campus campus;
     Course course;
 
+    User managerUser;
+    Manager manager;
+
     @BeforeEach
     void setUp() {
         campus = Campus.builder()
@@ -66,8 +71,21 @@ class RunningMateServiceTest {
                 .endDate(LocalDate.now().plusDays(1))
                 .build();
 
+        managerUser = User.builder()
+                .email("manager@example.com")
+                .role(UserRole.MANAGER)
+                .password("1234")
+                .build();
+
+        manager = Manager.builder()
+                .user(managerUser)
+                .campus(campus)
+                .build();
+
         em.persist(campus);
         em.persist(course);
+        em.persist(managerUser);
+        em.persist(manager);
         em.flush();
         em.clear();
     }
@@ -393,6 +411,57 @@ class RunningMateServiceTest {
 
             // then
             assertThat(response.userId()).isEqualTo(runningMateMember.getUser().getId());
+        }
+
+        @Test
+        @DisplayName("러닝메이트 멤버 수정")
+        public void updateMember() {
+            // give
+            RunningMateMember runningMateMember = RunningMateMember.builder()
+                    .runningMate(runningMate)
+                    .user(memberUser)
+                    .role(MemberRole.MEMBER)
+                    .phoneNumber("010-0000-0001")
+                    .build();
+
+            em.persist(runningMateMember);
+            em.flush();
+            em.clear();
+
+            UpdateRunningMateMemberRequest request = new UpdateRunningMateMemberRequest(
+                    MemberRole.LEADER, null);
+
+            // when
+            Long updatedId = runningMateService.updateRunningmateMember(
+                    manager.getId(), runningMate.getId(), runningMateMember.getId(), request);
+
+            // then
+            RunningMateMember updated = em.find(RunningMateMember.class, updatedId);
+            assertThat(updated.getRole()).isEqualTo(MemberRole.LEADER);
+        }
+
+        @Test
+        @DisplayName("러닝메이트 멤버 삭제")
+        public void deleteMember() {
+            // give
+            RunningMateMember runningMateMember = RunningMateMember.builder()
+                    .runningMate(runningMate)
+                    .user(memberUser)
+                    .role(MemberRole.MEMBER)
+                    .phoneNumber("010-0000-0001")
+                    .build();
+
+            em.persist(runningMateMember);
+            em.flush();
+            em.clear();
+
+            // when
+            runningMateService.deleteRunningmateMember(
+                    manager.getId(), runningMate.getId(), runningMateMember.getId());
+
+            // then
+            RunningMateMember deleted = em.find(RunningMateMember.class, runningMateMember.getId());
+            assertThat(deleted).isNull();
         }
     }
 }

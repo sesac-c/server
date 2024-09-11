@@ -11,9 +11,11 @@ import sesac.server.campus.exception.CourseErrorCode;
 import sesac.server.campus.repository.CourseRepository;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
+import sesac.server.common.exception.GlobalErrorCode;
 import sesac.server.group.dto.request.CreateRunningMateMemberRequest;
 import sesac.server.group.dto.request.CreateRunningMateRequest;
 import sesac.server.group.dto.request.SearchRunningMateRequest;
+import sesac.server.group.dto.request.UpdateRunningMateMemberRequest;
 import sesac.server.group.dto.request.UpdateRunningMateRequest;
 import sesac.server.group.dto.response.RunningMateDetailResponse;
 import sesac.server.group.dto.response.RunningMateMemberDetailResponse;
@@ -23,8 +25,10 @@ import sesac.server.group.entity.RunningMateMember;
 import sesac.server.group.exception.RunningMateErrorCode;
 import sesac.server.group.repository.RunningMateMemberRepository;
 import sesac.server.group.repository.RunningMateRepository;
+import sesac.server.user.entity.Manager;
 import sesac.server.user.entity.User;
 import sesac.server.user.exception.UserErrorCode;
+import sesac.server.user.repository.ManagerRepository;
 import sesac.server.user.repository.UserRepository;
 
 @Service
@@ -37,6 +41,7 @@ public class RunningMateService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
     private final RunningMateMemberRepository runningMateMemberRepository;
+    private final ManagerRepository managerRepository;
 
     // 러닝메이트 관리
     public PageResponse<SearchRunningMateResponse> getRunningmateList(Pageable pageable,
@@ -115,18 +120,42 @@ public class RunningMateService {
 
         return RunningMateMemberDetailResponse.from(runningMateMember);
     }
-    //
-    //    @PutMapping("{runningmateId}/member/{memberId}")
-    //    public ResponseEntity<Void> updateRunningmateMember(
-    //            @PathVariable Long runningmateId, @PathVariable Long memberId
-    //    ) {
-    //        return null;
-    //    }
-    //
-    //    @DeleteMapping("{runningmateId}/member/{memberId}")
-    //    public ResponseEntity<Void> deleteRunningmateMember(
-    //            @PathVariable Long runningmateId, @PathVariable Long memberId
-    //    ) {
-    //        return null;
-    //    }
+
+    public Long updateRunningmateMember(Long managerId, Long runningmateId, Long memberId,
+            UpdateRunningMateMemberRequest request
+    ) {
+        Manager manager = managerRepository.findById(managerId)
+                .orElseThrow(() -> new BaseException(UserErrorCode.NO_MANAGER));
+
+        RunningMateMember runningMateMember = runningMateMemberRepository
+                .findByIdAndRunningMateId(memberId, runningmateId)
+                .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE_MEMBER));
+
+        if (!runningMateMember.getRunningMate().getCourse().getCampus().getId()
+                .equals(manager.getCampus().getId())) {
+            throw new BaseException(GlobalErrorCode.NO_PERMISSIONS);
+        }
+
+        runningMateMember.update(request);
+        runningMateMemberRepository.save(runningMateMember);
+        return runningMateMember.getId();
+    }
+
+    public void deleteRunningmateMember(
+            Long managerId, Long runningmateId, Long memberId
+    ) {
+        Manager manager = managerRepository.findById(managerId)
+                .orElseThrow(() -> new BaseException(UserErrorCode.NO_MANAGER));
+
+        RunningMateMember runningMateMember = runningMateMemberRepository
+                .findByIdAndRunningMateId(memberId, runningmateId)
+                .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE_MEMBER));
+
+        if (!runningMateMember.getRunningMate().getCourse().getCampus().getId()
+                .equals(manager.getCampus().getId())) {
+            throw new BaseException(GlobalErrorCode.NO_PERMISSIONS);
+        }
+
+        runningMateMemberRepository.delete(runningMateMember);
+    }
 }
