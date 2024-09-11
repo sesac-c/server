@@ -1,22 +1,39 @@
 package sesac.server.group.controller;
 
+import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import sesac.server.common.dto.PageResponse;
+import sesac.server.common.exception.BindingResultHandler;
+import sesac.server.group.dto.request.CreateRunningMateRequest;
+import sesac.server.group.dto.request.SearchRunningMateRequest;
+import sesac.server.group.dto.request.UpdateRunningMateRequest;
+import sesac.server.group.dto.response.RunningMateDetailResponse;
+import sesac.server.group.dto.response.SearchRunningMateResponse;
+import sesac.server.group.exception.RunningMateErrorCode;
+import sesac.server.group.service.RunningMateService;
 
 @Log4j2
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("runningmates")
-public class RunningmateController {
+public class RunningMateController {
+
+    private final RunningMateService runningMateService;
 
     @GetMapping("{runningmateId}/activities")
     public ResponseEntity<Void> getActivityReportList() {
@@ -51,28 +68,53 @@ public class RunningmateController {
     // -----------------------------------------------------------매니저 권한
     // 러닝메이트 관리
     @GetMapping
-    public ResponseEntity<Void> getRunningmateList() {
-        return null;
+    public ResponseEntity<PageResponse<SearchRunningMateResponse>> getRunningmateList(
+            @ModelAttribute SearchRunningMateRequest request,
+            Pageable pageable
+    ) {
+        PageResponse<SearchRunningMateResponse> response =
+                runningMateService.getRunningmateList(pageable, request);
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping
-    public ResponseEntity<Void> createRunningmate() {
-        return null;
+    public ResponseEntity<Void> createRunningmate(
+            @Valid @RequestBody CreateRunningMateRequest request,
+            BindingResult bindingResult
+    ) {
+        BindingResultHandler.handle(bindingResult, List.of(
+                RunningMateErrorCode.REQUIRED_NAME,
+                RunningMateErrorCode.REQUIRED_SUBJECT,
+                RunningMateErrorCode.REQUIRED_GOAL,
+                RunningMateErrorCode.REQUIRED_COURSE
+        ));
+
+        runningMateService.createRunningmate(request);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("{runningmateId}")
-    public ResponseEntity<Void> getRunningmate(@PathVariable Long runningmateId) {
-        return null;
+    public ResponseEntity<RunningMateDetailResponse> getRunningmate(
+            @PathVariable Long runningmateId) {
+        RunningMateDetailResponse response = runningMateService.getRunningmate(runningmateId);
+
+        return ResponseEntity.ok().body(response);
     }
 
     @PutMapping("{runningmateId}")
-    public ResponseEntity<Void> updateRunningmate(@PathVariable Long runningmateId) {
-        return null;
+    public ResponseEntity<Void> updateRunningmate(
+            @PathVariable Long runningmateId,
+            @RequestBody UpdateRunningMateRequest request
+    ) {
+        runningMateService.updateRunningmate(runningmateId, request);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("{runningmateId}")
     public ResponseEntity<Void> deleteRunningmate(@PathVariable Long runningmateId) {
-        return null;
+        runningMateService.deleteRunningmate(runningmateId);
+        return ResponseEntity.ok().build();
     }
 
     // 멤버 관리
