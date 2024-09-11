@@ -9,4 +9,6 @@ public interface SearchRunningMate {
 
     Page<SearchRunningMateResponse> runningMateSearch(Pageable pageable,
             SearchRunningMateRequest request);
+
+    boolean existsMember(Long runningMateId, Long userId, String phoneNumber);
 }

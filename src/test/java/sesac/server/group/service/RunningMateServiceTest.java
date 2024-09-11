@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -19,12 +20,19 @@ import org.springframework.data.domain.Sort.Direction;
 import sesac.server.campus.entity.Campus;
 import sesac.server.campus.entity.Course;
 import sesac.server.common.dto.PageResponse;
+import sesac.server.common.exception.BaseException;
+import sesac.server.group.dto.request.CreateRunningMateMemberRequest;
 import sesac.server.group.dto.request.CreateRunningMateRequest;
 import sesac.server.group.dto.request.SearchRunningMateRequest;
 import sesac.server.group.dto.request.UpdateRunningMateRequest;
 import sesac.server.group.dto.response.RunningMateDetailResponse;
 import sesac.server.group.dto.response.SearchRunningMateResponse;
 import sesac.server.group.entity.RunningMate;
+import sesac.server.group.entity.RunningMateMember;
+import sesac.server.group.entity.RunningMateMember.MemberRole;
+import sesac.server.group.exception.RunningMateErrorCode;
+import sesac.server.user.entity.User;
+import sesac.server.user.entity.UserRole;
 
 @SpringBootTest
 @Transactional
@@ -264,6 +272,78 @@ class RunningMateServiceTest {
 
             assertThat(content.stream().map(r -> r.name()).toList())
                     .containsSequence("러닝 이름 1", "러닝 이름 10", "러닝 이름 11", "러닝 이름 12", "러닝 이름 2");
+        }
+    }
+
+    @Nested
+    @DisplayName("러닝메이트 멤버 테스트")
+    class MemberCrudTest {
+
+        RunningMate runningMate;
+
+        User leaderUser;
+        User memberUser;
+
+        @BeforeEach
+        void setUp() {
+            runningMate = RunningMate.builder()
+                    .course(course)
+                    .name("리눅스")
+                    .subject("리눅스를 배운다")
+                    .goal("리눅스 마스터")
+                    .build();
+
+            leaderUser = User.builder()
+                    .email("user1@example.com")
+                    .role(UserRole.STUDENT)
+                    .password("1234")
+                    .build();
+
+            memberUser = User.builder()
+                    .email("user2@example.com")
+                    .role(UserRole.STUDENT)
+                    .password("1234")
+                    .build();
+
+            em.persist(runningMate);
+            em.persist(leaderUser);
+            em.persist(memberUser);
+
+            em.flush();
+            em.clear();
+        }
+
+        @Test
+        @DisplayName("멤버 등록")
+        public void create() {
+            // give
+            CreateRunningMateMemberRequest request = new CreateRunningMateMemberRequest(
+                    leaderUser.getId(), MemberRole.LEADER, "010-0000-0001");
+
+            // when
+            Long createdId = runningMateService.createRunningmateMember(runningMate.getId(),
+                    request);
+
+            // then
+            RunningMateMember created = em.find(RunningMateMember.class, createdId);
+            assertThat(created.getRunningMate().getId()).isEqualTo(runningMate.getId());
+            assertThat(created.getRole()).isEqualTo(MemberRole.LEADER);
+        }
+
+        @Test
+        @DisplayName("유저 아이디와 러닝메이트 아이디가 같은 경우 또는 핸드폰 번호가 같을 경우 이미 등록된 멤버 예외")
+        public void createAlreadyRegistered() {
+            // give
+            CreateRunningMateMemberRequest request = new CreateRunningMateMemberRequest(
+                    leaderUser.getId(), MemberRole.LEADER, "010-0000-0001");
+
+            runningMateService.createRunningmateMember(runningMate.getId(), request);
+            //
+
+            BaseException ex = Assertions.assertThrows(BaseException.class,
+                    () -> runningMateService.createRunningmateMember(runningMate.getId(), request));
+
+            assertThat(ex.getErrorCode()).isEqualTo(RunningMateErrorCode.ALREADY_REGISTERED);
         }
     }
 }

@@ -7,6 +7,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BindingResultHandler;
+import sesac.server.group.dto.request.CreateRunningMateMemberRequest;
 import sesac.server.group.dto.request.CreateRunningMateRequest;
 import sesac.server.group.dto.request.SearchRunningMateRequest;
 import sesac.server.group.dto.request.UpdateRunningMateRequest;
@@ -124,8 +126,20 @@ public class RunningMateController {
     }
 
     @PostMapping("{runningmateId}/members")
-    public ResponseEntity<Void> createRunningmateMember(@PathVariable Long runningmateId) {
-        return null;
+    public ResponseEntity<Void> createRunningmateMember(
+            @PathVariable Long runningmateId,
+            @Validated @RequestBody CreateRunningMateMemberRequest request,
+            BindingResult bindingResult
+    ) {
+        BindingResultHandler.handle(bindingResult, List.of(
+                RunningMateErrorCode.REQUIRED_USER,
+                RunningMateErrorCode.REQUIRED_ROLE,
+                RunningMateErrorCode.REQUIRED_PHONE,
+                RunningMateErrorCode.INVALID_PHONE
+        ));
+
+        runningMateService.createRunningmateMember(runningmateId, request);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("{runningmateId}/member/{memberId}")

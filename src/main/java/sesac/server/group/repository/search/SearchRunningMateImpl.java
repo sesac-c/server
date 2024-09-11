@@ -1,6 +1,7 @@
 package sesac.server.group.repository.search;
 
 import static sesac.server.group.entity.QRunningMate.runningMate;
+import static sesac.server.group.entity.QRunningMateMember.runningMateMember;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -91,5 +92,20 @@ public class SearchRunningMateImpl implements SearchRunningMate {
         }
 
         return orderSpecifiers;
+    }
+
+    @Override
+    public boolean existsMember(Long runningMateId, Long userId, String phoneNumber) {
+        Integer result = queryFactory
+                .selectOne()
+                .from(runningMateMember)
+                .where(
+
+                        runningMateMember.runningMate.id.eq(runningMateId)
+                                .and(runningMateMember.user.id.eq(userId))
+                                .or(runningMateMember.phoneNumber.eq(phoneNumber))
+                )
+                .fetchFirst();
+        return result != null;
     }
 }
