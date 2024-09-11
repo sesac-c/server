@@ -16,6 +16,7 @@ import sesac.server.group.dto.request.CreateRunningMateRequest;
 import sesac.server.group.dto.request.SearchRunningMateRequest;
 import sesac.server.group.dto.request.UpdateRunningMateRequest;
 import sesac.server.group.dto.response.RunningMateDetailResponse;
+import sesac.server.group.dto.response.RunningMateMemberDetailResponse;
 import sesac.server.group.dto.response.SearchRunningMateResponse;
 import sesac.server.group.entity.RunningMate;
 import sesac.server.group.entity.RunningMateMember;
@@ -105,11 +106,15 @@ public class RunningMateService {
         return runningMateMember.getId();
     }
 
-//    public RunningMateMember getRunningmateMember(
-//            Long runningmateId, Long memberId
-//    ) {
-//        return null;
-//    }
+    public RunningMateMemberDetailResponse getRunningmateMember(
+            Long runningmateId, Long memberId
+    ) {
+        RunningMateMember runningMateMember = runningMateMemberRepository
+                .findByIdAndRunningMateId(memberId, runningmateId)
+                .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE_MEMBER));
+
+        return RunningMateMemberDetailResponse.from(runningMateMember);
+    }
     //
     //    @PutMapping("{runningmateId}/member/{memberId}")
     //    public ResponseEntity<Void> updateRunningmateMember(

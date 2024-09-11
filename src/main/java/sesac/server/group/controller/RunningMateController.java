@@ -25,6 +25,7 @@ import sesac.server.group.dto.request.CreateRunningMateRequest;
 import sesac.server.group.dto.request.SearchRunningMateRequest;
 import sesac.server.group.dto.request.UpdateRunningMateRequest;
 import sesac.server.group.dto.response.RunningMateDetailResponse;
+import sesac.server.group.dto.response.RunningMateMemberDetailResponse;
 import sesac.server.group.dto.response.SearchRunningMateResponse;
 import sesac.server.group.exception.RunningMateErrorCode;
 import sesac.server.group.service.RunningMateService;
@@ -143,10 +144,13 @@ public class RunningMateController {
     }
 
     @GetMapping("{runningmateId}/member/{memberId}")
-    public ResponseEntity<Void> getRunningmateMember(
+    public ResponseEntity<RunningMateMemberDetailResponse> getRunningmateMember(
             @PathVariable Long runningmateId, @PathVariable Long memberId
     ) {
-        return null;
+        RunningMateMemberDetailResponse response =
+                runningMateService.getRunningmateMember(runningmateId, memberId);
+
+        return ResponseEntity.ok().body(response);
     }
 
     @PutMapping("{runningmateId}/member/{memberId}")

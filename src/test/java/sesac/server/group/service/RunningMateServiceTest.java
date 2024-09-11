@@ -26,11 +26,13 @@ import sesac.server.group.dto.request.CreateRunningMateRequest;
 import sesac.server.group.dto.request.SearchRunningMateRequest;
 import sesac.server.group.dto.request.UpdateRunningMateRequest;
 import sesac.server.group.dto.response.RunningMateDetailResponse;
+import sesac.server.group.dto.response.RunningMateMemberDetailResponse;
 import sesac.server.group.dto.response.SearchRunningMateResponse;
 import sesac.server.group.entity.RunningMate;
 import sesac.server.group.entity.RunningMateMember;
 import sesac.server.group.entity.RunningMateMember.MemberRole;
 import sesac.server.group.exception.RunningMateErrorCode;
+import sesac.server.user.entity.Student;
 import sesac.server.user.entity.User;
 import sesac.server.user.entity.UserRole;
 
@@ -280,9 +282,10 @@ class RunningMateServiceTest {
     class MemberCrudTest {
 
         RunningMate runningMate;
-
         User leaderUser;
         User memberUser;
+        Student leaderStudent;
+        Student memberStudent;
 
         @BeforeEach
         void setUp() {
@@ -305,9 +308,31 @@ class RunningMateServiceTest {
                     .password("1234")
                     .build();
 
+            leaderStudent = Student.builder()
+                    .user(leaderUser)
+                    .statusCode(10)
+                    .nickname("리더")
+                    .name("리더")
+                    .firstCourse(course)
+                    .gender('M')
+                    .birthDate(LocalDate.now())
+                    .build();
+
+            memberStudent = Student.builder()
+                    .user(memberUser)
+                    .statusCode(10)
+                    .nickname("멤버")
+                    .name("멤버")
+                    .firstCourse(course)
+                    .gender('F')
+                    .birthDate(LocalDate.now())
+                    .build();
+
             em.persist(runningMate);
             em.persist(leaderUser);
             em.persist(memberUser);
+            em.persist(leaderStudent);
+            em.persist(memberStudent);
 
             em.flush();
             em.clear();
@@ -338,12 +363,36 @@ class RunningMateServiceTest {
                     leaderUser.getId(), MemberRole.LEADER, "010-0000-0001");
 
             runningMateService.createRunningmateMember(runningMate.getId(), request);
-            //
 
+            // when
             BaseException ex = Assertions.assertThrows(BaseException.class,
                     () -> runningMateService.createRunningmateMember(runningMate.getId(), request));
 
+            // then
             assertThat(ex.getErrorCode()).isEqualTo(RunningMateErrorCode.ALREADY_REGISTERED);
+        }
+
+        @Test
+        @DisplayName("러닝메이트 멤버 조회")
+        public void getDetailMember() {
+            // give
+            RunningMateMember runningMateMember = RunningMateMember.builder()
+                    .runningMate(runningMate)
+                    .user(memberUser)
+                    .role(MemberRole.MEMBER)
+                    .phoneNumber("010-0000-0001")
+                    .build();
+
+            em.persist(runningMateMember);
+            em.flush();
+            em.clear();
+
+            // when
+            RunningMateMemberDetailResponse response = runningMateService.getRunningmateMember(
+                    runningMate.getId(), runningMateMember.getId());
+
+            // then
+            assertThat(response.userId()).isEqualTo(runningMateMember.getUser().getId());
         }
     }
 }

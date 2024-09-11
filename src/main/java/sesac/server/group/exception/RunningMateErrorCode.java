@@ -18,6 +18,7 @@ public enum RunningMateErrorCode implements ErrorCode {
     REQUIRED_PHONE(HttpStatus.BAD_REQUEST, "핸드폰 번호를 입력해주세요"),
     INVALID_PHONE(HttpStatus.BAD_REQUEST, "핸드폰 번호를 정확하게 입력해주세요"),
     ALREADY_REGISTERED(HttpStatus.BAD_REQUEST, "이미 등록된 멤버입니다."),
+    NO_RUNNING_MATE_MEMBER(HttpStatus.BAD_REQUEST, "러닝메이트 멤버가 없습니다."),
     ;
 
     private final HttpStatus status;
