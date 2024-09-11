@@ -69,18 +69,33 @@ public class RunningMateService {
         return RunningMateDetailResponse.from(runningMate);
     }
 
-    public Long updateRunningmate(Long runningmateId, UpdateRunningMateRequest request) {
+    public Long updateRunningmate(Long managerId, Long runningmateId,
+            UpdateRunningMateRequest request) {
+        Manager manager = managerRepository.findById(managerId)
+                .orElseThrow(() -> new BaseException(UserErrorCode.NO_MANAGER));
+
         RunningMate runningMate = runningmateRepository.findById(runningmateId)
                 .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE));
+
+        if (!runningMate.getCourse().getCampus().getId().equals(manager.getCampus().getId())) {
+            throw new BaseException(GlobalErrorCode.NO_PERMISSIONS);
+        }
 
         runningMate.update(request);
         runningmateRepository.save(runningMate);
         return runningMate.getId();
     }
 
-    public void deleteRunningmate(Long runningmateId) {
+    public void deleteRunningmate(Long managerId, Long runningmateId) {
+        Manager manager = managerRepository.findById(managerId)
+                .orElseThrow(() -> new BaseException(UserErrorCode.NO_MANAGER));
+
         RunningMate runningMate = runningmateRepository.findById(runningmateId)
                 .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE));
+
+        if (!runningMate.getCourse().getCampus().getId().equals(manager.getCampus().getId())) {
+            throw new BaseException(GlobalErrorCode.NO_PERMISSIONS);
+        }
 
         runningmateRepository.delete(runningMate);
     }

@@ -111,16 +111,20 @@ public class RunningMateController {
 
     @PutMapping("{runningmateId}")
     public ResponseEntity<Void> updateRunningmate(
+            @AuthPrincipal CustomPrincipal manager,
             @PathVariable Long runningmateId,
             @RequestBody UpdateRunningMateRequest request
     ) {
-        runningMateService.updateRunningmate(runningmateId, request);
+        runningMateService.updateRunningmate(manager.id(), runningmateId, request);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("{runningmateId}")
-    public ResponseEntity<Void> deleteRunningmate(@PathVariable Long runningmateId) {
-        runningMateService.deleteRunningmate(runningmateId);
+    public ResponseEntity<Void> deleteRunningmate(
+            @AuthPrincipal CustomPrincipal manager,
+            @PathVariable Long runningmateId
+    ) {
+        runningMateService.deleteRunningmate(manager.id(), runningmateId);
         return ResponseEntity.ok().build();
     }
 

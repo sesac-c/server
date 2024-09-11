@@ -158,7 +158,7 @@ class RunningMateServiceTest {
                     "자바 마스터");
 
             // when
-            Long updatedId = runningMateService.updateRunningmate(
+            Long updatedId = runningMateService.updateRunningmate(managerUser.getId(),
                     runningMate.getId(), request);
             em.flush();
             em.clear();
@@ -185,7 +185,7 @@ class RunningMateServiceTest {
             em.clear();
 
             // when
-            runningMateService.deleteRunningmate(runningMate.getId());
+            runningMateService.deleteRunningmate(managerUser.getId(), runningMate.getId());
             em.flush();
             em.clear();
 
