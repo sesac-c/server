@@ -28,6 +28,7 @@ import sesac.server.group.dto.request.UpdateRunningMateMemberRequest;
 import sesac.server.group.dto.request.UpdateRunningMateRequest;
 import sesac.server.group.dto.response.RunningMateDetailResponse;
 import sesac.server.group.dto.response.RunningMateMemberDetailResponse;
+import sesac.server.group.dto.response.RunningMateMemberListResponse;
 import sesac.server.group.dto.response.SearchRunningMateResponse;
 import sesac.server.group.entity.RunningMate;
 import sesac.server.group.entity.RunningMateMember;
@@ -462,6 +463,59 @@ class RunningMateServiceTest {
             // then
             RunningMateMember deleted = em.find(RunningMateMember.class, runningMateMember.getId());
             assertThat(deleted).isNull();
+        }
+
+        @Test
+        @DisplayName("러닝메이트 멤버 목록")
+        public void listMember() {
+            RunningMate runningMate2 = RunningMate.builder()
+                    .course(course)
+                    .name("자바를 자바")
+                    .subject("자바를 배운다")
+                    .goal("자바 마스터")
+                    .build();
+            em.persist(runningMate2);
+
+            // give
+            for (int i = 1; i <= 12; i++) {
+
+                User user = User.builder()
+                        .email("member" + i + "@example.com")
+                        .role(UserRole.STUDENT)
+                        .password("1234")
+                        .build();
+
+                Student student = Student.builder()
+                        .user(user)
+                        .statusCode(10)
+                        .nickname((i <= 2 ? "리더" : "멤버") + i)
+                        .name((i <= 2 ? "리더" : "멤버") + i)
+                        .firstCourse(course)
+                        .gender('M')
+                        .birthDate(LocalDate.now())
+                        .build();
+
+                RunningMateMember runningMateMember = RunningMateMember.builder()
+                        .runningMate(i % 2 == 1 ? runningMate : runningMate2)
+                        .user(user)
+                        .role(i <= 2 ? MemberRole.LEADER : MemberRole.MEMBER)
+                        .phoneNumber("010-0000-000" + i)
+                        .build();
+
+                em.persist(user);
+                em.persist(student);
+                em.persist(runningMateMember);
+            }
+
+            em.flush();
+            em.clear();
+
+            // when
+            List<RunningMateMemberListResponse> list = runningMateService.getRunningmateMemberList(
+                    runningMate.getId());
+
+            // then
+            assertThat(list).hasSize(6);
         }
     }
 }

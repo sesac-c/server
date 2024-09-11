@@ -1,7 +1,11 @@
 package sesac.server.group.repository.search;
 
+import static sesac.server.campus.entity.QCampus.campus;
+import static sesac.server.campus.entity.QCourse.course;
 import static sesac.server.group.entity.QRunningMate.runningMate;
 import static sesac.server.group.entity.QRunningMateMember.runningMateMember;
+import static sesac.server.user.entity.QStudent.student;
+import static sesac.server.user.entity.QUser.user;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -19,7 +23,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import sesac.server.group.dto.request.SearchRunningMateRequest;
+import sesac.server.group.dto.response.QRunningMateMemberListResponse;
 import sesac.server.group.dto.response.QSearchRunningMateResponse;
+import sesac.server.group.dto.response.RunningMateMemberListResponse;
 import sesac.server.group.dto.response.SearchRunningMateResponse;
 import sesac.server.group.entity.RunningMate;
 
@@ -107,5 +113,30 @@ public class SearchRunningMateImpl implements SearchRunningMate {
                 )
                 .fetchFirst();
         return result != null;
+    }
+
+    @Override
+    public List<RunningMateMemberListResponse> runningMateMembers(Long runningMateId) {
+        List<RunningMateMemberListResponse> result = queryFactory
+                .select(new QRunningMateMemberListResponse(
+                        user.id,
+                        student.name,
+                        course.name,
+                        campus.name,
+                        runningMateMember.role,
+                        runningMateMember.phoneNumber
+                ))
+                .from(runningMateMember)
+                .join(runningMateMember.user, user)
+                .join(user.student, student)
+                .join(runningMateMember.runningMate, runningMate)
+                .join(runningMate.course, course)
+                .join(course.campus, campus)
+                .where(
+                        runningMateMember.runningMate.id.eq(runningMateId)
+                )
+                .fetch();
+
+        return result;
     }
 }

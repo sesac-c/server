@@ -18,14 +18,18 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import sesac.server.auth.dto.AuthPrincipal;
+import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.group.dto.request.CreateRunningMateMemberRequest;
 import sesac.server.group.dto.request.CreateRunningMateRequest;
 import sesac.server.group.dto.request.SearchRunningMateRequest;
+import sesac.server.group.dto.request.UpdateRunningMateMemberRequest;
 import sesac.server.group.dto.request.UpdateRunningMateRequest;
 import sesac.server.group.dto.response.RunningMateDetailResponse;
 import sesac.server.group.dto.response.RunningMateMemberDetailResponse;
+import sesac.server.group.dto.response.RunningMateMemberListResponse;
 import sesac.server.group.dto.response.SearchRunningMateResponse;
 import sesac.server.group.exception.RunningMateErrorCode;
 import sesac.server.group.service.RunningMateService;
@@ -122,8 +126,11 @@ public class RunningMateController {
 
     // 멤버 관리
     @GetMapping("{runningmateId}/members")
-    public ResponseEntity<Void> getRunningmateMemberList(@PathVariable Long runningmateId) {
-        return null;
+    public ResponseEntity<List<RunningMateMemberListResponse>> getRunningmateMemberList(
+            @PathVariable Long runningmateId) {
+        List<RunningMateMemberListResponse> response = runningMateService.getRunningmateMemberList(
+                runningmateId);
+        return ResponseEntity.ok().body(response);
     }
 
     @PostMapping("{runningmateId}/members")
@@ -155,16 +162,31 @@ public class RunningMateController {
 
     @PutMapping("{runningmateId}/member/{memberId}")
     public ResponseEntity<Void> updateRunningmateMember(
-            @PathVariable Long runningmateId, @PathVariable Long memberId
+            @AuthPrincipal CustomPrincipal manager,
+            @PathVariable Long runningmateId,
+            @PathVariable Long memberId,
+            @Validated @RequestBody UpdateRunningMateMemberRequest request,
+            BindingResult bindingResult
     ) {
-        return null;
+        BindingResultHandler.handle(bindingResult, List.of(
+                RunningMateErrorCode.INVALID_PHONE
+        ));
+
+        runningMateService.updateRunningmateMember(manager.id(), runningmateId, memberId, request);
+
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("{runningmateId}/member/{memberId}")
     public ResponseEntity<Void> deleteRunningmateMember(
-            @PathVariable Long runningmateId, @PathVariable Long memberId
+            @AuthPrincipal CustomPrincipal manager,
+            @PathVariable Long runningmateId,
+            @PathVariable Long memberId
     ) {
-        return null;
+
+        runningMateService.deleteRunningmateMember(manager.id(), runningmateId, memberId);
+
+        return ResponseEntity.ok().build();
     }
 
     // 활동 보고서 관리

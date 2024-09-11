@@ -1,5 +1,6 @@
 package sesac.server.group.repository;
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,7 @@ public interface RunningMateMemberRepository extends JpaRepository<RunningMateMe
 
     @EntityGraph(attributePaths = {"user", "user.student"})
     Optional<RunningMateMember> findByIdAndRunningMateId(Long id, Long runningMateId);
+
+    @EntityGraph(attributePaths = {"user", "user.student"})
+    List<RunningMateMember> findByRunningMateId(Long runningMateId);
 }

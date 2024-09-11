@@ -1,6 +1,7 @@
 package sesac.server.group.service;
 
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import sesac.server.group.dto.request.UpdateRunningMateMemberRequest;
 import sesac.server.group.dto.request.UpdateRunningMateRequest;
 import sesac.server.group.dto.response.RunningMateDetailResponse;
 import sesac.server.group.dto.response.RunningMateMemberDetailResponse;
+import sesac.server.group.dto.response.RunningMateMemberListResponse;
 import sesac.server.group.dto.response.SearchRunningMateResponse;
 import sesac.server.group.entity.RunningMate;
 import sesac.server.group.entity.RunningMateMember;
@@ -83,12 +85,9 @@ public class RunningMateService {
         runningmateRepository.delete(runningMate);
     }
 
-    // 멤버 관리
-    //    @GetMapping("{runningmateId}/members")
-    //    public ResponseEntity<Void> getRunningmateMemberList(@PathVariable Long runningmateId) {
-    //        return null;
-    //    }
-    //
+    public List<RunningMateMemberListResponse> getRunningmateMemberList(Long runningmateId) {
+        return runningMateMemberRepository.runningMateMembers(runningmateId);
+    }
 
     public Long createRunningmateMember(Long runningmateId,
             CreateRunningMateMemberRequest request) {
