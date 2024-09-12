@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import sesac.server.feed.dto.request.NoticeListRequest;
 import sesac.server.feed.dto.response.ExtendedNoticeListResponse;
+import sesac.server.feed.dto.response.ImportantNoticeResponse;
 import sesac.server.feed.dto.response.NoticeListResponse;
 import sesac.server.feed.entity.NoticeType;
 
@@ -19,4 +20,5 @@ public interface NoticeSearch {
     Page<ExtendedNoticeListResponse> searchExtendedNoticePage(Pageable pageable,
             NoticeListRequest request, NoticeType type);
 
+    List<ImportantNoticeResponse> findImportanceNotices();
 }

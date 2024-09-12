@@ -15,6 +15,7 @@ import sesac.server.feed.dto.request.CreateNoticeRequest;
 import sesac.server.feed.dto.request.NoticeListRequest;
 import sesac.server.feed.dto.request.UpdateNoticeRequest;
 import sesac.server.feed.dto.response.ExtendedNoticeListResponse;
+import sesac.server.feed.dto.response.ImportantNoticeResponse;
 import sesac.server.feed.dto.response.NoticeListResponse;
 import sesac.server.feed.dto.response.NoticeResponse;
 import sesac.server.feed.entity.Hashtag;
@@ -121,7 +122,7 @@ public class NoticeService {
     }
 
     // 주요 공지
-    public void getImportantNotices() {
-//        noticeRepository
+    public List<ImportantNoticeResponse> getImportantNotices() {
+        return noticeRepository.findImportanceNotices();
     }
 }

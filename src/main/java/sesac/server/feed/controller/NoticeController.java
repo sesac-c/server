@@ -34,6 +34,7 @@ import sesac.server.feed.dto.request.NoticeListRequest;
 import sesac.server.feed.dto.request.ReplyRequest;
 import sesac.server.feed.dto.request.UpdateNoticeRequest;
 import sesac.server.feed.dto.response.ExtendedNoticeListResponse;
+import sesac.server.feed.dto.response.ImportantNoticeResponse;
 import sesac.server.feed.dto.response.NoticeListResponse;
 import sesac.server.feed.dto.response.NoticeResponse;
 import sesac.server.feed.dto.response.ReplyResponse;
@@ -69,8 +70,11 @@ public class NoticeController {
     }
 
     @GetMapping("important")
-    public ResponseEntity<Void> getImportantNotices(@PathVariable NoticeType noticeType) {
-        return null;
+    public ResponseEntity<List<ImportantNoticeResponse>> getImportantNotices(
+            @PathVariable NoticeType noticeType) {
+        List<ImportantNoticeResponse> response = noticeService.getImportantNotices();
+
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("{noticeId}")
