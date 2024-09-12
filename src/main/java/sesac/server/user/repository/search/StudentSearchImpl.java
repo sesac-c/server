@@ -34,6 +34,7 @@ public class StudentSearchImpl implements StudentSearch {
 
     @Override
     public Page<SearchStudentResponse> searchStudent(
+            Long campusId,
             Pageable pageable,
             SearchStudentRequest request
     ) {
@@ -43,7 +44,7 @@ public class StudentSearchImpl implements StudentSearch {
                         student.id,
                         student.name,
                         user.email,
-                        campus.name,
+                        course.id,
                         course.name,
                         student.statusCode,
                         user.createdAt
@@ -53,8 +54,9 @@ public class StudentSearchImpl implements StudentSearch {
                 .join(student.firstCourse, course)
                 .join(course.campus, campus)
                 .where(
+                        campus.id.eq(campusId),
                         nameContains(request.name()),
-                        courseContains(request.course()),
+                        courseEq(request.courseId()),
                         statusEq(request.status())
                 )
                 .offset(pageable.getOffset())
@@ -65,8 +67,9 @@ public class StudentSearchImpl implements StudentSearch {
         JPAQuery<Student> countQuery = queryFactory
                 .select(student)
                 .where(
+                        student.firstCourse.campus.id.eq(campusId),
                         nameContains(request.name()),
-                        courseContains(request.course()),
+                        courseEq(request.courseId()),
                         statusEq(request.status())
                 )
                 .from(student);
@@ -83,16 +86,14 @@ public class StudentSearchImpl implements StudentSearch {
         return name != null ? student.name.contains(name) : null;
     }
 
-    private BooleanExpression courseContains(String course) {
-        return course != null ? student.firstCourse.name.contains(course) : null;
+    private BooleanExpression courseEq(Long courseId) {
+        return courseId != null ? student.firstCourse.id.eq(courseId) : null;
     }
 
     private OrderSpecifier<?>[] studentOrderBy(QStudent student, Sort sort) {
         List<OrderSpecifier<?>> orderSpecifiers = getOrderSpecifiers(student, sort);
 
-        if (orderSpecifiers.isEmpty()) {
-            orderSpecifiers.add(student.id.desc());
-        }
+        orderSpecifiers.add(student.id.desc());
 
         return orderSpecifiers.toArray(OrderSpecifier[]::new);
     }

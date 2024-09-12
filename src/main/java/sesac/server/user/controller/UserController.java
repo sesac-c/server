@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
-import sesac.server.common.dto.PageResponse;
+import sesac.server.common.dto.PageResponseDto;
 import sesac.server.user.dto.request.AcceptStatusRequest;
 import sesac.server.user.dto.request.SearchStudentRequest;
 import sesac.server.user.dto.request.UpdateStudentRequest;
@@ -151,12 +151,13 @@ public class UserController {
 
     // -----------------------------------------------------------매니저 권한
     @GetMapping("students")
-    public ResponseEntity<PageResponse<SearchStudentResponse>> getStudentList(
+    public ResponseEntity<PageResponseDto<SearchStudentResponse>> getStudentList(
+            @AuthPrincipal CustomPrincipal manager,
             @ModelAttribute SearchStudentRequest searchStudentRequest,
             Pageable pageable
     ) {
-        PageResponse<SearchStudentResponse> response = userService.getStudentList(pageable,
-                searchStudentRequest);
+        PageResponseDto<SearchStudentResponse> response =
+                userService.getStudentList(manager.id(), pageable, searchStudentRequest);
 
         return ResponseEntity.ok(response);
 

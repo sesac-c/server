@@ -7,6 +7,6 @@ import sesac.server.user.dto.response.SearchStudentResponse;
 
 public interface StudentSearch {
 
-    Page<SearchStudentResponse> searchStudent(Pageable pageable,
-            SearchStudentRequest request);
+    Page<SearchStudentResponse> searchStudent(
+            Long campusId, Pageable pageable, SearchStudentRequest request);
 }

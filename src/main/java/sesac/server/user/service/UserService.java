@@ -7,13 +7,14 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import sesac.server.common.dto.PageResponse;
+import sesac.server.common.dto.PageResponseDto;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.GlobalErrorCode;
 import sesac.server.user.dto.request.AcceptStatusRequest;
 import sesac.server.user.dto.request.SearchStudentRequest;
 import sesac.server.user.dto.request.UpdateStudentRequest;
 import sesac.server.user.dto.response.ManagerListResponse;
+import sesac.server.user.dto.response.ManagerPageResponse;
 import sesac.server.user.dto.response.SearchStudentResponse;
 import sesac.server.user.dto.response.StudentDetailResponse;
 import sesac.server.user.dto.response.StudentListResponse;
@@ -52,11 +53,20 @@ public class UserService {
         return response;
     }
 
-    public PageResponse<SearchStudentResponse> getStudentList(Pageable pageable,
-            SearchStudentRequest request) {
-        Page<SearchStudentResponse> students = studentRepository.searchStudent(pageable, request);
+    public PageResponseDto<SearchStudentResponse> getStudentList(
+            Long managerId,
+            Pageable pageable,
+            SearchStudentRequest request
+    ) {
+        Manager manager = managerRepository.findById(managerId)
+                .orElseThrow(() -> new BaseException(UserErrorCode.NO_MANAGER));
 
-        return new PageResponse<>(students);
+        Long campusId = manager.getCampus().getId();
+
+        Page<SearchStudentResponse> students =
+                studentRepository.searchStudent(campusId, pageable, request);
+
+        return new ManagerPageResponse<>(students, manager.getCampus().getId());
     }
 
     public StudentDetailResponse getStudent(Long userId) {
