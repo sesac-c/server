@@ -1,12 +1,12 @@
 package sesac.server.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static sesac.server.common.Fixture.createManager;
+import static sesac.server.common.Fixture.createStudent;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import sesac.server.campus.entity.Campus;
 import sesac.server.campus.entity.Course;
+import sesac.server.common.Fixture;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.GlobalErrorCode;
@@ -30,8 +31,6 @@ import sesac.server.user.dto.response.SearchStudentResponse;
 import sesac.server.user.dto.response.StudentDetailResponse;
 import sesac.server.user.entity.Manager;
 import sesac.server.user.entity.Student;
-import sesac.server.user.entity.User;
-import sesac.server.user.entity.UserRole;
 import sesac.server.user.exception.UserErrorCode;
 
 @SpringBootTest
@@ -48,139 +47,42 @@ class UserServiceTest {
     Campus campus1;
     Campus campus2;
 
-    Course course1;
-    Course course2;
-
     @BeforeEach
     public void setup() {
-        campus1 = Campus.builder()
-                .name("영등포")
-                .address("영등포 영영")
-                .build();
-
-        campus2 = Campus.builder()
-                .name("금천")
-                .address("금천 금금")
-                .build();
-
-        em.persist(campus1);
-        em.persist(campus2);
-
-        LocalDate now = LocalDate.now();
-        course1 = Course.builder()
-                .campus(campus1)
-                .name("영등포 자바")
-                .classNumber("과정 1")
-                .instructorName("자바샘")
-                .startDate(now)
-                .endDate(now.plusMonths(1))
-                .build();
-
-        course2 = Course.builder()
-                .campus(campus2)
-                .name("금천 파이썬")
-                .classNumber("과정 2")
-                .instructorName("파샘")
-                .startDate(now)
-                .endDate(now.plusMonths(1))
-                .build();
-
-        em.persist(course1);
-        em.persist(course2);
-
+        Fixture.em = em;
+        campus1 = Fixture.createCampus("영등포");
+        campus2 = Fixture.createCampus("금천");
     }
 
     @Nested
     class CrudTest {
 
-        User studentUser1;
-        User studentUser2;
+        Course course1;
+        Course course2;
+
         Student student1;
         Student student2;
-
-        User managerUser1;
-        User managerUser2;
 
         Manager manager1;
         Manager manager2;
 
         @BeforeEach
         public void crudSetup() {
-            studentUser1 = User.builder()
-                    .email("user1@example.com")
-                    .role(UserRole.STUDENT)
-                    .password("1234")
-                    .build();
+            course1 = Fixture.createCourse("영등포 자바", campus1);
+            course2 = Fixture.createCourse("금천 자바", campus2);
 
-            studentUser2 = User.builder()
-                    .email("user2@example.com")
-                    .role(UserRole.STUDENT)
-                    .password("1234")
-                    .build();
+            student1 = createStudent("user1", course1, 10);
+            student2 = createStudent("user2", course2, 10);
 
-            em.persist(studentUser1);
-            em.persist(studentUser2);
-
-            student1 = Student.builder()
-                    .user(studentUser1)
-                    .name("일학생")
-                    .birthDate(LocalDate.parse("19990101", DateTimeFormatter.ofPattern("yyyyMMdd")))
-                    .firstCourse(course1)
-                    .gender('M')
-                    .nickname("일학생")
-                    .statusCode(10)
-                    .build();
-
-            student2 = Student.builder()
-                    .user(studentUser2)
-                    .name("이학생")
-                    .birthDate(LocalDate.parse("19990101", DateTimeFormatter.ofPattern("yyyyMMdd")))
-                    .firstCourse(course2)
-                    .gender('W')
-                    .nickname("이학생")
-                    .statusCode(10)
-                    .build();
-
-            em.persist(student1);
-            em.persist(student2);
-
-            managerUser1 = User.builder()
-                    .email("manager1@example.com")
-                    .role(UserRole.MANAGER)
-                    .password("1234")
-                    .build();
-
-            managerUser2 = User.builder()
-                    .email("manager2@example.com")
-                    .role(UserRole.MANAGER)
-                    .password("1234")
-                    .build();
-
-            em.persist(managerUser1);
-            em.persist(managerUser2);
-
-            manager1 = Manager.builder()
-                    .user(managerUser1)
-                    .campus(campus1)
-                    .build();
-
-            manager2 = Manager.builder()
-                    .user(managerUser2)
-                    .campus(campus2)
-                    .build();
-
-            em.persist(manager1);
-            em.persist(manager2);
-
-            em.flush();
-            em.clear();
+            manager1 = createManager("manager1", campus1);
+            manager2 = createManager("manager2", campus2);
         }
 
         @Test
         @DisplayName("학생 조회 테스트")
         public void getDetailStudent() {
             // when
-            StudentDetailResponse response = userService.getStudent(studentUser1.getId());
+            StudentDetailResponse response = userService.getStudent(student1.getId());
 
             // then
             assertThat(response.nickname()).isEqualTo(student1.getNickname());
@@ -285,76 +187,101 @@ class UserServiceTest {
     @DisplayName("리스트 테스트")
     class ListTest {
 
+        Course course1;
+        Course course2;
+        Course course3;
+
+        Manager manager1;
+        Manager manager2;
+
         @BeforeEach
         public void listSetup() {
-            String[] names = {"가", "가다가", "가나", "나", "다", "라", "마", "바", "사", "아", "자", "차"};
+            // course
+            course1 = Fixture.createCourse("영등포 자바", campus1);
+            course2 = Fixture.createCourse("영등포 파이선", campus1);
+            course3 = Fixture.createCourse("금천 자바", campus2);
 
-            for (int i = 1; i <= 12; i++) {
-                User user = User.builder()
-                        .email("user" + i + "@example.com")
-                        .role(UserRole.STUDENT)
-                        .password("1234")
-                        .build();
+            // manager
+            manager1 = createManager("manager1", campus1);
+            manager2 = createManager("manager2", campus2);
 
-                em.persist(user);
+            // campus1 course1 학생
+            createStudent("1", course1, 10);
+            createStudent("2", course1, 10);
+            createStudent("3", course1, 10);
+            createStudent("4", course1, 20);
 
-                Student student = Student.builder()
-                        .user(user)
-                        .name(names[i - 1])
-                        .birthDate(LocalDate.parse("19990101",
-                                DateTimeFormatter.ofPattern("yyyyMMdd")))
-                        .firstCourse(i % 2 == 1 ? course1 : course2)
-                        .gender('M')
-                        .nickname(names[i - 1])
-                        .statusCode((i / 10 + 1) * 10)
-                        .build();
+            // campus1 course2 학생
+            createStudent("9", course2, 10);
+            createStudent("10", course2, 10);
+            createStudent("11", course2, 10);
+            createStudent("12", course2, 20);
 
-                em.persist(student);
-            }
+            // campus2 course3 학생
+            createStudent("5", course3, 10);
+            createStudent("6", course3, 10);
+            createStudent("7", course3, 10);
+            createStudent("8", course3, 20);
         }
 
         @Test
-        @DisplayName("페이지 = 0, 사이즈 = 10, 검색어 x")
+        @DisplayName("같은 캠퍼스 소속 학생만 조회 가능, course1 + course2")
         public void listTest() {
             // give
             PageRequest pageRequest = PageRequest.of(0, 10);
             SearchStudentRequest request = new SearchStudentRequest(null, null, null);
 
-            // when
+            // when 매니저가 속한 캠퍼스의 학생만 조회 가능
             PageResponse<SearchStudentResponse> response =
-                    userService.getStudentList(pageRequest, request);
+                    userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
             List<SearchStudentResponse> students = response.content();
-            assertThat(students).hasSize(10);
+            assertThat(students).hasSize(8);
         }
 
         @Test
-        @DisplayName("페이지 = 1, 사이즈 = 10, 검색어 x")
-        public void listPagingTest() {
-            // give
-            PageRequest pageRequest = PageRequest.of(1, 10);
-            SearchStudentRequest request = new SearchStudentRequest(null, null, null);
-
-            // when
-            PageResponse<SearchStudentResponse> response =
-                    userService.getStudentList(pageRequest, request);
-
-            // then
-            List<SearchStudentResponse> students = response.content();
-            assertThat(students).hasSize(2);
-        }
-
-        @Test
-        @DisplayName("이름 검색")
+        @DisplayName("과정 필터링, course1")
         public void listSearchNameTest() {
             // give
             PageRequest pageRequest = PageRequest.of(0, 10);
-            SearchStudentRequest request = new SearchStudentRequest(null, "가", null);
+            SearchStudentRequest request = new SearchStudentRequest(null, course1.getId(), null);
 
             // when
             PageResponse<SearchStudentResponse> response =
-                    userService.getStudentList(pageRequest, request);
+                    userService.getStudentList(manager1.getId(), pageRequest, request);
+
+            // then
+            List<SearchStudentResponse> students = response.content();
+            assertThat(students).hasSize(4);
+        }
+
+        @Test
+        @DisplayName("이름 필터링, 1")
+        public void listSearchCourseTest() {
+            // give
+            PageRequest pageRequest = PageRequest.of(0, 10);
+            SearchStudentRequest request = new SearchStudentRequest("1", null, null);
+
+            // when
+            PageResponse<SearchStudentResponse> response =
+                    userService.getStudentList(manager1.getId(), pageRequest, request);
+
+            // then
+            List<SearchStudentResponse> students = response.content();
+            assertThat(students).hasSize(4);
+        }
+
+        @Test
+        @DisplayName("이름 + 과정 필터링, 1 + course2")
+        public void listSearchNameCourseTest() {
+            // give
+            PageRequest pageRequest = PageRequest.of(0, 10);
+            SearchStudentRequest request = new SearchStudentRequest("1", course2.getId(), null);
+
+            // when
+            PageResponse<SearchStudentResponse> response =
+                    userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
             List<SearchStudentResponse> students = response.content();
@@ -362,39 +289,7 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("과정 검색")
-        public void listSearchCourseTest() {
-            // give
-            PageRequest pageRequest = PageRequest.of(0, 10);
-            SearchStudentRequest request = new SearchStudentRequest("영등포", null, null);
-
-            // when
-            PageResponse<SearchStudentResponse> response =
-                    userService.getStudentList(pageRequest, request);
-
-            // then
-            List<SearchStudentResponse> students = response.content();
-            assertThat(students).hasSize(6);
-        }
-
-        @Test
-        @DisplayName("이름 + 과정 검색")
-        public void listSearchNameCourseTest() {
-            // give
-            PageRequest pageRequest = PageRequest.of(0, 10);
-            SearchStudentRequest request = new SearchStudentRequest("영등포", "가", null);
-
-            // when
-            PageResponse<SearchStudentResponse> response =
-                    userService.getStudentList(pageRequest, request);
-
-            // then
-            List<SearchStudentResponse> students = response.content();
-            assertThat(students).hasSize(2);
-        }
-
-        @Test
-        @DisplayName("승인 여부 검색")
+        @DisplayName("승인 여부 필터링, 10")
         public void listSearchStatusTest() {
             // give
             PageRequest pageRequest = PageRequest.of(0, 10);
@@ -402,23 +297,23 @@ class UserServiceTest {
 
             // when
             PageResponse<SearchStudentResponse> response =
-                    userService.getStudentList(pageRequest, request);
+                    userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
             List<SearchStudentResponse> students = response.content();
-            assertThat(students).hasSize(9);
+            assertThat(students).hasSize(6);
         }
 
         @Test
-        @DisplayName("조회 결과 없음")
+        @DisplayName("다른 캠퍼스 과정은 조회 불가능, course3")
         public void listEmptyTest() {
             // give
             PageRequest pageRequest = PageRequest.of(0, 10);
-            SearchStudentRequest request = new SearchStudentRequest("파", "하", 30);
+            SearchStudentRequest request = new SearchStudentRequest(null, course3.getId(), null);
 
             // when
             PageResponse<SearchStudentResponse> response =
-                    userService.getStudentList(pageRequest, request);
+                    userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
             List<SearchStudentResponse> students = response.content();
@@ -434,7 +329,7 @@ class UserServiceTest {
 
             // when
             PageResponse<SearchStudentResponse> response =
-                    userService.getStudentList(pageRequest, request);
+                    userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
             List<SearchStudentResponse> students = response.content();
@@ -450,12 +345,12 @@ class UserServiceTest {
 
             // when
             PageResponse<SearchStudentResponse> response =
-                    userService.getStudentList(pageRequest, request);
+                    userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
             List<SearchStudentResponse> students = response.content();
             assertThat(students.stream().map(student -> student.name()).toList())
-                    .containsSequence("가", "가나", "가다가", "나", "다", "라", "마", "바", "사", "아");
+                    .containsSequence("1", "10", "11", "12", "2", "3", "4", "9");
         }
     }
 }
