@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import sesac.server.group.dto.request.UpdateRunningMateMemberRequest;
 import sesac.server.user.entity.User;
 
 @Entity
@@ -44,5 +45,15 @@ public class RunningMateMember {
 
     public enum MemberRole {
         LEADER, MEMBER
+    }
+
+    public void update(UpdateRunningMateMemberRequest request) {
+        if (request.role() != null) {
+            this.role = request.role();
+        }
+
+        if (request.phoneNumber() != null) {
+            this.phoneNumber = request.phoneNumber();
+        }
     }
 }
