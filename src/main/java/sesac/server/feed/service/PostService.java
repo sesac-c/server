@@ -4,15 +4,18 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.auth.exception.TokenErrorCode;
 import sesac.server.auth.exception.TokenException;
+import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.feed.dto.request.CreatePostRequest;
 import sesac.server.feed.dto.request.PostListRequest;
 import sesac.server.feed.dto.request.UpdatePostRequest;
+import sesac.server.feed.dto.response.ExtendedPostListResponse;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
 import sesac.server.feed.entity.Hashtag;
@@ -122,6 +125,17 @@ public class PostService {
     private boolean hasPermission(CustomPrincipal principal, Long userId) {
         return principal.role().equals(UserRole.MANAGER.toString()) ||
                 principal.id().equals(userId);
+    }
+
+    public PageResponse<ExtendedPostListResponse> getExtendedPostList(
+            Pageable pageable,
+            PostListRequest request,
+            PostType postType
+    ) {
+
+        Page<ExtendedPostListResponse> response = postRepository.searchExtendedPostPage(pageable,
+                request, postType);
+        return new PageResponse(response);
     }
 
 }

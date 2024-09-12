@@ -12,6 +12,7 @@ import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,10 +21,12 @@ import org.springframework.data.domain.Pageable;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.campus.entity.Campus;
 import sesac.server.campus.entity.Course;
+import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.feed.dto.request.CreatePostRequest;
 import sesac.server.feed.dto.request.PostListRequest;
 import sesac.server.feed.dto.request.UpdatePostRequest;
+import sesac.server.feed.dto.response.ExtendedPostListResponse;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
 import sesac.server.feed.entity.Post;
@@ -153,42 +156,6 @@ class PostServiceTest {
         assertThat(post2.getHashtags()).hasSize(3);
     }
 
-
-    @Test
-    @DisplayName("게시글 목록")
-    public void postListTest() {
-        // give
-        for (int i = 1; i <= 17; i++) {
-            Student student = i % 2 == 0 ? student1 : student2;
-            Post post = Post.builder()
-                    .title("제목_" + i)
-                    .content("내용_" + i)
-                    .type(PostType.CAMPUS)
-                    .user(student.getUser())
-                    .build();
-
-            em.persist(post);
-        }
-
-        em.flush();
-        em.clear();
-
-        Pageable pageable1 = PageRequest.of(0, 10);
-        Pageable pageable2 = PageRequest.of(1, 10);
-        PostListRequest request = new PostListRequest(null, null, null);
-
-        // when
-        List<PostListResponse> list = postService.getPostList(pageable1, request, null);
-
-        // then
-        assertThat(list).hasSize(10);
-        assertThat(postService.getPostList(pageable2, request, null)).hasSize(7);
-
-        for (PostListResponse post : list) {
-            log.info(post);
-        }
-    }
-
     @Test
     @DisplayName("게시글 상세")
     public void postDetailTest() {
@@ -315,5 +282,76 @@ class PostServiceTest {
 
         // then..?
         assertThat(ex.getErrorCode()).isEqualTo(PostErrorCode.NO_PERMISSION);
+    }
+
+    @Nested
+    class ListTest {
+
+        @BeforeEach
+        public void setup() {
+            for (int i = 1; i <= 12; i++) {
+                Student student = i % 2 == 0 ? student1 : student2;
+                Post post = Post.builder()
+                        .title("제목_" + i)
+                        .content("내용_" + i)
+                        .type(i % 2 == 0 ? PostType.CAMPUS : PostType.ALL)
+                        .user(student.getUser())
+                        .build();
+
+                em.persist(post);
+            }
+
+            em.flush();
+            em.clear();
+        }
+
+        @Test
+        @DisplayName("게시글 목록")
+        public void postListTest() {
+
+            // give
+            Pageable pageable1 = PageRequest.of(0, 10);
+            PostListRequest request = new PostListRequest(null, null);
+
+            // when
+            List<PostListResponse> list = postService.getPostList(pageable1, request, null);
+
+            // then
+            assertThat(list).hasSize(10);
+        }
+
+
+        @Test
+        @DisplayName("게시글 목록 매니저")
+        public void getExtendedPostList() {
+
+            // give
+            Pageable pageable1 = PageRequest.of(0, 10);
+            PostListRequest request = new PostListRequest(null, null);
+
+            // when
+            PageResponse<ExtendedPostListResponse> response = postService.getExtendedPostList(
+                    pageable1,
+                    request, null);
+
+            // then
+            assertThat(response.content()).hasSize(10);
+        }
+
+        @Test
+        @DisplayName("게시글 목록 매니저 타입 검색")
+        public void getExtendedPostListSearchType() {
+
+            // give
+            Pageable pageable1 = PageRequest.of(0, 10);
+            PostListRequest request = new PostListRequest(null, null);
+
+            // when
+            PageResponse<ExtendedPostListResponse> response = postService.getExtendedPostList(
+                    pageable1, request, PostType.CAMPUS);
+
+            // then
+            assertThat(response.content()).hasSize(6);
+        }
     }
 }

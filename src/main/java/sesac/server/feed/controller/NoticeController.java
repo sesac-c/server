@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -27,11 +28,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
+import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.feed.dto.request.CreateNoticeRequest;
 import sesac.server.feed.dto.request.NoticeListRequest;
 import sesac.server.feed.dto.request.ReplyRequest;
 import sesac.server.feed.dto.request.UpdateNoticeRequest;
+import sesac.server.feed.dto.response.ExtendedNoticeListResponse;
 import sesac.server.feed.dto.response.NoticeListResponse;
 import sesac.server.feed.dto.response.NoticeResponse;
 import sesac.server.feed.dto.response.ReplyResponse;
@@ -61,7 +64,7 @@ public class NoticeController {
             @ModelAttribute NoticeListRequest request
     ) {
         Page<NoticeListResponse> response = noticeService.getNoticeList(pageable, request,
-                request.type());
+                noticeType);
 
         return ResponseEntity.ok(response);
     }
@@ -206,5 +209,17 @@ public class NoticeController {
         replyService.deleteReply(principal, replyId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/manager")
+    public ResponseEntity<PageResponse<ExtendedNoticeListResponse>> getExtendedNoticeList(
+            @PageableDefault(page = 0, size = 10) Pageable pageable,
+            @PathVariable NoticeType noticeType,
+            @ModelAttribute NoticeListRequest request
+    ) {
+        PageResponse<ExtendedNoticeListResponse> response =
+                noticeService.getExtendedNoticeList(pageable, request, noticeType);
+
+        return ResponseEntity.ok(response);
     }
 }
