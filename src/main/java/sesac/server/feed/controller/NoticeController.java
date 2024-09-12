@@ -3,7 +3,6 @@ package sesac.server.feed.controller;
 import static sesac.server.feed.exception.PostErrorCode.INVALID_CONTENT_SIZE;
 import static sesac.server.feed.exception.PostErrorCode.INVALID_TITLE_SIZE;
 import static sesac.server.feed.exception.PostErrorCode.REQUIRED_CONTENT;
-import static sesac.server.feed.exception.PostErrorCode.REQUIRED_NOTICE_TYPE;
 import static sesac.server.feed.exception.PostErrorCode.REQUIRED_TITLE;
 
 import jakarta.validation.Valid;
@@ -61,7 +60,7 @@ public class NoticeController {
             @ModelAttribute NoticeListRequest request
     ) {
         Page<NoticeListResponse> response = noticeService.getNoticeList(pageable, request,
-                request.type());
+                noticeType);
 
         return ResponseEntity.ok(response);
     }
@@ -93,11 +92,10 @@ public class NoticeController {
                 REQUIRED_TITLE,
                 INVALID_TITLE_SIZE,
                 REQUIRED_CONTENT,
-                INVALID_CONTENT_SIZE,
-                REQUIRED_NOTICE_TYPE
+                INVALID_CONTENT_SIZE
         ));
 
-        noticeService.createNotice(principal.id(), request);
+        noticeService.createNotice(principal.id(), request, noticeType);
 
         return ResponseEntity.ok().build();
     }

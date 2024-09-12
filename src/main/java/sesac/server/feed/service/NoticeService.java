@@ -37,19 +37,11 @@ public class NoticeService {
     private final HashtagRepository hashtagRepository;
     private final PostHashtagRepository postHashtagRepository;
 
-    public Notice createNotice(Long userId, CreateNoticeRequest request) {
+    public Notice createNotice(Long userId, CreateNoticeRequest request, NoticeType noticeType) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new TokenException(TokenErrorCode.UNACCEPT));
 
-        Notice notice = Notice.builder()
-                .user(user)
-                .title(request.title())
-                .content(request.content())
-                .type(request.type())
-                .importance(request.importance())
-                .image(request.image())
-                .status(true)
-                .build();
+        Notice notice = request.toEntity(user, noticeType);
 
         noticeRepository.save(notice);
 
@@ -115,5 +107,10 @@ public class NoticeService {
                 .orElseThrow(() -> new BaseException(PostErrorCode.NO_POST));
 
         noticeRepository.delete(notice);
+    }
+
+    // 주요 공지
+    public void getImportantNotices() {
+//        noticeRepository
     }
 }

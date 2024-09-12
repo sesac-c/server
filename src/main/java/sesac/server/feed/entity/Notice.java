@@ -91,10 +91,6 @@ public class Notice extends BaseEntity {
             importance = request.importance();
         }
 
-        if (request.type() != null) {
-            type = request.type();
-        }
-
     }
 
 }
