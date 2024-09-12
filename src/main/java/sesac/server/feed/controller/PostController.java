@@ -5,7 +5,9 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,11 +21,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
+import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.feed.dto.request.CreatePostRequest;
 import sesac.server.feed.dto.request.PostListRequest;
 import sesac.server.feed.dto.request.ReplyRequest;
 import sesac.server.feed.dto.request.UpdatePostRequest;
+import sesac.server.feed.dto.response.ExtendedPostListResponse;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
 import sesac.server.feed.dto.response.ReplyResponse;
@@ -200,5 +204,18 @@ public class PostController {
         replyService.deleteReply(principal, replyId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    // ----------------------------------------------------------- 매니저 권한
+    @GetMapping("/manager")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<PageResponse<ExtendedPostListResponse>> getPostExtendedList(
+            @PageableDefault(page = 0, size = 10) Pageable pageable,
+            @PathVariable PostType postType,
+            @ModelAttribute PostListRequest request
+    ) {
+        PageResponse response = postService.getExtendedPostList(pageable, request, postType);
+
+        return ResponseEntity.ok().body(response);
     }
 }
