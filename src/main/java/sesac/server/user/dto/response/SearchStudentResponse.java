@@ -8,7 +8,7 @@ public record SearchStudentResponse(
         Long id,
         String name,
         String email,
-        String campus,
+        Long courseId,
         String course,
         Integer status,
         LocalDateTime createdAt
@@ -19,7 +19,7 @@ public record SearchStudentResponse(
                 student.getId(),
                 student.getName(),
                 student.getUser().getEmail(),
-                student.getFirstCourse().getCampus().getName(),
+                student.getFirstCourse().getId(),
                 student.getFirstCourse().getName(),
                 student.getStatusCode(),
                 student.getUser().getCreatedAt()

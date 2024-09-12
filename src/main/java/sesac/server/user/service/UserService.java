@@ -52,9 +52,18 @@ public class UserService {
         return response;
     }
 
-    public PageResponse<SearchStudentResponse> getStudentList(Pageable pageable,
-            SearchStudentRequest request) {
-        Page<SearchStudentResponse> students = studentRepository.searchStudent(pageable, request);
+    public PageResponse<SearchStudentResponse> getStudentList(
+            Long managerId,
+            Pageable pageable,
+            SearchStudentRequest request
+    ) {
+        Manager manager = managerRepository.findById(managerId)
+                .orElseThrow(() -> new BaseException(UserErrorCode.NO_MANAGER));
+
+        Long campusId = manager.getCampus().getId();
+
+        Page<SearchStudentResponse> students =
+                studentRepository.searchStudent(campusId, pageable, request);
 
         return new PageResponse<>(students);
     }

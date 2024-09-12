@@ -152,11 +152,12 @@ public class UserController {
     // -----------------------------------------------------------매니저 권한
     @GetMapping("students")
     public ResponseEntity<PageResponse<SearchStudentResponse>> getStudentList(
+            @AuthPrincipal CustomPrincipal manager,
             @ModelAttribute SearchStudentRequest searchStudentRequest,
             Pageable pageable
     ) {
-        PageResponse<SearchStudentResponse> response = userService.getStudentList(pageable,
-                searchStudentRequest);
+        PageResponse<SearchStudentResponse> response =
+                userService.getStudentList(manager.id(), pageable, searchStudentRequest);
 
         return ResponseEntity.ok(response);
 
