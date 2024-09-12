@@ -21,7 +21,7 @@ import org.springframework.data.domain.Sort.Direction;
 import sesac.server.campus.entity.Campus;
 import sesac.server.campus.entity.Course;
 import sesac.server.common.Fixture;
-import sesac.server.common.dto.PageResponse;
+import sesac.server.common.dto.PageResponseDto;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.GlobalErrorCode;
 import sesac.server.user.dto.request.AcceptStatusRequest;
@@ -232,11 +232,11 @@ class UserServiceTest {
             SearchStudentRequest request = new SearchStudentRequest(null, null, null);
 
             // when 매니저가 속한 캠퍼스의 학생만 조회 가능
-            PageResponse<SearchStudentResponse> response =
+            PageResponseDto<SearchStudentResponse> response =
                     userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
-            List<SearchStudentResponse> students = response.content();
+            List<SearchStudentResponse> students = response.getContent();
             assertThat(students).hasSize(8);
         }
 
@@ -248,11 +248,11 @@ class UserServiceTest {
             SearchStudentRequest request = new SearchStudentRequest(null, course1.getId(), null);
 
             // when
-            PageResponse<SearchStudentResponse> response =
+            PageResponseDto<SearchStudentResponse> response =
                     userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
-            List<SearchStudentResponse> students = response.content();
+            List<SearchStudentResponse> students = response.getContent();
             assertThat(students).hasSize(4);
         }
 
@@ -264,11 +264,11 @@ class UserServiceTest {
             SearchStudentRequest request = new SearchStudentRequest("1", null, null);
 
             // when
-            PageResponse<SearchStudentResponse> response =
+            PageResponseDto<SearchStudentResponse> response =
                     userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
-            List<SearchStudentResponse> students = response.content();
+            List<SearchStudentResponse> students = response.getContent();
             assertThat(students).hasSize(4);
         }
 
@@ -280,11 +280,11 @@ class UserServiceTest {
             SearchStudentRequest request = new SearchStudentRequest("1", course2.getId(), null);
 
             // when
-            PageResponse<SearchStudentResponse> response =
+            PageResponseDto<SearchStudentResponse> response =
                     userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
-            List<SearchStudentResponse> students = response.content();
+            List<SearchStudentResponse> students = response.getContent();
             assertThat(students).hasSize(3);
         }
 
@@ -296,11 +296,11 @@ class UserServiceTest {
             SearchStudentRequest request = new SearchStudentRequest(null, null, 10);
 
             // when
-            PageResponse<SearchStudentResponse> response =
+            PageResponseDto<SearchStudentResponse> response =
                     userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
-            List<SearchStudentResponse> students = response.content();
+            List<SearchStudentResponse> students = response.getContent();
             assertThat(students).hasSize(6);
         }
 
@@ -312,11 +312,11 @@ class UserServiceTest {
             SearchStudentRequest request = new SearchStudentRequest(null, course3.getId(), null);
 
             // when
-            PageResponse<SearchStudentResponse> response =
+            PageResponseDto<SearchStudentResponse> response =
                     userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
-            List<SearchStudentResponse> students = response.content();
+            List<SearchStudentResponse> students = response.getContent();
             assertThat(students).hasSize(0);
         }
 
@@ -328,11 +328,11 @@ class UserServiceTest {
             SearchStudentRequest request = new SearchStudentRequest(null, null, null);
 
             // when
-            PageResponse<SearchStudentResponse> response =
+            PageResponseDto<SearchStudentResponse> response =
                     userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
-            List<SearchStudentResponse> students = response.content();
+            List<SearchStudentResponse> students = response.getContent();
             assertThat(students.get(0).id()).isGreaterThan(students.get(1).id());
         }
 
@@ -344,11 +344,11 @@ class UserServiceTest {
             SearchStudentRequest request = new SearchStudentRequest(null, null, null);
 
             // when
-            PageResponse<SearchStudentResponse> response =
+            PageResponseDto<SearchStudentResponse> response =
                     userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
-            List<SearchStudentResponse> students = response.content();
+            List<SearchStudentResponse> students = response.getContent();
             assertThat(students.stream().map(student -> student.name()).toList())
                     .containsSequence("1", "10", "11", "12", "2", "3", "4", "9");
         }
