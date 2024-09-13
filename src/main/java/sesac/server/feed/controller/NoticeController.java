@@ -60,7 +60,7 @@ public class NoticeController {
     @GetMapping
     public ResponseEntity<Page<NoticeListResponse>> getNoticeList(
             @PathVariable NoticeType noticeType,
-            Pageable pageable,
+            @PageableDefault(page = 0, size = 10) Pageable pageable,
             @ModelAttribute NoticeListRequest request
     ) {
         Page<NoticeListResponse> response = noticeService.getNoticeList(pageable, request,

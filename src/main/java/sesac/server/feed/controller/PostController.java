@@ -53,7 +53,7 @@ public class PostController {
     // -----------------------------------------------------------게시글 CRUD
     @GetMapping
     public ResponseEntity<List<PostListResponse>> getPostList(
-            Pageable pageable,
+            @PageableDefault(page = 0, size = 10) Pageable pageable,
             @PathVariable PostType postType,
             @ModelAttribute PostListRequest request
     ) {
