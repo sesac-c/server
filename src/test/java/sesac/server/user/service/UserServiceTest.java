@@ -21,7 +21,7 @@ import org.springframework.data.domain.Sort.Direction;
 import sesac.server.campus.entity.Campus;
 import sesac.server.campus.entity.Course;
 import sesac.server.common.Fixture;
-import sesac.server.common.dto.PageResponseDto;
+import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.GlobalErrorCode;
 import sesac.server.user.dto.request.AcceptStatusRequest;
@@ -232,7 +232,7 @@ class UserServiceTest {
             SearchStudentRequest request = new SearchStudentRequest(null, null, null);
 
             // when 매니저가 속한 캠퍼스의 학생만 조회 가능
-            PageResponseDto<SearchStudentResponse> response =
+            PageResponse<SearchStudentResponse> response =
                     userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
@@ -248,7 +248,7 @@ class UserServiceTest {
             SearchStudentRequest request = new SearchStudentRequest(null, course1.getId(), null);
 
             // when
-            PageResponseDto<SearchStudentResponse> response =
+            PageResponse<SearchStudentResponse> response =
                     userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
@@ -264,7 +264,7 @@ class UserServiceTest {
             SearchStudentRequest request = new SearchStudentRequest("1", null, null);
 
             // when
-            PageResponseDto<SearchStudentResponse> response =
+            PageResponse<SearchStudentResponse> response =
                     userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
@@ -280,7 +280,7 @@ class UserServiceTest {
             SearchStudentRequest request = new SearchStudentRequest("1", course2.getId(), null);
 
             // when
-            PageResponseDto<SearchStudentResponse> response =
+            PageResponse<SearchStudentResponse> response =
                     userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
@@ -296,7 +296,7 @@ class UserServiceTest {
             SearchStudentRequest request = new SearchStudentRequest(null, null, 10);
 
             // when
-            PageResponseDto<SearchStudentResponse> response =
+            PageResponse<SearchStudentResponse> response =
                     userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
@@ -312,7 +312,7 @@ class UserServiceTest {
             SearchStudentRequest request = new SearchStudentRequest(null, course3.getId(), null);
 
             // when
-            PageResponseDto<SearchStudentResponse> response =
+            PageResponse<SearchStudentResponse> response =
                     userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
@@ -328,7 +328,7 @@ class UserServiceTest {
             SearchStudentRequest request = new SearchStudentRequest(null, null, null);
 
             // when
-            PageResponseDto<SearchStudentResponse> response =
+            PageResponse<SearchStudentResponse> response =
                     userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then
@@ -344,7 +344,7 @@ class UserServiceTest {
             SearchStudentRequest request = new SearchStudentRequest(null, null, null);
 
             // when
-            PageResponseDto<SearchStudentResponse> response =
+            PageResponse<SearchStudentResponse> response =
                     userService.getStudentList(manager1.getId(), pageRequest, request);
 
             // then

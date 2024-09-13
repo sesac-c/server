@@ -335,7 +335,7 @@ class PostServiceTest {
                     request, null);
 
             // then
-            assertThat(response.content()).hasSize(10);
+            assertThat(response.getContent()).hasSize(10);
         }
 
         @Test
@@ -351,7 +351,7 @@ class PostServiceTest {
                     pageable1, request, PostType.CAMPUS);
 
             // then
-            assertThat(response.content()).hasSize(6);
+            assertThat(response.getContent()).hasSize(6);
         }
     }
 }

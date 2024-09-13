@@ -248,7 +248,7 @@ class RunningMateServiceTest {
             PageResponse<SearchRunningMateResponse> response =
                     runningMateService.getRunningmateList(pageRequest, request);
 
-            List<SearchRunningMateResponse> content = response.content();
+            List<SearchRunningMateResponse> content = response.getContent();
 
             assertThat(content).hasSize(10);
         }
@@ -261,7 +261,7 @@ class RunningMateServiceTest {
             PageResponse<SearchRunningMateResponse> response =
                     runningMateService.getRunningmateList(pageRequest, request);
 
-            List<SearchRunningMateResponse> content = response.content();
+            List<SearchRunningMateResponse> content = response.getContent();
 
             assertThat(content).hasSize(6);
             assertThat(content.stream().allMatch(r -> r.course().equals("영등포 스프링"))).isTrue();
@@ -275,7 +275,7 @@ class RunningMateServiceTest {
             PageResponse<SearchRunningMateResponse> response =
                     runningMateService.getRunningmateList(pageRequest, request);
 
-            List<SearchRunningMateResponse> content = response.content();
+            List<SearchRunningMateResponse> content = response.getContent();
 
             assertThat(content).hasSize(4);
             assertThat(content.stream().allMatch(r -> r.name().contains("1"))).isTrue();
@@ -289,7 +289,7 @@ class RunningMateServiceTest {
             PageResponse<SearchRunningMateResponse> response =
                     runningMateService.getRunningmateList(pageRequest, request);
 
-            List<SearchRunningMateResponse> content = response.content();
+            List<SearchRunningMateResponse> content = response.getContent();
 
             assertThat(content.stream().map(r -> r.name()).toList())
                     .containsSequence("러닝 이름 1", "러닝 이름 10", "러닝 이름 11", "러닝 이름 12", "러닝 이름 2");

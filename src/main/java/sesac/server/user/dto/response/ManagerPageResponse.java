@@ -4,12 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
-import sesac.server.common.dto.PageResponseDto;
+import sesac.server.common.dto.PageResponse;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ManagerPageResponse<T> extends PageResponseDto {
+public class ManagerPageResponse<T> extends PageResponse<T> {
 
     private Long campusId;
 

@@ -7,7 +7,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import sesac.server.common.dto.PageResponseDto;
+import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.GlobalErrorCode;
 import sesac.server.user.dto.request.AcceptStatusRequest;
@@ -53,7 +53,7 @@ public class UserService {
         return response;
     }
 
-    public PageResponseDto<SearchStudentResponse> getStudentList(
+    public PageResponse<SearchStudentResponse> getStudentList(
             Long managerId,
             Pageable pageable,
             SearchStudentRequest request
