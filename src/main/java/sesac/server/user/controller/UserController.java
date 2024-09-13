@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -154,7 +155,7 @@ public class UserController {
     public ResponseEntity<PageResponseDto<SearchStudentResponse>> getStudentList(
             @AuthPrincipal CustomPrincipal manager,
             @ModelAttribute SearchStudentRequest searchStudentRequest,
-            Pageable pageable
+            @PageableDefault(page = 0, size = 10) Pageable pageable
     ) {
         PageResponseDto<SearchStudentResponse> response =
                 userService.getStudentList(manager.id(), pageable, searchStudentRequest);

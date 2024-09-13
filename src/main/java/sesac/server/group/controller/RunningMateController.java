@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -77,7 +78,7 @@ public class RunningMateController {
     @GetMapping
     public ResponseEntity<PageResponse<SearchRunningMateResponse>> getRunningmateList(
             @ModelAttribute SearchRunningMateRequest request,
-            Pageable pageable
+            @PageableDefault(page = 0, size = 10) Pageable pageable
     ) {
         PageResponse<SearchRunningMateResponse> response =
                 runningMateService.getRunningmateList(pageable, request);
