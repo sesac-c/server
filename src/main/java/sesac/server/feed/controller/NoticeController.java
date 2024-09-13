@@ -3,7 +3,6 @@ package sesac.server.feed.controller;
 import static sesac.server.feed.exception.PostErrorCode.INVALID_CONTENT_SIZE;
 import static sesac.server.feed.exception.PostErrorCode.INVALID_TITLE_SIZE;
 import static sesac.server.feed.exception.PostErrorCode.REQUIRED_CONTENT;
-import static sesac.server.feed.exception.PostErrorCode.REQUIRED_NOTICE_TYPE;
 import static sesac.server.feed.exception.PostErrorCode.REQUIRED_TITLE;
 
 import jakarta.validation.Valid;
@@ -35,6 +34,7 @@ import sesac.server.feed.dto.request.NoticeListRequest;
 import sesac.server.feed.dto.request.ReplyRequest;
 import sesac.server.feed.dto.request.UpdateNoticeRequest;
 import sesac.server.feed.dto.response.ExtendedNoticeListResponse;
+import sesac.server.feed.dto.response.ImportantNoticeResponse;
 import sesac.server.feed.dto.response.NoticeListResponse;
 import sesac.server.feed.dto.response.NoticeResponse;
 import sesac.server.feed.dto.response.ReplyResponse;
@@ -70,8 +70,11 @@ public class NoticeController {
     }
 
     @GetMapping("important")
-    public ResponseEntity<Void> getImportantNotices(@PathVariable NoticeType noticeType) {
-        return null;
+    public ResponseEntity<List<ImportantNoticeResponse>> getImportantNotices(
+            @PathVariable NoticeType noticeType) {
+        List<ImportantNoticeResponse> response = noticeService.getImportantNotices();
+
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("{noticeId}")
@@ -96,11 +99,10 @@ public class NoticeController {
                 REQUIRED_TITLE,
                 INVALID_TITLE_SIZE,
                 REQUIRED_CONTENT,
-                INVALID_CONTENT_SIZE,
-                REQUIRED_NOTICE_TYPE
+                INVALID_CONTENT_SIZE
         ));
 
-        noticeService.createNotice(principal.id(), request);
+        noticeService.createNotice(principal.id(), request, noticeType);
 
         return ResponseEntity.ok().build();
     }

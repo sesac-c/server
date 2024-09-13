@@ -7,14 +7,14 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import sesac.server.auth.exception.TokenErrorCode;
-import sesac.server.auth.exception.TokenException;
+import sesac.server.account.exception.AccountException;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.feed.dto.request.CreateNoticeRequest;
 import sesac.server.feed.dto.request.NoticeListRequest;
 import sesac.server.feed.dto.request.UpdateNoticeRequest;
 import sesac.server.feed.dto.response.ExtendedNoticeListResponse;
+import sesac.server.feed.dto.response.ImportantNoticeResponse;
 import sesac.server.feed.dto.response.NoticeListResponse;
 import sesac.server.feed.dto.response.NoticeResponse;
 import sesac.server.feed.entity.Hashtag;
@@ -26,6 +26,7 @@ import sesac.server.feed.repository.HashtagRepository;
 import sesac.server.feed.repository.NoticeRepository;
 import sesac.server.feed.repository.PostHashtagRepository;
 import sesac.server.user.entity.User;
+import sesac.server.user.exception.UserErrorCode;
 import sesac.server.user.repository.UserRepository;
 
 @Log4j2
@@ -39,19 +40,11 @@ public class NoticeService {
     private final HashtagRepository hashtagRepository;
     private final PostHashtagRepository postHashtagRepository;
 
-    public Notice createNotice(Long userId, CreateNoticeRequest request) {
+    public Notice createNotice(Long userId, CreateNoticeRequest request, NoticeType noticeType) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new TokenException(TokenErrorCode.UNACCEPT));
+                .orElseThrow(() -> new AccountException(UserErrorCode.NO_USER));
 
-        Notice notice = Notice.builder()
-                .user(user)
-                .title(request.title())
-                .content(request.content())
-                .type(request.type())
-                .importance(request.importance())
-                .image(request.image())
-                .status(true)
-                .build();
+        Notice notice = request.toEntity(user, noticeType);
 
         noticeRepository.save(notice);
 
@@ -121,10 +114,15 @@ public class NoticeService {
 
     public PageResponse<ExtendedNoticeListResponse> getExtendedNoticeList(
             Pageable pageable, NoticeListRequest request, NoticeType type) {
-        
+
         Page<ExtendedNoticeListResponse> response = noticeRepository.searchExtendedNoticePage(
                 pageable, request, type);
 
         return new PageResponse<>(response);
+    }
+
+    // 주요 공지
+    public List<ImportantNoticeResponse> getImportantNotices() {
+        return noticeRepository.findImportanceNotices();
     }
 }

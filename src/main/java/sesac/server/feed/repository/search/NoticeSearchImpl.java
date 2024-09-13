@@ -14,8 +14,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import sesac.server.feed.dto.request.NoticeListRequest;
 import sesac.server.feed.dto.response.ExtendedNoticeListResponse;
+import sesac.server.feed.dto.response.ImportantNoticeResponse;
 import sesac.server.feed.dto.response.NoticeListResponse;
 import sesac.server.feed.dto.response.QExtendedNoticeListResponse;
+import sesac.server.feed.dto.response.QImportantNoticeResponse;
 import sesac.server.feed.entity.Notice;
 import sesac.server.feed.entity.NoticeType;
 
@@ -102,6 +104,23 @@ public class NoticeSearchImpl implements NoticeSearch {
 
         return PageableExecutionUtils.getPage(notices, pageable, countQuery::fetchCount);
 
+    }
+
+    @Override
+    public List<ImportantNoticeResponse> findImportanceNotices() {
+        List<ImportantNoticeResponse> notices = queryFactory
+                .select(new QImportantNoticeResponse(
+                        notice.id,
+                        notice.title,
+                        user.manager.campus.name
+                ))
+                .from(notice)
+                .join(notice.user, user)
+                .where(notice.importance.gt(0))
+                .orderBy(notice.importance.desc(), notice.id.desc())
+                .fetch();
+
+        return notices;
     }
 
     private BooleanExpression typeEq(NoticeType type) {

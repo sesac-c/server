@@ -21,7 +21,8 @@ public class TokenException extends BaseException {
 
         Map<String, Object> map = Map.of(
                 "status", getErrorCode().getStatus().value(),
-                "message", getErrorCode().getMessage());
+                "message", getErrorCode().getMessage(),
+                "code", getErrorCode().getCode());
 
         Gson gson = new Gson();
         try {
