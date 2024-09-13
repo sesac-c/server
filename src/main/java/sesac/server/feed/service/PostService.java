@@ -7,9 +7,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import sesac.server.account.exception.AccountException;
 import sesac.server.auth.dto.CustomPrincipal;
-import sesac.server.auth.exception.TokenErrorCode;
-import sesac.server.auth.exception.TokenException;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.feed.dto.request.CreatePostRequest;
@@ -28,6 +27,7 @@ import sesac.server.feed.repository.PostHashtagRepository;
 import sesac.server.feed.repository.PostRepository;
 import sesac.server.user.entity.User;
 import sesac.server.user.entity.UserRole;
+import sesac.server.user.exception.UserErrorCode;
 import sesac.server.user.repository.UserRepository;
 
 @Log4j2
@@ -43,7 +43,7 @@ public class PostService {
 
     public Post createPost(Long userId, PostType postType, CreatePostRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new TokenException(TokenErrorCode.UNACCEPT));
+                .orElseThrow(() -> new AccountException(UserErrorCode.NO_USER));
 
         Post post = Post.builder()
                 .type(postType)

@@ -58,7 +58,7 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
 
         try {
             if (tokenBlacklistService.isBlacklisted(refreshToken)) {
-                throw new TokenException(TokenErrorCode.EXPIRED);
+                throw new TokenException(TokenErrorCode.REFRESH_TOKEN_EXPIRED);
             }
 
             Map<String, Object> refreshClaims = checkRefreshToken(refreshToken);
@@ -101,7 +101,7 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
         } catch (ExpiredJwtException expiredJwtException) {
             log.info("Access Token has expired");
         } catch (Exception exception) {
-            throw new TokenException(TokenErrorCode.UNACCEPT);
+            throw new TokenException(TokenErrorCode.TOKEN_UNACCEPT);
         }
     }
 
@@ -110,11 +110,11 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
             Map<String, Object> values = jwtUtil.validateToken(refreshPath);
             return values;
         } catch (ExpiredJwtException expiredJwtException) {
-            throw new TokenException(TokenErrorCode.EXPIRED);
+            throw new TokenException(TokenErrorCode.REFRESH_TOKEN_EXPIRED);
         } catch (MalformedJwtException malformedJwtException) {
-            throw new TokenException(TokenErrorCode.MALFORM);
+            throw new TokenException(TokenErrorCode.TOKEN_MALFORM);
         } catch (Exception exception) {
-            throw new TokenException(TokenErrorCode.UNACCEPT);
+            throw new TokenException(TokenErrorCode.TOKEN_UNACCEPT);
         }
     }
 

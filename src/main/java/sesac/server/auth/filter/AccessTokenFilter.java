@@ -43,7 +43,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         if (token != null) {
             try {
                 if (tokenBlacklistService.isBlacklisted(token)) {
-                    throw new TokenException(TokenErrorCode.EXPIRED);
+                    throw new TokenException(TokenErrorCode.ACCESS_TOKEN_EXPIRED);
                 }
 
                 Map<String, Object> claim = validateAccessToken(token);
@@ -81,13 +81,13 @@ public class AccessTokenFilter extends OncePerRequestFilter {
             return jwtUtil.validateToken(tokenStr);
         } catch (MalformedJwtException malformedJwtException) {
             log.error("MalFormedJwtException-------------");
-            throw new TokenException(TokenErrorCode.MALFORM);
+            throw new TokenException(TokenErrorCode.TOKEN_MALFORM);
         } catch (SignatureException signatureException) {
             log.error("SignatureException-------------");
-            throw new TokenException(TokenErrorCode.BADSIGN);
+            throw new TokenException(TokenErrorCode.TOKEN_MALFORM);
         } catch (ExpiredJwtException expiredJwtException) {
             log.error("ExpiredJwtException-------------");
-            throw new TokenException(TokenErrorCode.EXPIRED);
+            throw new TokenException(TokenErrorCode.ACCESS_TOKEN_EXPIRED);
         }
     }
 
