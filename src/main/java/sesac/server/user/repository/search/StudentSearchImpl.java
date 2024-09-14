@@ -5,14 +5,10 @@ import static sesac.server.campus.entity.QCourse.course;
 import static sesac.server.user.entity.QStudent.student;
 import static sesac.server.user.entity.QUser.user;
 
-import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.EntityPathBase;
-import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -20,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
+import sesac.server.common.util.JPAQueryUtil;
 import sesac.server.user.dto.request.SearchStudentRequest;
 import sesac.server.user.dto.response.QSearchStudentResponse;
 import sesac.server.user.dto.response.SearchStudentResponse;
@@ -91,26 +88,10 @@ public class StudentSearchImpl implements StudentSearch {
     }
 
     private OrderSpecifier<?>[] studentOrderBy(QStudent student, Sort sort) {
-        List<OrderSpecifier<?>> orderSpecifiers = getOrderSpecifiers(student, sort);
+        List<OrderSpecifier<?>> orderSpecifiers = JPAQueryUtil.getOrderSpecifiers(student, sort);
 
         orderSpecifiers.add(student.id.desc());
 
         return orderSpecifiers.toArray(OrderSpecifier[]::new);
     }
-
-    private List<OrderSpecifier<?>> getOrderSpecifiers(EntityPathBase<?> qType, Sort sort) {
-        List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
-
-        for (Sort.Order order : sort) {
-            PathBuilder entityPath = new PathBuilder<>(qType.getType(), qType.getMetadata());
-            OrderSpecifier orderSpecifier = new OrderSpecifier(
-                    order.isAscending() ? Order.ASC : Order.DESC,
-                    entityPath.get(order.getProperty())
-            );
-            orderSpecifiers.add(orderSpecifier);
-        }
-
-        return orderSpecifiers;
-    }
-
 }
