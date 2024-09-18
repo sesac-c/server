@@ -28,6 +28,7 @@ import sesac.server.feed.dto.request.PostListRequest;
 import sesac.server.feed.dto.request.ReplyRequest;
 import sesac.server.feed.dto.request.UpdatePostRequest;
 import sesac.server.feed.dto.response.ExtendedPostListResponse;
+import sesac.server.feed.dto.response.PopularPostResponse;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
 import sesac.server.feed.dto.response.ReplyResponse;
@@ -120,8 +121,10 @@ public class PostController {
     }
 
     @GetMapping("popular")
-    public ResponseEntity<Void> getPopularPostList(@PathVariable PostType postType) {
-        return null;
+    public ResponseEntity<List<PopularPostResponse>> getPopularPostList(
+            @PathVariable PostType postType) {
+        List<PopularPostResponse> responses = postService.getPopularPostList();
+        return ResponseEntity.ok(responses);
     }
 
     @GetMapping("search")

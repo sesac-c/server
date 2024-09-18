@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import sesac.server.feed.dto.request.PostListRequest;
 import sesac.server.feed.dto.response.ExtendedPostListResponse;
+import sesac.server.feed.dto.response.PopularPostResponse;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.entity.PostType;
 
@@ -17,4 +18,6 @@ public interface PostSearch {
 
     Page<ExtendedPostListResponse> searchExtendedPostPage(Pageable pageable,
             PostListRequest request, PostType type);
+
+    List<PopularPostResponse> popularPosts();
 }
