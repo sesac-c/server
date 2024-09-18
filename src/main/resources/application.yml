@@ -13,3 +13,10 @@ spring:
       ddl-auto: validate
   flyway:
     enabled: true
+  servlet:
+    multipart:
+      enabled: true
+      location: 이미지업로드경로
+      max-file-size: 5MB
+      max-request-size: 20MB
+upload-path: 이미지업로드경로
