@@ -112,9 +112,9 @@ public class CampusController {
 
     // 매니저 권한: 과정 상세 리스트
     @PreAuthorize("hasRole('MANAGER')")
-    @GetMapping("{campusId}/courses-extended")
+    @GetMapping("/courses-extended")
     public ResponseEntity<PageResponse<ExtendedCourseResponse>> getDetailCourses(
-            @PathVariable Long campusId,
+            @AuthPrincipal CustomPrincipal principal,
             @RequestParam(required = false) String status,
             @PageableDefault(page = 0, size = 10) Pageable pageable
     ) {
@@ -125,8 +125,8 @@ public class CampusController {
         // 4. 사전역순                    4. 개강 예정
         // 5. 생성일[최신날짜->과거]
         // 6. 생성일[과거->최신날짜]
-        PageResponse<ExtendedCourseResponse> response = courseService.getCourseList(pageable,
-                campusId,
+        PageResponse<ExtendedCourseResponse> response = courseService.getCourseList(principal,
+                pageable,
                 status);
 
         return ResponseEntity.ok().body(response);

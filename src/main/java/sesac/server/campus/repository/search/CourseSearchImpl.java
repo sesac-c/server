@@ -1,6 +1,7 @@
 package sesac.server.campus.repository.search;
 
 import static sesac.server.campus.entity.QCourse.course;
+import static sesac.server.user.entity.QManager.manager;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -24,38 +25,48 @@ public class CourseSearchImpl implements CourseSearch {
 
     @Override
     public Page<ExtendedCourseResponse> searchCourse(
+            Long managerId,
             Pageable pageable,
-            Long campusId,
             String status
     ) {
-        List<Course> courses = queryFactory
-                .selectFrom(course)
-                .where(
-                        campusIdEq(campusId),
-                        statusEq(status)                // 필터링
-                )
-                .offset(pageable.getOffset())           // 페이징
+        List<Course> courses = getCourseQuery(managerId, status)
+                .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(getOrderSpecifiers(pageable)) // 정렬
+                .orderBy(getOrderSpecifiers(pageable))
                 .fetch();
 
         List<ExtendedCourseResponse> content = courses.stream()
                 .map(ExtendedCourseResponse::from)
                 .toList();
 
-        JPAQuery<Long> countQuery = queryFactory
-                .select(course.count())
-                .from(course)
-                .where(
-                        campusIdEq(campusId),
-                        statusEq(status)
-                );
+        JPAQuery<Long> countQuery = getCountQuery(managerId, status);
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
-    private BooleanExpression campusIdEq(Long campusId) {
-        return campusId != null ? course.campus.id.eq(campusId) : null;
+    private JPAQuery<Course> getCourseQuery(Long managerId, String status) {
+        return queryFactory
+                .selectFrom(course)
+                .join(manager).on(course.campus.id.eq(manager.campus.id))
+                .where(
+                        managerIdEq(managerId),
+                        statusEq(status)
+                );
+    }
+
+    private JPAQuery<Long> getCountQuery(Long managerId, String status) {
+        return queryFactory
+                .select(course.count())
+                .from(course)
+                .join(manager).on(course.campus.id.eq(manager.campus.id))
+                .where(
+                        managerIdEq(managerId),
+                        statusEq(status)
+                );
+    }
+
+    private BooleanExpression managerIdEq(Long managerId) {
+        return managerId != null ? manager.id.eq(managerId) : null;
     }
 
     private BooleanExpression statusEq(String status) {
@@ -77,28 +88,21 @@ public class CourseSearchImpl implements CourseSearch {
         if (pageable.getSort().isSorted()) {
             pageable.getSort().forEach(order -> {
                 Order direction = order.getDirection().isAscending() ? Order.ASC : Order.DESC;
-                String property = order.getProperty();
-
-                switch (property) {
-                    case "startDate":
-                        orderSpecifiers.add(new OrderSpecifier<>(direction, course.startDate));
-                        break;
-                    case "name":
-                        orderSpecifiers.add(new OrderSpecifier<>(direction, course.name));
-                        break;
-                    case "createdAt":
-                        orderSpecifiers.add(new OrderSpecifier<>(direction, course.createdAt));
-                        break;
-                    default:
-                        orderSpecifiers.add(course.startDate.desc());
-                        break;
+                switch (order.getProperty()) {
+                    case "startDate" ->
+                            orderSpecifiers.add(new OrderSpecifier<>(direction, course.startDate));
+                    case "name" ->
+                            orderSpecifiers.add(new OrderSpecifier<>(direction, course.name));
+                    case "createdAt" ->
+                            orderSpecifiers.add(new OrderSpecifier<>(direction, course.createdAt));
+                    default ->
+                            orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, course.startDate));
                 }
             });
         }
 
-        // 정렬 기준이 지정되지 않은 경우 기본값(개강일[최신날짜->과거]) 설정
         if (orderSpecifiers.isEmpty()) {
-            orderSpecifiers.add(course.startDate.desc());
+            orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, course.startDate));
         }
 
         return orderSpecifiers.toArray(new OrderSpecifier[0]);

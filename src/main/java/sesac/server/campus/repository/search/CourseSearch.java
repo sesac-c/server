@@ -7,8 +7,8 @@ import sesac.server.campus.dto.response.ExtendedCourseResponse;
 public interface CourseSearch {
 
     Page<ExtendedCourseResponse> searchCourse(
+            Long managerId,
             Pageable pageable,
-            Long campusId,
             String status
     );
 }
