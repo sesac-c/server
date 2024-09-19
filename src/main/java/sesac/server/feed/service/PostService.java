@@ -15,6 +15,7 @@ import sesac.server.feed.dto.request.CreatePostRequest;
 import sesac.server.feed.dto.request.PostListRequest;
 import sesac.server.feed.dto.request.UpdatePostRequest;
 import sesac.server.feed.dto.response.ExtendedPostListResponse;
+import sesac.server.feed.dto.response.PopularPostResponse;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
 import sesac.server.feed.entity.Hashtag;
@@ -138,4 +139,7 @@ public class PostService {
         return new PageResponse(response);
     }
 
+    public List<PopularPostResponse> getPopularPostList() {
+        return postRepository.popularPosts();
+    }
 }

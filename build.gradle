@@ -71,6 +71,9 @@ dependencies {
     // Retry
     implementation 'org.springframework.retry:spring-retry'
     implementation 'org.springframework:spring-aspects'
+
+    // thumbnail
+    implementation 'net.coobird:thumbnailator:0.4.20'
 }
 
 tasks.named('test') {
