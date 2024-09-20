@@ -13,6 +13,7 @@ import sesac.server.campus.repository.CourseRepository;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.GlobalErrorCode;
+import sesac.server.group.dto.request.CreateActivityReportRequest;
 import sesac.server.group.dto.request.CreateRunningMateMemberRequest;
 import sesac.server.group.dto.request.CreateRunningMateRequest;
 import sesac.server.group.dto.request.SearchRunningMateRequest;
@@ -22,9 +23,13 @@ import sesac.server.group.dto.response.RunningMateDetailResponse;
 import sesac.server.group.dto.response.RunningMateMemberDetailResponse;
 import sesac.server.group.dto.response.RunningMateMemberListResponse;
 import sesac.server.group.dto.response.SearchRunningMateResponse;
+import sesac.server.group.entity.ActivityParticipant;
+import sesac.server.group.entity.ActivityReport;
 import sesac.server.group.entity.RunningMate;
 import sesac.server.group.entity.RunningMateMember;
 import sesac.server.group.exception.RunningMateErrorCode;
+import sesac.server.group.repository.ActivityParticipantRepository;
+import sesac.server.group.repository.ActivityReportRepository;
 import sesac.server.group.repository.RunningMateMemberRepository;
 import sesac.server.group.repository.RunningMateRepository;
 import sesac.server.user.entity.Manager;
@@ -44,6 +49,8 @@ public class RunningMateService {
     private final UserRepository userRepository;
     private final RunningMateMemberRepository runningMateMemberRepository;
     private final ManagerRepository managerRepository;
+    private final ActivityReportRepository activityReportRepository;
+    private final ActivityParticipantRepository activityParticipantRepository;
 
     // 러닝메이트 관리
     public PageResponse<SearchRunningMateResponse> getRunningmateList(Pageable pageable,
@@ -129,7 +136,7 @@ public class RunningMateService {
             Long runningmateId, Long memberId
     ) {
         RunningMateMember runningMateMember = runningMateMemberRepository
-                .findByIdAndRunningMateId(memberId, runningmateId)
+                .findByUserIdAndRunningMateId(memberId, runningmateId)
                 .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE_MEMBER));
 
         return RunningMateMemberDetailResponse.from(runningMateMember);
@@ -142,7 +149,7 @@ public class RunningMateService {
                 .orElseThrow(() -> new BaseException(UserErrorCode.NO_MANAGER));
 
         RunningMateMember runningMateMember = runningMateMemberRepository
-                .findByIdAndRunningMateId(memberId, runningmateId)
+                .findByUserIdAndRunningMateId(memberId, runningmateId)
                 .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE_MEMBER));
 
         if (!runningMateMember.getRunningMate().getCourse().getCampus().getId()
@@ -162,7 +169,7 @@ public class RunningMateService {
                 .orElseThrow(() -> new BaseException(UserErrorCode.NO_MANAGER));
 
         RunningMateMember runningMateMember = runningMateMemberRepository
-                .findByIdAndRunningMateId(memberId, runningmateId)
+                .findByUserIdAndRunningMateId(memberId, runningmateId)
                 .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE_MEMBER));
 
         if (!runningMateMember.getRunningMate().getCourse().getCampus().getId()
@@ -171,5 +178,32 @@ public class RunningMateService {
         }
 
         runningMateMemberRepository.delete(runningMateMember);
+    }
+
+    public Long createActivityReport(Long runningmateId,
+            CreateActivityReportRequest request) {
+
+        boolean runningMate = runningmateRepository.existsById(runningmateId);
+        if (!runningMate) {
+            throw new BaseException(RunningMateErrorCode.NO_RUNNING_MATE);
+        }
+
+        ActivityReport report = request.toEntity();
+        activityReportRepository.save(report);
+
+        // save activity participant
+        List<RunningMateMember> members = runningMateMemberRepository
+                .findByRunningMateIdAndUserIds(runningmateId, request.memberIds());
+
+        List<ActivityParticipant> participants = members.stream()
+                .map(member -> ActivityParticipant.builder()
+                        .activityReport(report)
+                        .runningMateMember(member)
+                        .build()
+                ).toList();
+
+        activityParticipantRepository.saveAll(participants);
+
+        return report.getId();
     }
 }

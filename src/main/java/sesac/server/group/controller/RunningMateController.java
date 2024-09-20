@@ -23,6 +23,7 @@ import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BindingResultHandler;
+import sesac.server.group.dto.request.CreateActivityReportRequest;
 import sesac.server.group.dto.request.CreateRunningMateMemberRequest;
 import sesac.server.group.dto.request.CreateRunningMateRequest;
 import sesac.server.group.dto.request.SearchRunningMateRequest;
@@ -49,8 +50,19 @@ public class RunningMateController {
     }
 
     @PostMapping("{runningmateId}/activities")
-    public ResponseEntity<Void> createActivityReport() {
-        return null;
+    public ResponseEntity<Void> createActivityReport(
+            @PathVariable Long runningmateId,
+            @Valid @RequestBody CreateActivityReportRequest request,
+            BindingResult bindingResult
+    ) {
+        BindingResultHandler.handle(bindingResult, List.of(
+                RunningMateErrorCode.REQUIRED_DURATION,
+                RunningMateErrorCode.REQUIRED_MAIN_CONTENT,
+                RunningMateErrorCode.REQUIRED_ACHIEVEMENT_SUMMARY,
+                RunningMateErrorCode.REQUIRED_PHOTO
+        ));
+        runningMateService.createActivityReport(runningmateId, request);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("{runningmateId}/activity-form")
