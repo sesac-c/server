@@ -9,6 +9,7 @@ public interface CourseSearch {
     Page<ExtendedCourseResponse> searchCourse(
             Long managerId,
             Pageable pageable,
+            String name,
             String status
     );
 }

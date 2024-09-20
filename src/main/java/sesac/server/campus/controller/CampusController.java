@@ -115,6 +115,7 @@ public class CampusController {
     @GetMapping("/courses-extended")
     public ResponseEntity<PageResponse<ExtendedCourseResponse>> getDetailCourses(
             @AuthPrincipal CustomPrincipal principal,
+            @RequestParam(required = false) String name,
             @RequestParam(required = false) String status,
             @PageableDefault(page = 0, size = 10) Pageable pageable
     ) {
@@ -127,6 +128,7 @@ public class CampusController {
         // 6. 생성일[과거->최신날짜]
         PageResponse<ExtendedCourseResponse> response = courseService.getCourseList(principal,
                 pageable,
+                name,
                 status);
 
         return ResponseEntity.ok().body(response);

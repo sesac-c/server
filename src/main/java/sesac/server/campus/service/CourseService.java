@@ -46,11 +46,12 @@ public class CourseService {
     public PageResponse<ExtendedCourseResponse> getCourseList(
             CustomPrincipal principal,
             Pageable pageable,
+            String name,
             String status
     ) {
 
         Page<ExtendedCourseResponse> courses = courseRepository.searchCourse(principal.id(),
-                pageable, status);
+                pageable, name, status);
 
         return new PageResponse<>(courses);
     }
