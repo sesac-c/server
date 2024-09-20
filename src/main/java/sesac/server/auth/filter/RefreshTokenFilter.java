@@ -84,7 +84,7 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
             }
 
             Map<String, Object> payload = new HashMap<>(claim);
-            payload.put("accessToken", accessToken);
+            payload.put("accessToken", accessTokenValue);
             payload.put("refreshToken", refreshTokenValue);
             payload.remove("id");
 
