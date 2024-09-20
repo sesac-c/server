@@ -29,6 +29,7 @@ import sesac.server.group.dto.request.CreateRunningMateRequest;
 import sesac.server.group.dto.request.SearchRunningMateRequest;
 import sesac.server.group.dto.request.UpdateRunningMateMemberRequest;
 import sesac.server.group.dto.request.UpdateRunningMateRequest;
+import sesac.server.group.dto.response.ActivityReportDetailResponse;
 import sesac.server.group.dto.response.ActivityReportListResponse;
 import sesac.server.group.dto.response.RunningMateDetailResponse;
 import sesac.server.group.dto.response.RunningMateMemberDetailResponse;
@@ -45,20 +46,20 @@ public class RunningMateController {
 
     private final RunningMateService runningMateService;
 
-    @GetMapping("{runningmateId}/activities")
+    @GetMapping("activities")
     public ResponseEntity<List<ActivityReportListResponse>> getActivityReportList(
-            @PathVariable Long runningmateId,
+            @AuthPrincipal CustomPrincipal user,
             @PageableDefault Pageable pageable
     ) {
         List<ActivityReportListResponse> response =
-                runningMateService.getActivityReportList(runningmateId, pageable);
+                runningMateService.getActivityReportList(user.id(), pageable);
 
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping("{runningmateId}/activities")
+    @PostMapping("activities")
     public ResponseEntity<Void> createActivityReport(
-            @PathVariable Long runningmateId,
+            @AuthPrincipal CustomPrincipal user,
             @Valid @RequestBody CreateActivityReportRequest request,
             BindingResult bindingResult
     ) {
@@ -68,18 +69,20 @@ public class RunningMateController {
                 RunningMateErrorCode.REQUIRED_ACHIEVEMENT_SUMMARY,
                 RunningMateErrorCode.REQUIRED_PHOTO
         ));
-        runningMateService.createActivityReport(runningmateId, request);
+        runningMateService.createActivityReport(user.id(), request);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("{runningmateId}/activity-form")
+    /*@GetMapping("{runningmateId}/activity-form")
     public ResponseEntity<Void> getActivityReportForm() {
         return null;
-    }
+    }*/
 
-    @GetMapping("{runningmateId}/activities/{activityId}")
-    public ResponseEntity<Void> getActivityReport(@PathVariable Long activityId) {
-        return null;
+    @GetMapping("activities/{activityId}")
+    public ResponseEntity<ActivityReportDetailResponse> getActivityReport(
+            @PathVariable Long activityId) {
+        ActivityReportDetailResponse response = runningMateService.getActivityReport(activityId);
+        return ResponseEntity.ok().body(response);
     }
 
     @PutMapping("{runningmateId}/trans-leader")

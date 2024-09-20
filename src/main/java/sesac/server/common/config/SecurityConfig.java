@@ -65,20 +65,20 @@ public class SecurityConfig {
                 .requestMatchers("/user/students/**").hasRole("MANAGER")
 
                 // runningmates
-                .requestMatchers(HttpMethod.GET, "/runningmates/{runningmateId}/activities")
+                .requestMatchers(HttpMethod.GET, "/runningmates/activities")
                 .authenticated()
-                .requestMatchers(HttpMethod.POST, "/runningmates/{runningmateId}/activities")
+                .requestMatchers(HttpMethod.POST, "/runningmates/activities")
                 .authenticated()
-                .requestMatchers(HttpMethod.GET, "/runningmates/{runningmateId}/activity-form")
+                .requestMatchers(HttpMethod.GET, "/runningmates/activity-form")
                 .authenticated()
                 .requestMatchers(HttpMethod.GET,
-                        "/runningmates/{runningmateId}/activities/{activityId}").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/runningmates/{runningmateId}/trans-leader")
+                        "/runningmates/activities/{activityId}").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/runningmates/trans-leader")
                 .authenticated()
                 .requestMatchers(HttpMethod.DELETE,
-                        "/runningmates/{runningmateId}/members/{memberId}").authenticated()
+                        "/runningmates/members/{memberId}").authenticated()
                 .requestMatchers("/runningmates/**").hasRole("MANAGER")
-                
+
                 .anyRequest().authenticated());
 
         http.exceptionHandling(handler -> handler

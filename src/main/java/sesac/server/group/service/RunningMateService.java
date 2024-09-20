@@ -19,7 +19,9 @@ import sesac.server.group.dto.request.CreateRunningMateRequest;
 import sesac.server.group.dto.request.SearchRunningMateRequest;
 import sesac.server.group.dto.request.UpdateRunningMateMemberRequest;
 import sesac.server.group.dto.request.UpdateRunningMateRequest;
+import sesac.server.group.dto.response.ActivityReportDetailResponse;
 import sesac.server.group.dto.response.ActivityReportListResponse;
+import sesac.server.group.dto.response.ActivityReportMembers;
 import sesac.server.group.dto.response.RunningMateDetailResponse;
 import sesac.server.group.dto.response.RunningMateMemberDetailResponse;
 import sesac.server.group.dto.response.RunningMateMemberListResponse;
@@ -181,8 +183,10 @@ public class RunningMateService {
         runningMateMemberRepository.delete(runningMateMember);
     }
 
-    public Long createActivityReport(Long runningmateId,
+    public Long createActivityReport(Long userId,
             CreateActivityReportRequest request) {
+        Long runningmateId = runningMateMemberRepository.findRunningMateId(userId)
+                .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE));
 
         RunningMate runningMate = runningmateRepository.findById(runningmateId)
                 .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE));
@@ -206,11 +210,39 @@ public class RunningMateService {
         return report.getId();
     }
 
-    public List<ActivityReportListResponse> getActivityReportList(
-            Long runningmateId,
-            Pageable pageable
-    ) {
+    public List<ActivityReportListResponse> getActivityReportList(Long userId, Pageable pageable) {
+        Long runningmateId = runningMateMemberRepository.findRunningMateId(userId)
+                .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE));
 
         return activityReportRepository.findList(runningmateId, pageable);
+    }
+
+    public ActivityReportDetailResponse getActivityReport(Long activityId) {
+        ActivityReport report = activityReportRepository.findById(activityId)
+                .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_ACTIVITY_REPORT));
+
+        RunningMate runningMate = report.getRunningMate();
+
+        List<String> participants = activityParticipantRepository.findParticipants(report.getId());
+        List<ActivityReportMembers> members = runningMateMemberRepository.findActivityReportMembers(
+                runningMate.getId());
+
+        ActivityReportDetailResponse response = ActivityReportDetailResponse.builder()
+                .runningMateName(runningMate.getName())
+                .runningMateGoal(runningMate.getGoal())
+                .runningMateSubject(runningMate.getSubject())
+                .activityDuration(report.getActivityDuration())
+                .activityAt(report.getCreatedAt().toLocalDate())
+                .mainContent(report.getMainContent())
+                .achievementSummary(report.getAchievementSummary())
+                .photo(report.getPhoto())
+                .campusName(runningMate.getCourse().getCampus().getName())
+                .courseName(runningMate.getCourse().getName())
+                .startDate(runningMate.getCourse().getStartDate())
+                .endDate(runningMate.getCourse().getEndDate())
+                .members(members)
+                .participants(participants)
+                .build();
+        return response;
     }
 }
