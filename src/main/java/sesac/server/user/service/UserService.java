@@ -142,6 +142,14 @@ public class UserService {
         messageRepository.save(message);
     }
 
+    public List<MessageResponse> receivedMessage(Long userId, Pageable pageable) {
+        return messageRepository.findByReceiverId(userId, pageable);
+    }
+
+    public List<MessageResponse> sentMessage(Long userId, Pageable pageable) {
+        return messageRepository.findBySenderId(userId, pageable);
+    }
+
     public MessageResponse getMessage(Long userId, Long messageId) {
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new BaseException(UserErrorCode.NO_MESSAGE));
