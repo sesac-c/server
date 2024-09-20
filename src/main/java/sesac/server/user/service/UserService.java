@@ -151,10 +151,9 @@ public class UserService {
             throw new BaseException(UserErrorCode.NO_MESSAGE);
         }
 
-        return new MessageResponse(message.getId(), message.getSender().getStudent().getNickname(),
-                message.getReceiver().getStudent().getNickname(), message.getContent(),
-                message.getIsRead(), message.getCreatedAt());
+        return MessageResponse.from(message);
     }
+
 
     public void deleteMessage(Long userId, Long messageId) {
         Message message = messageRepository.findById(messageId)
