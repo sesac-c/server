@@ -19,6 +19,7 @@ import sesac.server.group.dto.request.CreateRunningMateRequest;
 import sesac.server.group.dto.request.SearchRunningMateRequest;
 import sesac.server.group.dto.request.UpdateRunningMateMemberRequest;
 import sesac.server.group.dto.request.UpdateRunningMateRequest;
+import sesac.server.group.dto.response.ActivityReportListResponse;
 import sesac.server.group.dto.response.RunningMateDetailResponse;
 import sesac.server.group.dto.response.RunningMateMemberDetailResponse;
 import sesac.server.group.dto.response.RunningMateMemberListResponse;
@@ -183,12 +184,10 @@ public class RunningMateService {
     public Long createActivityReport(Long runningmateId,
             CreateActivityReportRequest request) {
 
-        boolean runningMate = runningmateRepository.existsById(runningmateId);
-        if (!runningMate) {
-            throw new BaseException(RunningMateErrorCode.NO_RUNNING_MATE);
-        }
+        RunningMate runningMate = runningmateRepository.findById(runningmateId)
+                .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE));
 
-        ActivityReport report = request.toEntity();
+        ActivityReport report = request.toEntity(runningMate);
         activityReportRepository.save(report);
 
         // save activity participant
@@ -205,5 +204,13 @@ public class RunningMateService {
         activityParticipantRepository.saveAll(participants);
 
         return report.getId();
+    }
+
+    public List<ActivityReportListResponse> getActivityReportList(
+            Long runningmateId,
+            Pageable pageable
+    ) {
+
+        return activityReportRepository.findList(runningmateId, pageable);
     }
 }

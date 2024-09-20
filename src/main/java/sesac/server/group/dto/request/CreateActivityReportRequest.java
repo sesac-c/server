@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import sesac.server.common.exception.BaseException;
 import sesac.server.group.entity.ActivityReport;
+import sesac.server.group.entity.RunningMate;
 import sesac.server.group.exception.RunningMateErrorCode;
 
 public record CreateActivityReportRequest(
@@ -29,8 +30,9 @@ public record CreateActivityReportRequest(
         }
     }
 
-    public ActivityReport toEntity() {
+    public ActivityReport toEntity(RunningMate runningMate) {
         return ActivityReport.builder()
+                .runningMate(runningMate)
                 .activityDuration(duration)
                 .mainContent(mainContent)
                 .achievementSummary(achievementSummary)

@@ -29,6 +29,7 @@ import sesac.server.group.dto.request.CreateRunningMateRequest;
 import sesac.server.group.dto.request.SearchRunningMateRequest;
 import sesac.server.group.dto.request.UpdateRunningMateMemberRequest;
 import sesac.server.group.dto.request.UpdateRunningMateRequest;
+import sesac.server.group.dto.response.ActivityReportListResponse;
 import sesac.server.group.dto.response.RunningMateDetailResponse;
 import sesac.server.group.dto.response.RunningMateMemberDetailResponse;
 import sesac.server.group.dto.response.RunningMateMemberListResponse;
@@ -45,8 +46,14 @@ public class RunningMateController {
     private final RunningMateService runningMateService;
 
     @GetMapping("{runningmateId}/activities")
-    public ResponseEntity<Void> getActivityReportList() {
-        return null;
+    public ResponseEntity<List<ActivityReportListResponse>> getActivityReportList(
+            @PathVariable Long runningmateId,
+            @PageableDefault Pageable pageable
+    ) {
+        List<ActivityReportListResponse> response =
+                runningMateService.getActivityReportList(runningmateId, pageable);
+
+        return ResponseEntity.ok().body(response);
     }
 
     @PostMapping("{runningmateId}/activities")
