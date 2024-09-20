@@ -28,6 +28,7 @@ import sesac.server.user.dto.request.MessageSendRequest;
 import sesac.server.user.dto.request.SearchStudentRequest;
 import sesac.server.user.dto.request.UpdateStudentRequest;
 import sesac.server.user.dto.response.ManagerListResponse;
+import sesac.server.user.dto.response.MessageResponse;
 import sesac.server.user.dto.response.SearchStudentResponse;
 import sesac.server.user.dto.response.StudentDetailResponse;
 import sesac.server.user.dto.response.StudentListResponse;
@@ -91,13 +92,23 @@ public class UserController {
     }
 
     @GetMapping("messages/{messageId}")
-    public ResponseEntity<Void> getMessage(@PathVariable Long messageId) {
-        return null;
+    public ResponseEntity<MessageResponse> getMessage(
+            @AuthPrincipal CustomPrincipal user,
+            @PathVariable Long messageId
+    ) {
+        MessageResponse response = userService.getMessage(user.id(), messageId);
+
+        return ResponseEntity.ok().body(response);
     }
 
     @DeleteMapping("messages/{messageId}")
-    public ResponseEntity<Void> deleteMessage(@PathVariable Long messageId) {
-        return null;
+    public ResponseEntity<Void> deleteMessage(
+            @AuthPrincipal CustomPrincipal receiver,
+            @PathVariable Long messageId
+    ) {
+        userService.deleteMessage(receiver.id(), messageId);
+
+        return ResponseEntity.ok().build();
     }
 
     // -----------------------------------------------------------프로필

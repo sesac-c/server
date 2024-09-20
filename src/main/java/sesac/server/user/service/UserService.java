@@ -16,6 +16,7 @@ import sesac.server.user.dto.request.SearchStudentRequest;
 import sesac.server.user.dto.request.UpdateStudentRequest;
 import sesac.server.user.dto.response.ManagerListResponse;
 import sesac.server.user.dto.response.ManagerPageResponse;
+import sesac.server.user.dto.response.MessageResponse;
 import sesac.server.user.dto.response.SearchStudentResponse;
 import sesac.server.user.dto.response.StudentDetailResponse;
 import sesac.server.user.dto.response.StudentListResponse;
@@ -139,5 +140,30 @@ public class UserService {
         Message message = request.toEntity(sender, receiver);
 
         messageRepository.save(message);
+    }
+
+    public MessageResponse getMessage(Long userId, Long messageId) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new BaseException(UserErrorCode.NO_MESSAGE));
+
+        if (!message.getReceiver().getId().equals(userId) &&
+                !message.getSender().getId().equals(userId)) {
+            throw new BaseException(UserErrorCode.NO_MESSAGE);
+        }
+
+        return new MessageResponse(message.getId(), message.getSender().getStudent().getNickname(),
+                message.getReceiver().getStudent().getNickname(), message.getContent(),
+                message.getIsRead(), message.getCreatedAt());
+    }
+
+    public void deleteMessage(Long userId, Long messageId) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new BaseException(UserErrorCode.NO_MESSAGE));
+
+        if (!message.getReceiver().getId().equals(userId)) {
+            throw new BaseException(UserErrorCode.NO_MESSAGE);
+        }
+
+        messageRepository.delete(message);
     }
 }
