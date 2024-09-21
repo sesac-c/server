@@ -265,4 +265,19 @@ public class RunningMateService {
         runningMateMemberRepository.save(leader);
 
     }
+
+    public void deleteMember(Long leaderId, Long memberId) {
+        RunningMateMember leader = runningMateMemberRepository.findByUserId(leaderId)
+                .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE_MEMBER));
+
+        RunningMateMember member = runningMateMemberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE_MEMBER));
+
+        if (!leader.getRole().equals(MemberRole.LEADER)) {
+            throw new BaseException(GlobalErrorCode.NO_PERMISSIONS);
+        }
+
+        runningMateMemberRepository.delete(member);
+
+    }
 }

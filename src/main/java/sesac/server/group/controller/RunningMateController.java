@@ -96,8 +96,11 @@ public class RunningMateController {
     }
 
     @DeleteMapping("members/{memberId}")
-    public ResponseEntity<Void> deleteMember(@PathVariable Long memberId) {
-        return null;
+    public ResponseEntity<Void> deleteMember(
+            @AuthPrincipal CustomPrincipal user,
+            @PathVariable Long memberId) {
+        runningMateService.deleteMember(user.id(), memberId);
+        return ResponseEntity.ok().build();
     }
 
     // -----------------------------------------------------------매니저 권한
