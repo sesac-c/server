@@ -27,6 +27,7 @@ import sesac.server.group.dto.request.CreateActivityReportRequest;
 import sesac.server.group.dto.request.CreateRunningMateMemberRequest;
 import sesac.server.group.dto.request.CreateRunningMateRequest;
 import sesac.server.group.dto.request.SearchRunningMateRequest;
+import sesac.server.group.dto.request.TransLeaderRequest;
 import sesac.server.group.dto.request.UpdateRunningMateMemberRequest;
 import sesac.server.group.dto.request.UpdateRunningMateRequest;
 import sesac.server.group.dto.response.ActivityReportDetailResponse;
@@ -85,12 +86,16 @@ public class RunningMateController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PutMapping("{runningmateId}/trans-leader")
-    public ResponseEntity<Void> transformLeader() {
-        return null;
+    @PutMapping("trans-leader")
+    public ResponseEntity<Void> transformLeader(
+            @AuthPrincipal CustomPrincipal user,
+            @RequestBody TransLeaderRequest request
+    ) {
+        runningMateService.transformLeader(user.id(), request.memberId());
+        return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("{runningmateId}/members/{memberId}")
+    @DeleteMapping("members/{memberId}")
     public ResponseEntity<Void> deleteMember(@PathVariable Long memberId) {
         return null;
     }

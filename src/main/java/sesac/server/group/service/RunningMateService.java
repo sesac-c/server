@@ -30,6 +30,7 @@ import sesac.server.group.entity.ActivityParticipant;
 import sesac.server.group.entity.ActivityReport;
 import sesac.server.group.entity.RunningMate;
 import sesac.server.group.entity.RunningMateMember;
+import sesac.server.group.entity.RunningMateMember.MemberRole;
 import sesac.server.group.exception.RunningMateErrorCode;
 import sesac.server.group.repository.ActivityParticipantRepository;
 import sesac.server.group.repository.ActivityReportRepository;
@@ -244,5 +245,24 @@ public class RunningMateService {
                 .participants(participants)
                 .build();
         return response;
+    }
+
+    public void transformLeader(Long leaderId, Long memberId) {
+        RunningMateMember leader = runningMateMemberRepository.findByUserId(leaderId)
+                .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE_MEMBER));
+
+        RunningMateMember member = runningMateMemberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE_MEMBER));
+
+        if (!leader.getRole().equals(MemberRole.LEADER)) {
+            throw new BaseException(GlobalErrorCode.NO_PERMISSIONS);
+        }
+
+        leader.setRole(MemberRole.MEMBER);
+        member.setRole(MemberRole.LEADER);
+
+        runningMateMemberRepository.save(member);
+        runningMateMemberRepository.save(leader);
+
     }
 }

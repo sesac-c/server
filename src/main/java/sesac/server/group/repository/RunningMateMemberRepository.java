@@ -27,4 +27,6 @@ public interface RunningMateMemberRepository extends JpaRepository<RunningMateMe
     @Query("select rmm from RunningMateMember rmm where rmm.runningMate.id = :runningMateId order by rmm.role asc")
     List<ActivityReportMembers> findActivityReportMembers(
             @Param("runningMateId") Long runningMateId);
+
+    Optional<RunningMateMember> findByUserId(Long userId);
 }
