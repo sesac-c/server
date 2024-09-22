@@ -48,12 +48,16 @@ public class RunningMateMember {
     }
 
     public void update(UpdateRunningMateMemberRequest request) {
-        if (request.role() != null) {
-            this.role = request.role();
-        }
+        setRole(request.role());
 
         if (request.phoneNumber() != null) {
             this.phoneNumber = request.phoneNumber();
+        }
+    }
+
+    public void setRole(MemberRole role) {
+        if (role != null) {
+            this.role = role;
         }
     }
 }

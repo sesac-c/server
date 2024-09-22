@@ -23,11 +23,15 @@ import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BindingResultHandler;
+import sesac.server.group.dto.request.CreateActivityReportRequest;
 import sesac.server.group.dto.request.CreateRunningMateMemberRequest;
 import sesac.server.group.dto.request.CreateRunningMateRequest;
 import sesac.server.group.dto.request.SearchRunningMateRequest;
+import sesac.server.group.dto.request.TransLeaderRequest;
 import sesac.server.group.dto.request.UpdateRunningMateMemberRequest;
 import sesac.server.group.dto.request.UpdateRunningMateRequest;
+import sesac.server.group.dto.response.ActivityReportDetailResponse;
+import sesac.server.group.dto.response.ActivityReportListResponse;
 import sesac.server.group.dto.response.RunningMateDetailResponse;
 import sesac.server.group.dto.response.RunningMateMemberDetailResponse;
 import sesac.server.group.dto.response.RunningMateMemberListResponse;
@@ -43,34 +47,60 @@ public class RunningMateController {
 
     private final RunningMateService runningMateService;
 
-    @GetMapping("{runningmateId}/activities")
-    public ResponseEntity<Void> getActivityReportList() {
-        return null;
+    @GetMapping("activities")
+    public ResponseEntity<List<ActivityReportListResponse>> getActivityReportList(
+            @AuthPrincipal CustomPrincipal user,
+            @PageableDefault Pageable pageable
+    ) {
+        List<ActivityReportListResponse> response =
+                runningMateService.getActivityReportList(user.id(), pageable);
+
+        return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping("{runningmateId}/activities")
-    public ResponseEntity<Void> createActivityReport() {
-        return null;
+    @PostMapping("activities")
+    public ResponseEntity<Void> createActivityReport(
+            @AuthPrincipal CustomPrincipal user,
+            @Valid @RequestBody CreateActivityReportRequest request,
+            BindingResult bindingResult
+    ) {
+        BindingResultHandler.handle(bindingResult, List.of(
+                RunningMateErrorCode.REQUIRED_DURATION,
+                RunningMateErrorCode.REQUIRED_MAIN_CONTENT,
+                RunningMateErrorCode.REQUIRED_ACHIEVEMENT_SUMMARY,
+                RunningMateErrorCode.REQUIRED_PHOTO
+        ));
+        runningMateService.createActivityReport(user.id(), request);
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("{runningmateId}/activity-form")
+    /*@GetMapping("{runningmateId}/activity-form")
     public ResponseEntity<Void> getActivityReportForm() {
         return null;
+    }*/
+
+    @GetMapping("activities/{activityId}")
+    public ResponseEntity<ActivityReportDetailResponse> getActivityReport(
+            @PathVariable Long activityId) {
+        ActivityReportDetailResponse response = runningMateService.getActivityReport(activityId);
+        return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("{runningmateId}/activities/{activityId}")
-    public ResponseEntity<Void> getActivityReport(@PathVariable Long activityId) {
-        return null;
+    @PutMapping("trans-leader")
+    public ResponseEntity<Void> transformLeader(
+            @AuthPrincipal CustomPrincipal user,
+            @RequestBody TransLeaderRequest request
+    ) {
+        runningMateService.transformLeader(user.id(), request.memberId());
+        return ResponseEntity.ok().build();
     }
 
-    @PutMapping("{runningmateId}/trans-leader")
-    public ResponseEntity<Void> transformLeader() {
-        return null;
-    }
-
-    @DeleteMapping("{runningmateId}/members/{memberId}")
-    public ResponseEntity<Void> deleteMember(@PathVariable Long memberId) {
-        return null;
+    @DeleteMapping("members/{memberId}")
+    public ResponseEntity<Void> deleteMember(
+            @AuthPrincipal CustomPrincipal user,
+            @PathVariable Long memberId) {
+        runningMateService.deleteMember(user.id(), memberId);
+        return ResponseEntity.ok().build();
     }
 
     // -----------------------------------------------------------매니저 권한

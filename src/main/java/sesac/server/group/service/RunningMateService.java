@@ -13,18 +13,27 @@ import sesac.server.campus.repository.CourseRepository;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.GlobalErrorCode;
+import sesac.server.group.dto.request.CreateActivityReportRequest;
 import sesac.server.group.dto.request.CreateRunningMateMemberRequest;
 import sesac.server.group.dto.request.CreateRunningMateRequest;
 import sesac.server.group.dto.request.SearchRunningMateRequest;
 import sesac.server.group.dto.request.UpdateRunningMateMemberRequest;
 import sesac.server.group.dto.request.UpdateRunningMateRequest;
+import sesac.server.group.dto.response.ActivityReportDetailResponse;
+import sesac.server.group.dto.response.ActivityReportListResponse;
+import sesac.server.group.dto.response.ActivityReportMembers;
 import sesac.server.group.dto.response.RunningMateDetailResponse;
 import sesac.server.group.dto.response.RunningMateMemberDetailResponse;
 import sesac.server.group.dto.response.RunningMateMemberListResponse;
 import sesac.server.group.dto.response.SearchRunningMateResponse;
+import sesac.server.group.entity.ActivityParticipant;
+import sesac.server.group.entity.ActivityReport;
 import sesac.server.group.entity.RunningMate;
 import sesac.server.group.entity.RunningMateMember;
+import sesac.server.group.entity.RunningMateMember.MemberRole;
 import sesac.server.group.exception.RunningMateErrorCode;
+import sesac.server.group.repository.ActivityParticipantRepository;
+import sesac.server.group.repository.ActivityReportRepository;
 import sesac.server.group.repository.RunningMateMemberRepository;
 import sesac.server.group.repository.RunningMateRepository;
 import sesac.server.user.entity.Manager;
@@ -44,6 +53,8 @@ public class RunningMateService {
     private final UserRepository userRepository;
     private final RunningMateMemberRepository runningMateMemberRepository;
     private final ManagerRepository managerRepository;
+    private final ActivityReportRepository activityReportRepository;
+    private final ActivityParticipantRepository activityParticipantRepository;
 
     // 러닝메이트 관리
     public PageResponse<SearchRunningMateResponse> getRunningmateList(Pageable pageable,
@@ -129,7 +140,7 @@ public class RunningMateService {
             Long runningmateId, Long memberId
     ) {
         RunningMateMember runningMateMember = runningMateMemberRepository
-                .findByIdAndRunningMateId(memberId, runningmateId)
+                .findByUserIdAndRunningMateId(memberId, runningmateId)
                 .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE_MEMBER));
 
         return RunningMateMemberDetailResponse.from(runningMateMember);
@@ -142,7 +153,7 @@ public class RunningMateService {
                 .orElseThrow(() -> new BaseException(UserErrorCode.NO_MANAGER));
 
         RunningMateMember runningMateMember = runningMateMemberRepository
-                .findByIdAndRunningMateId(memberId, runningmateId)
+                .findByUserIdAndRunningMateId(memberId, runningmateId)
                 .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE_MEMBER));
 
         if (!runningMateMember.getRunningMate().getCourse().getCampus().getId()
@@ -162,7 +173,7 @@ public class RunningMateService {
                 .orElseThrow(() -> new BaseException(UserErrorCode.NO_MANAGER));
 
         RunningMateMember runningMateMember = runningMateMemberRepository
-                .findByIdAndRunningMateId(memberId, runningmateId)
+                .findByUserIdAndRunningMateId(memberId, runningmateId)
                 .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE_MEMBER));
 
         if (!runningMateMember.getRunningMate().getCourse().getCampus().getId()
@@ -171,5 +182,102 @@ public class RunningMateService {
         }
 
         runningMateMemberRepository.delete(runningMateMember);
+    }
+
+    public Long createActivityReport(Long userId,
+            CreateActivityReportRequest request) {
+        Long runningmateId = runningMateMemberRepository.findRunningMateId(userId)
+                .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE));
+
+        RunningMate runningMate = runningmateRepository.findById(runningmateId)
+                .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE));
+
+        ActivityReport report = request.toEntity(runningMate);
+        activityReportRepository.save(report);
+
+        // save activity participant
+        List<RunningMateMember> members = runningMateMemberRepository
+                .findByRunningMateIdAndUserIds(runningmateId, request.memberIds());
+
+        List<ActivityParticipant> participants = members.stream()
+                .map(member -> ActivityParticipant.builder()
+                        .activityReport(report)
+                        .runningMateMember(member)
+                        .build()
+                ).toList();
+
+        activityParticipantRepository.saveAll(participants);
+
+        return report.getId();
+    }
+
+    public List<ActivityReportListResponse> getActivityReportList(Long userId, Pageable pageable) {
+        Long runningmateId = runningMateMemberRepository.findRunningMateId(userId)
+                .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE));
+
+        return activityReportRepository.findList(runningmateId, pageable);
+    }
+
+    public ActivityReportDetailResponse getActivityReport(Long activityId) {
+        ActivityReport report = activityReportRepository.findById(activityId)
+                .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_ACTIVITY_REPORT));
+
+        RunningMate runningMate = report.getRunningMate();
+
+        List<String> participants = activityParticipantRepository.findParticipants(report.getId());
+        List<ActivityReportMembers> members = runningMateMemberRepository.findActivityReportMembers(
+                runningMate.getId());
+
+        ActivityReportDetailResponse response = ActivityReportDetailResponse.builder()
+                .runningMateName(runningMate.getName())
+                .runningMateGoal(runningMate.getGoal())
+                .runningMateSubject(runningMate.getSubject())
+                .activityDuration(report.getActivityDuration())
+                .activityAt(report.getCreatedAt().toLocalDate())
+                .mainContent(report.getMainContent())
+                .achievementSummary(report.getAchievementSummary())
+                .photo(report.getPhoto())
+                .campusName(runningMate.getCourse().getCampus().getName())
+                .courseName(runningMate.getCourse().getName())
+                .startDate(runningMate.getCourse().getStartDate())
+                .endDate(runningMate.getCourse().getEndDate())
+                .members(members)
+                .participants(participants)
+                .build();
+        return response;
+    }
+
+    public void transformLeader(Long leaderId, Long memberId) {
+        RunningMateMember leader = runningMateMemberRepository.findByUserId(leaderId)
+                .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE_MEMBER));
+
+        RunningMateMember member = runningMateMemberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE_MEMBER));
+
+        if (!leader.getRole().equals(MemberRole.LEADER)) {
+            throw new BaseException(GlobalErrorCode.NO_PERMISSIONS);
+        }
+
+        leader.setRole(MemberRole.MEMBER);
+        member.setRole(MemberRole.LEADER);
+
+        runningMateMemberRepository.save(member);
+        runningMateMemberRepository.save(leader);
+
+    }
+
+    public void deleteMember(Long leaderId, Long memberId) {
+        RunningMateMember leader = runningMateMemberRepository.findByUserId(leaderId)
+                .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE_MEMBER));
+
+        RunningMateMember member = runningMateMemberRepository.findById(memberId)
+                .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE_MEMBER));
+
+        if (!leader.getRole().equals(MemberRole.LEADER)) {
+            throw new BaseException(GlobalErrorCode.NO_PERMISSIONS);
+        }
+
+        runningMateMemberRepository.delete(member);
+
     }
 }
