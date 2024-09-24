@@ -9,10 +9,12 @@ import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.campus.entity.Campus;
 import sesac.server.common.exception.BaseException;
 import sesac.server.group.dto.request.CreateRestaurantRequest;
+import sesac.server.group.dto.response.RestaurantDetailResponse;
 import sesac.server.group.dto.response.RestaurantListForManagerResponse;
 import sesac.server.group.dto.response.RestaurantListResponse;
 import sesac.server.group.entity.GroupType;
 import sesac.server.group.entity.Restaurant;
+import sesac.server.group.exception.RestaurantErrorCode;
 import sesac.server.group.repository.RestaurantRepository;
 import sesac.server.user.exception.UserErrorCode;
 import sesac.server.user.repository.ManagerRepository;
@@ -60,6 +62,23 @@ public class RestaurantService {
         return restaurants.stream()
                 .map(RestaurantListResponse::from)
                 .toList();
+    }
+
+    public RestaurantDetailResponse getRestaurant(CustomPrincipal principal,
+            GroupType type,
+            Long restaurantId) {
+        Long userId = principal.id();
+        Campus userCampus = "STUDENT".equals(principal.role()) ? getStudentCampus(userId)
+                : getManagerCampus(userId);
+
+        Restaurant restaurant = restaurantRepository.findByIdAndTypeAndCampus(restaurantId, type,
+                userCampus);
+
+        if (restaurant == null) {
+            throw new BaseException(RestaurantErrorCode.NOT_FOUND_RESTAURANT);
+        }
+
+        return RestaurantDetailResponse.from(restaurant);
     }
 
     private Campus getManagerCampus(Long managerId) {

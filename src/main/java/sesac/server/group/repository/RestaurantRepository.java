@@ -12,4 +12,5 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
 
     List<Restaurant> findByCampusAndType(Campus campus, GroupType type);
 
+    Restaurant findByIdAndTypeAndCampus(Long id, GroupType type, Campus campus);
 }

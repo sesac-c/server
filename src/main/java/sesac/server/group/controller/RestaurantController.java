@@ -20,6 +20,7 @@ import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.group.dto.request.CreateRestaurantRequest;
+import sesac.server.group.dto.response.RestaurantDetailResponse;
 import sesac.server.group.dto.response.RestaurantListForManagerResponse;
 import sesac.server.group.dto.response.RestaurantListResponse;
 import sesac.server.group.entity.GroupType;
@@ -44,10 +45,15 @@ public class RestaurantController {
     }
 
     @GetMapping("{groupType}/{restaurantId}")
-    public ResponseEntity<Void> getRestaurant(
-            @PathVariable GroupType groupType, @PathVariable String restaurantId
+    public ResponseEntity<RestaurantDetailResponse> getRestaurant(
+            @AuthPrincipal CustomPrincipal principal,
+            @PathVariable GroupType groupType,
+            @PathVariable Long restaurantId
     ) {
-        return null;
+        RestaurantDetailResponse response = restaurantService.getRestaurant(principal,
+                groupType,
+                restaurantId);
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("{groupType}/{restaurantId}/menus")
