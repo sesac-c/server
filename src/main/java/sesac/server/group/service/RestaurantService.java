@@ -107,6 +107,19 @@ public class RestaurantService {
         restaurant.update(request);
     }
 
+    public void deleteRestaurant(CustomPrincipal principal, GroupType type, Long restaurantId) {
+        Campus managerCampus = getManagerCampus(principal.id());
+
+        Restaurant restaurant = restaurantRepository.findByIdAndType(restaurantId, type)
+                .orElseThrow(() -> new BaseException(RestaurantErrorCode.NOT_FOUND_RESTAURANT));
+
+        if (!restaurant.getCampus().equals(managerCampus)) { // 권한 검사
+            throw new BaseException(GlobalErrorCode.NO_PERMISSIONS);
+        }
+
+        restaurantRepository.delete(restaurant);
+    }
+
     private Campus getManagerCampus(Long managerId) {
         return managerRepository.findById(managerId).orElseThrow(
                 () -> new BaseException(UserErrorCode.NO_USER)

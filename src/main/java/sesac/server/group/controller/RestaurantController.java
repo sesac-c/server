@@ -108,9 +108,12 @@ public class RestaurantController {
     // 매니저 권한: 음식점 삭제
     @DeleteMapping("{groupType}/{restaurantId}")
     public ResponseEntity<Void> deleteRestaurant(
-            @PathVariable GroupType groupType, @PathVariable Long restaurantId
+            @AuthPrincipal CustomPrincipal principal,
+            @PathVariable GroupType groupType,
+            @PathVariable Long restaurantId
     ) {
-        return null;
+        restaurantService.deleteRestaurant(principal, groupType, restaurantId);
+        return ResponseEntity.noContent().build();
     }
 
     // 매니저 권한: 음식점 메뉴 등록
