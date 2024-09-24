@@ -1,21 +1,21 @@
 package sesac.server.group.service;
 
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.campus.entity.Campus;
-import sesac.server.campus.exception.CampusErrorCode;
-import sesac.server.campus.repository.CampusRepository;
 import sesac.server.common.exception.BaseException;
 import sesac.server.group.dto.request.CreateRestaurantRequest;
+import sesac.server.group.dto.response.RestaurantListForManagerResponse;
 import sesac.server.group.entity.GroupType;
 import sesac.server.group.entity.Restaurant;
 import sesac.server.group.repository.RestaurantRepository;
-import sesac.server.user.entity.Manager;
 import sesac.server.user.exception.UserErrorCode;
 import sesac.server.user.repository.ManagerRepository;
+import sesac.server.user.repository.StudentRepository;
 
 @Service
 @Log4j2
@@ -24,26 +24,40 @@ import sesac.server.user.repository.ManagerRepository;
 public class RestaurantService {
 
     private final RestaurantRepository restaurantRepository;
-    private final CampusRepository campusRepository;
     private final ManagerRepository managerRepository;
+    private final StudentRepository studentRepository;
 
     public void createRestaurant(CustomPrincipal principal, GroupType groupType,
             CreateRestaurantRequest request) {
-        Campus campus = ((Manager) getEntity("manager", principal.id())).getCampus();
+        Campus campus = getManagerCampus(principal.id());
 
         Restaurant restaurant = request.toEntity(campus, groupType);
         restaurantRepository.save(restaurant);
     }
 
-    private Object getEntity(String entityType, Long id) {
-        return switch (entityType) {
-            case "campus" -> campusRepository.findById(id).orElseThrow(
-                    () -> new BaseException(CampusErrorCode.NO_CAMPUS)
-            );
-            case "manager" -> managerRepository.findById(id).orElseThrow(
-                    () -> new BaseException(UserErrorCode.NO_USER)
-            );
-            default -> null;
-        };
+    public List<RestaurantListForManagerResponse> getRestaurantListForManager(
+            CustomPrincipal principal,
+            GroupType type) {
+        Campus campus = getManagerCampus(principal.id());
+
+        List<Restaurant> restaurants = (type == null)
+                ? restaurantRepository.findByCampus(campus)
+                : restaurantRepository.findByCampusAndType(campus, type);
+
+        return restaurants.stream()
+                .map(RestaurantListForManagerResponse::from)
+                .toList();
+    }
+
+    private Campus getManagerCampus(Long managerId) {
+        return managerRepository.findById(managerId).orElseThrow(
+                () -> new BaseException(UserErrorCode.NO_USER)
+        ).getCampus();
+    }
+
+    private Campus getStudentCampus(Long studentId) {
+        return studentRepository.findById(studentId).orElseThrow(
+                () -> new BaseException(UserErrorCode.NO_USER)
+        ).getFirstCourse().getCampus();
     }
 }
