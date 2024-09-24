@@ -10,6 +10,7 @@ import sesac.server.campus.entity.Campus;
 import sesac.server.common.exception.BaseException;
 import sesac.server.group.dto.request.CreateRestaurantRequest;
 import sesac.server.group.dto.response.RestaurantListForManagerResponse;
+import sesac.server.group.dto.response.RestaurantListResponse;
 import sesac.server.group.entity.GroupType;
 import sesac.server.group.entity.Restaurant;
 import sesac.server.group.repository.RestaurantRepository;
@@ -46,6 +47,18 @@ public class RestaurantService {
 
         return restaurants.stream()
                 .map(RestaurantListForManagerResponse::from)
+                .toList();
+    }
+
+    public List<RestaurantListResponse> getRestaurantList(
+            CustomPrincipal principal,
+            GroupType type) {
+        Campus campus = getStudentCampus(principal.id());
+
+        List<Restaurant> restaurants = restaurantRepository.findByCampusAndType(campus, type);
+
+        return restaurants.stream()
+                .map(RestaurantListResponse::from)
                 .toList();
     }
 

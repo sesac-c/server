@@ -21,6 +21,7 @@ import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.group.dto.request.CreateRestaurantRequest;
 import sesac.server.group.dto.response.RestaurantListForManagerResponse;
+import sesac.server.group.dto.response.RestaurantListResponse;
 import sesac.server.group.entity.GroupType;
 import sesac.server.group.exception.RestaurantErrorCode;
 import sesac.server.group.service.RestaurantService;
@@ -33,21 +34,13 @@ public class RestaurantController {
 
     private final RestaurantService restaurantService;
 
-    // 매니저 권한: 전체 음식점 리스트 조회
-    @PreAuthorize("hasRole('MANAGER')")
-    @GetMapping
-    public ResponseEntity<List<RestaurantListForManagerResponse>> getRestaurantListForManager(
-            @AuthPrincipal CustomPrincipal principal, @Param("type") GroupType type
-    ) {
-        // 필터링: type(GroupType)
-        List<RestaurantListForManagerResponse> response = restaurantService.getRestaurantList(
-                principal, type);
-        return ResponseEntity.ok().body(response);
-    }
-
     @GetMapping("{groupType}")
-    public ResponseEntity<Void> getRestaurantList(@PathVariable GroupType groupType) {
-        return null;
+    public ResponseEntity<List<RestaurantListResponse>> getRestaurantList(
+            @AuthPrincipal CustomPrincipal principal, @PathVariable GroupType groupType
+    ) {
+        List<RestaurantListResponse> response = restaurantService.getRestaurantList(
+                principal, groupType);
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("{groupType}/{restaurantId}")
@@ -62,6 +55,19 @@ public class RestaurantController {
             @PathVariable GroupType groupType, @PathVariable String restaurantId
     ) {
         return null;
+    }
+
+
+    // 매니저 권한: 전체 음식점 리스트 조회
+    @PreAuthorize("hasRole('MANAGER')")
+    @GetMapping
+    public ResponseEntity<List<RestaurantListForManagerResponse>> getRestaurantListForManager(
+            @AuthPrincipal CustomPrincipal principal, @Param("type") GroupType type
+    ) {
+        // 필터링: type(GroupType)
+        List<RestaurantListForManagerResponse> response = restaurantService.getRestaurantListForManager(
+                principal, type);
+        return ResponseEntity.ok().body(response);
     }
 
 
