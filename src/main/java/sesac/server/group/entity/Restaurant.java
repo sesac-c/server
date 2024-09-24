@@ -32,8 +32,8 @@ public class Restaurant {
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "address_id", length = 50)
-    private String addressId;
+    @Column(name = "address_id")
+    private Long addressId;
 
     @Column(columnDefinition = "TEXT")
     private String address;
@@ -50,9 +50,5 @@ public class Restaurant {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private RestaurantType type;
-
-    public enum RestaurantType {
-        COURSE, RUNNINGMATE
-    }
+    private GroupType type;
 }
