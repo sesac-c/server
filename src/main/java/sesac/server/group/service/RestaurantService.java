@@ -1,7 +1,9 @@
 package sesac.server.group.service;
 
 import jakarta.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -36,9 +38,11 @@ public class RestaurantService {
             CreateRestaurantRequest request) {
         Campus campus = getManagerCampus(principal.id());
 
-        // TODO: +주소, 주소 id, 위도/경도 유효성 검사
+//        validateAddressInfo(request.addressId(), request.address(), request.longitude(),
+//                request.latitude());
 
         Restaurant restaurant = request.toEntity(campus, groupType);
+
         restaurantRepository.save(restaurant);
     }
 
@@ -47,13 +51,7 @@ public class RestaurantService {
             GroupType type) {
         Campus campus = getManagerCampus(principal.id());
 
-        List<Restaurant> restaurants = (type == null)
-                ? restaurantRepository.findByCampus(campus)
-                : restaurantRepository.findByCampusAndType(campus, type);
-
-        return restaurants.stream()
-                .map(RestaurantListForManagerResponse::from)
-                .toList();
+        return getRestaurantList(campus, type, RestaurantListForManagerResponse::from);
     }
 
     public List<RestaurantListResponse> getRestaurantList(
@@ -61,74 +59,89 @@ public class RestaurantService {
             GroupType type) {
         Campus campus = getStudentCampus(principal.id());
 
-        List<Restaurant> restaurants = restaurantRepository.findByCampusAndType(campus, type);
-
-        return restaurants.stream()
-                .map(RestaurantListResponse::from)
-                .toList();
+        return getRestaurantList(campus, type, RestaurantListResponse::from);
     }
 
     public RestaurantDetailResponse getRestaurant(CustomPrincipal principal,
             GroupType type,
             Long restaurantId) {
-        Long userId = principal.id();
-
-        Restaurant restaurant = restaurantRepository.findByIdAndType(restaurantId, type)
-                .orElseThrow(() -> new BaseException(RestaurantErrorCode.NOT_FOUND_RESTAURANT));
-
-        Campus userCampus = "STUDENT".equals(principal.role()) ? getStudentCampus(userId)
-                : getManagerCampus(userId);
-
-        if (!restaurant.getCampus().equals(userCampus)) { // 권한 검사
-            throw new BaseException(GlobalErrorCode.NO_PERMISSIONS);
-        }
+        Restaurant restaurant = findRestaurantByIdAndType(restaurantId, type);
+        Campus userCampus = getUserCampus(principal);
+        validateUserPermission(restaurant, userCampus);
 
         return RestaurantDetailResponse.from(restaurant);
     }
 
     public void updateRestaurant(CustomPrincipal principal, GroupType type, Long restaurantId,
             UpdateRestaurantRequest request) {
+        Restaurant restaurant = findRestaurantByIdAndType(restaurantId, type);
         Campus managerCampus = getManagerCampus(principal.id());
+        validateUserPermission(restaurant, managerCampus);
 
-        Restaurant restaurant = restaurantRepository.findByIdAndType(restaurantId, type)
-                .orElseThrow(() -> new BaseException(RestaurantErrorCode.NOT_FOUND_RESTAURANT));
-
-        if (!restaurant.getCampus().equals(managerCampus)) { // 권한 검사
-            throw new BaseException(GlobalErrorCode.NO_PERMISSIONS);
-        }
-
-        if (request.isAddressInfoChanged()) {               // 주소에 대한 변경은 일괄 변경이 필요
-            if (!request.isAddressInfoComplete()) {
-                throw new BaseException(RestaurantErrorCode.INCOMPLETE_ADDRESS_INFO);
-            }
-            // TODO: +주소, 주소 id, 위도/경도 유효성 검사
-        }
+        validateAddressUpdate(request);
 
         restaurant.update(request);
     }
 
     public void deleteRestaurant(CustomPrincipal principal, GroupType type, Long restaurantId) {
+        Restaurant restaurant = findRestaurantByIdAndType(restaurantId, type);
         Campus managerCampus = getManagerCampus(principal.id());
-
-        Restaurant restaurant = restaurantRepository.findByIdAndType(restaurantId, type)
-                .orElseThrow(() -> new BaseException(RestaurantErrorCode.NOT_FOUND_RESTAURANT));
-
-        if (!restaurant.getCampus().equals(managerCampus)) { // 권한 검사
-            throw new BaseException(GlobalErrorCode.NO_PERMISSIONS);
-        }
+        validateUserPermission(restaurant, managerCampus);
 
         restaurantRepository.delete(restaurant);
     }
 
+    private <T> List<T> getRestaurantList(Campus campus, GroupType type,
+            Function<Restaurant, T> mapper) {
+        List<Restaurant> restaurants = (type == null)
+                ? restaurantRepository.findByCampus(campus)
+                : restaurantRepository.findByCampusAndType(campus, type);
+
+        return restaurants.stream().map(mapper).toList();
+    }
+
+    private Restaurant findRestaurantByIdAndType(Long restaurantId, GroupType type) {
+        return restaurantRepository.findByIdAndType(restaurantId, type)
+                .orElseThrow(() -> new BaseException(RestaurantErrorCode.NOT_FOUND_RESTAURANT));
+    }
+
+    private void validateUserPermission(Restaurant restaurant, Campus userCampus) {
+        if (!restaurant.getCampus().equals(userCampus)) {
+            throw new BaseException(GlobalErrorCode.NO_PERMISSIONS);
+        }
+    }
+
+    private void validateAddressUpdate(UpdateRestaurantRequest request) {
+        if (request.isAddressInfoChanged()) {
+            if (!request.isAddressInfoComplete()) {
+                throw new BaseException(RestaurantErrorCode.INCOMPLETE_ADDRESS_INFO);
+            }
+//            validateAddressInfo(request.addressId(), request.address(), request.longitude(),
+//                    request.latitude());
+        }
+    }
+
+    private boolean validateAddressInfo(Long addressId, String address, BigDecimal longitude,
+            BigDecimal latitude) {
+        // TODO: 주소, 주소 id, 위도/경도 유효성 검사 구현
+        return true;
+    }
+
+    private Campus getUserCampus(CustomPrincipal principal) {
+        return "STUDENT".equals(principal.role())
+                ? getStudentCampus(principal.id())
+                : getManagerCampus(principal.id());
+    }
+
     private Campus getManagerCampus(Long managerId) {
-        return managerRepository.findById(managerId).orElseThrow(
-                () -> new BaseException(UserErrorCode.NO_USER)
-        ).getCampus();
+        return managerRepository.findById(managerId)
+                .orElseThrow(() -> new BaseException(UserErrorCode.NO_USER))
+                .getCampus();
     }
 
     private Campus getStudentCampus(Long studentId) {
-        return studentRepository.findById(studentId).orElseThrow(
-                () -> new BaseException(UserErrorCode.NO_USER)
-        ).getFirstCourse().getCampus();
+        return studentRepository.findById(studentId)
+                .orElseThrow(() -> new BaseException(UserErrorCode.NO_USER))
+                .getFirstCourse().getCampus();
     }
 }
