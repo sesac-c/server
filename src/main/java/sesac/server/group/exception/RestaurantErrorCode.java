@@ -26,7 +26,9 @@ public enum RestaurantErrorCode implements ErrorCode {
     REQUIRED_LATITUDE(BAD_REQUEST, "위도를 입력해주세요"),
     REQUIRED_LONGITUDE(BAD_REQUEST, "경도를 입력해주세요"),
 
-    NOT_FOUND_RESTAURANT(NOT_FOUND, "없는 식당입니다.");
+    NOT_FOUND_RESTAURANT(NOT_FOUND, "없는 식당입니다."),
+
+    INCOMPLETE_ADDRESS_INFO(BAD_REQUEST, "주소, 주소 아이디, 경도, 위도에 대한 모든 입력이 필요합니다.");
 
     private final HttpStatus status;
     private final String message;

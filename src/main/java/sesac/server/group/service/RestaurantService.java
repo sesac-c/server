@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.campus.entity.Campus;
 import sesac.server.common.exception.BaseException;
+import sesac.server.common.exception.GlobalErrorCode;
 import sesac.server.group.dto.request.CreateRestaurantRequest;
+import sesac.server.group.dto.request.UpdateRestaurantRequest;
 import sesac.server.group.dto.response.RestaurantDetailResponse;
 import sesac.server.group.dto.response.RestaurantListForManagerResponse;
 import sesac.server.group.dto.response.RestaurantListResponse;
@@ -33,6 +35,8 @@ public class RestaurantService {
     public void createRestaurant(CustomPrincipal principal, GroupType groupType,
             CreateRestaurantRequest request) {
         Campus campus = getManagerCampus(principal.id());
+
+        // TODO: +주소, 주소 id, 위도/경도 유효성 검사
 
         Restaurant restaurant = request.toEntity(campus, groupType);
         restaurantRepository.save(restaurant);
@@ -68,17 +72,39 @@ public class RestaurantService {
             GroupType type,
             Long restaurantId) {
         Long userId = principal.id();
+
+        Restaurant restaurant = restaurantRepository.findByIdAndType(restaurantId, type)
+                .orElseThrow(() -> new BaseException(RestaurantErrorCode.NOT_FOUND_RESTAURANT));
+
         Campus userCampus = "STUDENT".equals(principal.role()) ? getStudentCampus(userId)
                 : getManagerCampus(userId);
 
-        Restaurant restaurant = restaurantRepository.findByIdAndTypeAndCampus(restaurantId, type,
-                userCampus);
-
-        if (restaurant == null) {
-            throw new BaseException(RestaurantErrorCode.NOT_FOUND_RESTAURANT);
+        if (!restaurant.getCampus().equals(userCampus)) { // 권한 검사
+            throw new BaseException(GlobalErrorCode.NO_PERMISSIONS);
         }
 
         return RestaurantDetailResponse.from(restaurant);
+    }
+
+    public void updateRestaurant(CustomPrincipal principal, GroupType type, Long restaurantId,
+            UpdateRestaurantRequest request) {
+        Campus managerCampus = getManagerCampus(principal.id());
+
+        Restaurant restaurant = restaurantRepository.findByIdAndType(restaurantId, type)
+                .orElseThrow(() -> new BaseException(RestaurantErrorCode.NOT_FOUND_RESTAURANT));
+
+        if (!restaurant.getCampus().equals(managerCampus)) { // 권한 검사
+            throw new BaseException(GlobalErrorCode.NO_PERMISSIONS);
+        }
+
+        if (request.isAddressInfoChanged()) {               // 주소에 대한 변경은 일괄 변경이 필요
+            if (!request.isAddressInfoComplete()) {
+                throw new BaseException(RestaurantErrorCode.INCOMPLETE_ADDRESS_INFO);
+            }
+            // TODO: +주소, 주소 id, 위도/경도 유효성 검사
+        }
+
+        restaurant.update(request);
     }
 
     private Campus getManagerCampus(Long managerId) {
