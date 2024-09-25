@@ -21,6 +21,7 @@ import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.group.dto.request.CreateMenuRequest;
 import sesac.server.group.dto.request.CreateRestaurantRequest;
+import sesac.server.group.dto.request.UpdateMenuRequest;
 import sesac.server.group.dto.request.UpdateRestaurantRequest;
 import sesac.server.group.dto.response.MenuResponse;
 import sesac.server.group.dto.response.RestaurantDetailResponse;
@@ -140,11 +141,16 @@ public class RestaurantController {
     // 매니저 권한: 음식점 메뉴 수정
     @PutMapping("{groupType}/{restaurantId}/menu/{menuId}")
     public ResponseEntity<Void> updateRestaurantMenu(
+            @Valid @RequestBody UpdateMenuRequest request,
+            BindingResult bindingResult,
+            @AuthPrincipal CustomPrincipal principal,
             @PathVariable GroupType groupType,
             @PathVariable Long restaurantId,
             @PathVariable Long menuId
     ) {
-        return null;
+        validateMenuInput(bindingResult);
+        restaurantService.updateRestaurantMenu(principal, groupType, restaurantId, menuId, request);
+        return ResponseEntity.noContent().build();
     }
 
     // 매니저 권한: 음식점 메뉴 삭제

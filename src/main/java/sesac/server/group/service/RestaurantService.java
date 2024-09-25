@@ -1,6 +1,7 @@
 package sesac.server.group.service;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.function.Function;
@@ -13,6 +14,7 @@ import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.GlobalErrorCode;
 import sesac.server.group.dto.request.CreateMenuRequest;
 import sesac.server.group.dto.request.CreateRestaurantRequest;
+import sesac.server.group.dto.request.UpdateMenuRequest;
 import sesac.server.group.dto.request.UpdateRestaurantRequest;
 import sesac.server.group.dto.response.MenuResponse;
 import sesac.server.group.dto.response.RestaurantDetailResponse;
@@ -21,6 +23,7 @@ import sesac.server.group.dto.response.RestaurantListResponse;
 import sesac.server.group.entity.GroupType;
 import sesac.server.group.entity.Menu;
 import sesac.server.group.entity.Restaurant;
+import sesac.server.group.exception.MenuErrorCode;
 import sesac.server.group.exception.RestaurantErrorCode;
 import sesac.server.group.repository.MenuRepository;
 import sesac.server.group.repository.RestaurantRepository;
@@ -128,6 +131,19 @@ public class RestaurantService {
         return menu.stream().map(MenuResponse::from).toList();
     }
 
+
+    public void updateRestaurantMenu(CustomPrincipal principal, GroupType type, Long restaurantId,
+            Long menuId, @Valid UpdateMenuRequest request) {
+        Restaurant restaurant = findRestaurantByIdAndType(restaurantId, type);
+        Campus managerCampus = getManagerCampus(principal.id());
+        validateUserPermission(restaurant, managerCampus);
+
+        Menu menu = menuRepository.findById(menuId).orElseThrow(
+                () -> new BaseException(MenuErrorCode.NOT_FOUND_MENU)
+        );
+        menu.update(request);
+    }
+
     private Restaurant findRestaurantByIdAndType(Long restaurantId, GroupType type) {
         return restaurantRepository.findByIdAndType(restaurantId, type)
                 .orElseThrow(() -> new BaseException(RestaurantErrorCode.NOT_FOUND_RESTAURANT));
@@ -172,5 +188,4 @@ public class RestaurantService {
                 .orElseThrow(() -> new BaseException(UserErrorCode.NO_USER))
                 .getFirstCourse().getCampus();
     }
-
 }

@@ -1,5 +1,7 @@
 package sesac.server.group.entity;
 
+import static org.springframework.util.StringUtils.hasText;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import sesac.server.group.dto.request.UpdateMenuRequest;
 
 @Entity
 @Getter
@@ -34,4 +37,13 @@ public class Menu {
 
     @Column(nullable = false)
     private BigDecimal price;
+
+    public void update(UpdateMenuRequest request) {
+        if (hasText(request.name())) {
+            this.name = request.name();
+        }
+        if (request.price() != null) {
+            this.price = request.price();
+        }
+    }
 }
