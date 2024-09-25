@@ -1,7 +1,6 @@
 package sesac.server.group.service;
 
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.function.Function;
@@ -100,15 +99,6 @@ public class RestaurantService {
         restaurantRepository.delete(restaurant);
     }
 
-    private <T> List<T> getRestaurantList(Campus campus, GroupType type,
-            Function<Restaurant, T> mapper) {
-        List<Restaurant> restaurants = (type == null)
-                ? restaurantRepository.findByCampus(campus)
-                : restaurantRepository.findByCampusAndType(campus, type);
-
-        return restaurants.stream().map(mapper).toList();
-    }
-
     // Menu
     public void createRestaurantMenu(CustomPrincipal principal, GroupType type,
             Long restaurantId, CreateMenuRequest request) {
@@ -121,39 +111,43 @@ public class RestaurantService {
         menuRepository.save(menu);
     }
 
-    public List<MenuResponse> getRestaurantMenu(CustomPrincipal principal, GroupType type,
+    public List<MenuResponse> getRestaurantMenu(GroupType type,
             Long restaurantId) {
-        Restaurant restaurant = findRestaurantByIdAndType(restaurantId, type);
-        Campus managerCampus = getManagerCampus(principal.id());
-        validateUserPermission(restaurant, managerCampus);
-
-        List<Menu> menu = menuRepository.findByRestaurant(restaurant);
+        List<Menu> menu = menuRepository.findByRestaurantIdAndType(restaurantId, type);
         return menu.stream().map(MenuResponse::from).toList();
     }
-
-
+    
     public void updateRestaurantMenu(CustomPrincipal principal, GroupType type, Long restaurantId,
-            Long menuId, @Valid UpdateMenuRequest request) {
-        Restaurant restaurant = findRestaurantByIdAndType(restaurantId, type);
+            Long menuId, UpdateMenuRequest request) {
+        Menu menu = menuRepository.findByIdAndRestaurantIdAndType(menuId, restaurantId, type)
+                .orElseThrow(
+                        () -> new BaseException(MenuErrorCode.NOT_FOUND_MENU)
+                );
         Campus managerCampus = getManagerCampus(principal.id());
-        validateUserPermission(restaurant, managerCampus);
+        validateUserPermission(menu, managerCampus);
 
-        Menu menu = menuRepository.findById(menuId).orElseThrow(
-                () -> new BaseException(MenuErrorCode.NOT_FOUND_MENU)
-        );
         menu.update(request);
     }
 
     public void deleteRestaurantMenu(CustomPrincipal principal, GroupType type,
             Long restaurantId, Long menuId) {
-        Restaurant restaurant = findRestaurantByIdAndType(restaurantId, type);
+        Menu menu = menuRepository.findByIdAndRestaurantIdAndType(menuId, restaurantId, type)
+                .orElseThrow(
+                        () -> new BaseException(MenuErrorCode.NOT_FOUND_MENU)
+                );
         Campus managerCampus = getManagerCampus(principal.id());
-        validateUserPermission(restaurant, managerCampus);
+        validateUserPermission(menu, managerCampus);
 
-        Menu menu = menuRepository.findById(menuId).orElseThrow(
-                () -> new BaseException(MenuErrorCode.NOT_FOUND_MENU)
-        );
         menuRepository.delete(menu);
+    }
+
+    private <T> List<T> getRestaurantList(Campus campus, GroupType type,
+            Function<Restaurant, T> mapper) {
+        List<Restaurant> restaurants = (type == null)
+                ? restaurantRepository.findByCampus(campus)
+                : restaurantRepository.findByCampusAndType(campus, type);
+
+        return restaurants.stream().map(mapper).toList();
     }
 
     private Restaurant findRestaurantByIdAndType(Long restaurantId, GroupType type) {
@@ -163,6 +157,12 @@ public class RestaurantService {
 
     private void validateUserPermission(Restaurant restaurant, Campus userCampus) {
         if (!restaurant.getCampus().equals(userCampus)) {
+            throw new BaseException(GlobalErrorCode.NO_PERMISSIONS);
+        }
+    }
+
+    private void validateUserPermission(Menu menu, Campus userCampus) {
+        if (!menu.getRestaurant().getCampus().equals(userCampus)) {
             throw new BaseException(GlobalErrorCode.NO_PERMISSIONS);
         }
     }

@@ -63,11 +63,10 @@ public class RestaurantController {
 
     @GetMapping("{groupType}/{restaurantId}/menu")
     public ResponseEntity<List<MenuResponse>> getRestaurantMenu(
-            @AuthPrincipal CustomPrincipal principal,
             @PathVariable GroupType groupType,
             @PathVariable Long restaurantId
     ) {
-        List<MenuResponse> response = restaurantService.getRestaurantMenu(principal, groupType,
+        List<MenuResponse> response = restaurantService.getRestaurantMenu(groupType,
                 restaurantId);
         return ResponseEntity.ok().body(response);
     }
