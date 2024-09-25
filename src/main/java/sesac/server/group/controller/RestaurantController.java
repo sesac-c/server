@@ -156,11 +156,13 @@ public class RestaurantController {
     // 매니저 권한: 음식점 메뉴 삭제
     @DeleteMapping("{groupType}/{restaurantId}/menu/{menuId}")
     public ResponseEntity<Void> deleteRestaurantMenu(
+            @AuthPrincipal CustomPrincipal principal,
             @PathVariable GroupType groupType,
             @PathVariable Long restaurantId,
             @PathVariable Long menuId
     ) {
-        return null;
+        restaurantService.deleteRestaurantMenu(principal, groupType, restaurantId, menuId);
+        return ResponseEntity.noContent().build();
     }
 
     private void validateRestaurantInput(BindingResult bindingResult) {

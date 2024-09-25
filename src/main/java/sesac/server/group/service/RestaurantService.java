@@ -144,6 +144,18 @@ public class RestaurantService {
         menu.update(request);
     }
 
+    public void deleteRestaurantMenu(CustomPrincipal principal, GroupType type,
+            Long restaurantId, Long menuId) {
+        Restaurant restaurant = findRestaurantByIdAndType(restaurantId, type);
+        Campus managerCampus = getManagerCampus(principal.id());
+        validateUserPermission(restaurant, managerCampus);
+
+        Menu menu = menuRepository.findById(menuId).orElseThrow(
+                () -> new BaseException(MenuErrorCode.NOT_FOUND_MENU)
+        );
+        menuRepository.delete(menu);
+    }
+
     private Restaurant findRestaurantByIdAndType(Long restaurantId, GroupType type) {
         return restaurantRepository.findByIdAndType(restaurantId, type)
                 .orElseThrow(() -> new BaseException(RestaurantErrorCode.NOT_FOUND_RESTAURANT));
