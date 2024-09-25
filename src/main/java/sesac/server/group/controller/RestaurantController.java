@@ -22,6 +22,7 @@ import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.group.dto.request.CreateMenuRequest;
 import sesac.server.group.dto.request.CreateRestaurantRequest;
 import sesac.server.group.dto.request.UpdateRestaurantRequest;
+import sesac.server.group.dto.response.MenuResponse;
 import sesac.server.group.dto.response.RestaurantDetailResponse;
 import sesac.server.group.dto.response.RestaurantListForManagerResponse;
 import sesac.server.group.dto.response.RestaurantListResponse;
@@ -60,10 +61,14 @@ public class RestaurantController {
     }
 
     @GetMapping("{groupType}/{restaurantId}/menu")
-    public ResponseEntity<Void> getRestaurantmenu(
-            @PathVariable GroupType groupType, @PathVariable String restaurantId
+    public ResponseEntity<List<MenuResponse>> getRestaurantMenu(
+            @AuthPrincipal CustomPrincipal principal,
+            @PathVariable GroupType groupType,
+            @PathVariable Long restaurantId
     ) {
-        return null;
+        List<MenuResponse> response = restaurantService.getRestaurantMenu(principal, groupType,
+                restaurantId);
+        return ResponseEntity.ok().body(response);
     }
 
 

@@ -14,6 +14,7 @@ import sesac.server.common.exception.GlobalErrorCode;
 import sesac.server.group.dto.request.CreateMenuRequest;
 import sesac.server.group.dto.request.CreateRestaurantRequest;
 import sesac.server.group.dto.request.UpdateRestaurantRequest;
+import sesac.server.group.dto.response.MenuResponse;
 import sesac.server.group.dto.response.RestaurantDetailResponse;
 import sesac.server.group.dto.response.RestaurantListForManagerResponse;
 import sesac.server.group.dto.response.RestaurantListResponse;
@@ -38,6 +39,7 @@ public class RestaurantService {
     private final ManagerRepository managerRepository;
     private final StudentRepository studentRepository;
 
+    // Restaurant
     public void createRestaurant(CustomPrincipal principal, GroupType groupType,
             CreateRestaurantRequest request) {
         Campus campus = getManagerCampus(principal.id());
@@ -104,6 +106,7 @@ public class RestaurantService {
         return restaurants.stream().map(mapper).toList();
     }
 
+    // Menu
     public void createRestaurantMenu(CustomPrincipal principal, GroupType type,
             Long restaurantId, CreateMenuRequest request) {
         Restaurant restaurant = findRestaurantByIdAndType(restaurantId, type);
@@ -113,6 +116,16 @@ public class RestaurantService {
         // 메뉴 생성
         Menu menu = request.toEntity(restaurant);
         menuRepository.save(menu);
+    }
+
+    public List<MenuResponse> getRestaurantMenu(CustomPrincipal principal, GroupType type,
+            Long restaurantId) {
+        Restaurant restaurant = findRestaurantByIdAndType(restaurantId, type);
+        Campus managerCampus = getManagerCampus(principal.id());
+        validateUserPermission(restaurant, managerCampus);
+
+        List<Menu> menu = menuRepository.findByRestaurant(restaurant);
+        return menu.stream().map(MenuResponse::from).toList();
     }
 
     private Restaurant findRestaurantByIdAndType(Long restaurantId, GroupType type) {
@@ -159,4 +172,5 @@ public class RestaurantService {
                 .orElseThrow(() -> new BaseException(UserErrorCode.NO_USER))
                 .getFirstCourse().getCampus();
     }
+
 }
