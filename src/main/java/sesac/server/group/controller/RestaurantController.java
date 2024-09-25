@@ -19,12 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.exception.BindingResultHandler;
+import sesac.server.group.dto.request.CreateMenuRequest;
 import sesac.server.group.dto.request.CreateRestaurantRequest;
 import sesac.server.group.dto.request.UpdateRestaurantRequest;
 import sesac.server.group.dto.response.RestaurantDetailResponse;
 import sesac.server.group.dto.response.RestaurantListForManagerResponse;
 import sesac.server.group.dto.response.RestaurantListResponse;
 import sesac.server.group.entity.GroupType;
+import sesac.server.group.exception.MenuErrorCode;
 import sesac.server.group.exception.RestaurantErrorCode;
 import sesac.server.group.service.RestaurantService;
 
@@ -57,8 +59,8 @@ public class RestaurantController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("{groupType}/{restaurantId}/menus")
-    public ResponseEntity<Void> getRestaurantMenus(
+    @GetMapping("{groupType}/{restaurantId}/menu")
+    public ResponseEntity<Void> getRestaurantmenu(
             @PathVariable GroupType groupType, @PathVariable String restaurantId
     ) {
         return null;
@@ -117,15 +119,21 @@ public class RestaurantController {
     }
 
     // 매니저 권한: 음식점 메뉴 등록
-    @PostMapping("{groupType}/{restaurantId}/menus")
+    @PostMapping("{groupType}/{restaurantId}/menu")
     public ResponseEntity<Void> createRestaurantMenu(
-            @PathVariable GroupType groupType, @PathVariable Long restaurantId
+            @Valid @RequestBody CreateMenuRequest request,
+            BindingResult bindingResult,
+            @AuthPrincipal CustomPrincipal principal,
+            @PathVariable GroupType groupType,
+            @PathVariable Long restaurantId
     ) {
-        return null;
+        validateMenuInput(bindingResult);
+        restaurantService.createRestaurantMenu(principal, groupType, restaurantId, request);
+        return ResponseEntity.noContent().build();
     }
 
     // 매니저 권한: 음식점 메뉴 수정
-    @PutMapping("{groupType}/{restaurantId}/menus/{menuId}")
+    @PutMapping("{groupType}/{restaurantId}/menu/{menuId}")
     public ResponseEntity<Void> updateRestaurantMenu(
             @PathVariable GroupType groupType,
             @PathVariable Long restaurantId,
@@ -135,7 +143,7 @@ public class RestaurantController {
     }
 
     // 매니저 권한: 음식점 메뉴 삭제
-    @DeleteMapping("{groupType}/{restaurantId}/menus/{menuId}")
+    @DeleteMapping("{groupType}/{restaurantId}/menu/{menuId}")
     public ResponseEntity<Void> deleteRestaurantMenu(
             @PathVariable GroupType groupType,
             @PathVariable Long restaurantId,
@@ -159,6 +167,15 @@ public class RestaurantController {
 
                 RestaurantErrorCode.REQUIRED_LATITUDE,
                 RestaurantErrorCode.REQUIRED_LONGITUDE
+        ));
+    }
+
+    private void validateMenuInput(BindingResult bindingResult) {
+        BindingResultHandler.handle(bindingResult, List.of(
+                MenuErrorCode.REQUIRED_NAME,
+                MenuErrorCode.INVALID_NAME_SIZE,
+
+                MenuErrorCode.REQUIRED_PRICE
         ));
     }
 }

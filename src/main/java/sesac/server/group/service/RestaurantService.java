@@ -11,14 +11,17 @@ import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.campus.entity.Campus;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.GlobalErrorCode;
+import sesac.server.group.dto.request.CreateMenuRequest;
 import sesac.server.group.dto.request.CreateRestaurantRequest;
 import sesac.server.group.dto.request.UpdateRestaurantRequest;
 import sesac.server.group.dto.response.RestaurantDetailResponse;
 import sesac.server.group.dto.response.RestaurantListForManagerResponse;
 import sesac.server.group.dto.response.RestaurantListResponse;
 import sesac.server.group.entity.GroupType;
+import sesac.server.group.entity.Menu;
 import sesac.server.group.entity.Restaurant;
 import sesac.server.group.exception.RestaurantErrorCode;
+import sesac.server.group.repository.MenuRepository;
 import sesac.server.group.repository.RestaurantRepository;
 import sesac.server.user.exception.UserErrorCode;
 import sesac.server.user.repository.ManagerRepository;
@@ -31,6 +34,7 @@ import sesac.server.user.repository.StudentRepository;
 public class RestaurantService {
 
     private final RestaurantRepository restaurantRepository;
+    private final MenuRepository menuRepository;
     private final ManagerRepository managerRepository;
     private final StudentRepository studentRepository;
 
@@ -98,6 +102,17 @@ public class RestaurantService {
                 : restaurantRepository.findByCampusAndType(campus, type);
 
         return restaurants.stream().map(mapper).toList();
+    }
+
+    public void createRestaurantMenu(CustomPrincipal principal, GroupType type,
+            Long restaurantId, CreateMenuRequest request) {
+        Restaurant restaurant = findRestaurantByIdAndType(restaurantId, type);
+        Campus managerCampus = getManagerCampus(principal.id());
+        validateUserPermission(restaurant, managerCampus);
+
+        // 메뉴 생성
+        Menu menu = request.toEntity(restaurant);
+        menuRepository.save(menu);
     }
 
     private Restaurant findRestaurantByIdAndType(Long restaurantId, GroupType type) {
