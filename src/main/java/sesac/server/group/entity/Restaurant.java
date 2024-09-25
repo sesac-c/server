@@ -1,6 +1,8 @@
 package sesac.server.group.entity;
 
 
+import static org.springframework.util.StringUtils.hasText;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,6 +19,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sesac.server.campus.entity.Campus;
+import sesac.server.group.dto.request.UpdateRestaurantRequest;
 
 @Entity
 @Getter
@@ -32,8 +35,8 @@ public class Restaurant {
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "address_id", length = 50)
-    private String addressId;
+    @Column(name = "address_id")
+    private Long addressId;
 
     @Column(columnDefinition = "TEXT")
     private String address;
@@ -50,9 +53,26 @@ public class Restaurant {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private RestaurantType type;
+    private GroupType type;
 
-    public enum RestaurantType {
-        COURSE, RUNNINGMATE
+    public void update(UpdateRestaurantRequest request) {
+        if (hasText(request.name())) {
+            this.name = request.name();
+        }
+
+        if (hasText(request.category())) {
+            this.category = request.category();
+        }
+
+        if (hasText(request.address()) &&
+                request.addressId() != null &&
+                request.latitude() != null &&
+                request.longitude() != null) {
+            this.address = request.address();
+            this.addressId = request.addressId();
+            this.latitude = request.latitude();
+            this.longitude = request.longitude();
+        }
+
     }
 }

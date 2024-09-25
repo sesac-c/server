@@ -1,5 +1,6 @@
 package sesac.server.campus.repository.search;
 
+import static org.springframework.util.StringUtils.hasText;
 import static sesac.server.campus.entity.QCourse.course;
 import static sesac.server.user.entity.QManager.manager;
 
@@ -27,9 +28,10 @@ public class CourseSearchImpl implements CourseSearch {
     public Page<ExtendedCourseResponse> searchCourse(
             Long managerId,
             Pageable pageable,
+            String name,
             String status
     ) {
-        List<Course> courses = getCourseQuery(managerId, status)
+        List<Course> courses = getCourseQuery(managerId, name, status)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(getOrderSpecifiers(pageable))
@@ -44,13 +46,14 @@ public class CourseSearchImpl implements CourseSearch {
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
-    private JPAQuery<Course> getCourseQuery(Long managerId, String status) {
+    private JPAQuery<Course> getCourseQuery(Long managerId, String name, String status) {
         return queryFactory
                 .selectFrom(course)
                 .join(manager).on(course.campus.id.eq(manager.campus.id))
                 .where(
                         managerIdEq(managerId),
-                        statusEq(status)
+                        statusEq(status),
+                        nameLike(name)
                 );
     }
 
@@ -67,6 +70,11 @@ public class CourseSearchImpl implements CourseSearch {
 
     private BooleanExpression managerIdEq(Long managerId) {
         return managerId != null ? manager.id.eq(managerId) : null;
+    }
+
+
+    private BooleanExpression nameLike(String name) {
+        return hasText(name) ? course.name.contains(name) : null;
     }
 
     private BooleanExpression statusEq(String status) {

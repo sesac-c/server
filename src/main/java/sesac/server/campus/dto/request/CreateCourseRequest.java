@@ -12,7 +12,7 @@ public record CreateCourseRequest(
         String name,
 
         @NotBlank(message = "REQUIRED_CLASS_NUMBER")
-        @Size(min = 1, max = 50, message = "INVALID_CLASS_NUMBER_SIZE")
+        @Size(min = 1, max = 10, message = "INVALID_CLASS_NUMBER_SIZE")
         String classNumber,
 
         @NotBlank(message = "REQUIRED_INSTRUCTOR_NAME")

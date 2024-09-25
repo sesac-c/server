@@ -44,7 +44,6 @@ public class CampusController {
 
     private final CampusService campusService;
     private final CourseService courseService;
-    private final BindingResultHandler bindingResultHandler;
 
     @GetMapping
     public ResponseEntity<List<CampusResponse>> getCampuses() {
@@ -115,6 +114,7 @@ public class CampusController {
     @GetMapping("/courses-extended")
     public ResponseEntity<PageResponse<ExtendedCourseResponse>> getDetailCourses(
             @AuthPrincipal CustomPrincipal principal,
+            @RequestParam(required = false) String name,
             @RequestParam(required = false) String status,
             @PageableDefault(page = 0, size = 10) Pageable pageable
     ) {
@@ -127,6 +127,7 @@ public class CampusController {
         // 6. 생성일[과거->최신날짜]
         PageResponse<ExtendedCourseResponse> response = courseService.getCourseList(principal,
                 pageable,
+                name,
                 status);
 
         return ResponseEntity.ok().body(response);
@@ -164,32 +165,28 @@ public class CampusController {
     }
 
     private void validateCampusInput(BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            bindingResultHandler.handleBindingResult(bindingResult, List.of(
-                    CampusErrorCode.REQUIRED_NAME,
-                    CampusErrorCode.INVALID_NAME_SIZE,
-                    CampusErrorCode.REQUIRED_ADDRESS,
-                    CampusErrorCode.INVALID_ADDRESS_SIZE
-            ));
-        }
+        BindingResultHandler.handle(bindingResult, List.of(
+                CampusErrorCode.REQUIRED_NAME,
+                CampusErrorCode.INVALID_NAME_SIZE,
+                CampusErrorCode.REQUIRED_ADDRESS,
+                CampusErrorCode.INVALID_ADDRESS_SIZE
+        ));
     }
 
     private void validateCourseInput(BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            bindingResultHandler.handleBindingResult(bindingResult, List.of(
-                    CourseErrorCode.REQUIRED_NAME,
-                    CourseErrorCode.INVALID_NAME_SIZE,
+        BindingResultHandler.handle(bindingResult, List.of(
+                CourseErrorCode.REQUIRED_NAME,
+                CourseErrorCode.INVALID_NAME_SIZE,
 
-                    CourseErrorCode.REQUIRED_CLASS_NUMBER,
-                    CourseErrorCode.INVALID_CLASS_NUMBER_SIZE,
+                CourseErrorCode.REQUIRED_CLASS_NUMBER,
+                CourseErrorCode.INVALID_CLASS_NUMBER_SIZE,
 
-                    CourseErrorCode.REQUIRED_INSTRUCTOR_NAME,
-                    CourseErrorCode.INVALID_INSTRUCTOR_NAME_PATTERN,
-                    CourseErrorCode.INVALID_INSTRUCTOR_NAME_SIZE,
+                CourseErrorCode.REQUIRED_INSTRUCTOR_NAME,
+                CourseErrorCode.INVALID_INSTRUCTOR_NAME_PATTERN,
+                CourseErrorCode.INVALID_INSTRUCTOR_NAME_SIZE,
 
-                    CourseErrorCode.REQUIRED_START_DATE,
-                    CourseErrorCode.REQUIRED_END_DATE
-            ));
-        }
+                CourseErrorCode.REQUIRED_START_DATE,
+                CourseErrorCode.REQUIRED_END_DATE
+        ));
     }
 }
