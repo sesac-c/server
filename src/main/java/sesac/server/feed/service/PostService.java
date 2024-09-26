@@ -46,12 +46,7 @@ public class PostService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AccountException(UserErrorCode.NO_USER));
 
-        Post post = Post.builder()
-                .type(postType)
-                .title(request.title())
-                .content(request.content())
-                .user(user)
-                .build();
+        Post post = request.toEntity(user, postType);
 
         postRepository.save(post);
 
