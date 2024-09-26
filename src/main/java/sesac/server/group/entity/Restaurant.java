@@ -19,6 +19,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sesac.server.campus.entity.Campus;
+import sesac.server.common.entity.HasCampus;
 import sesac.server.group.dto.request.UpdateRestaurantRequest;
 
 @Entity

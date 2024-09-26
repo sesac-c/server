@@ -1,4 +1,4 @@
-package sesac.server.group.entity;
+package sesac.server.common.entity;
 
 import sesac.server.campus.entity.Campus;
 

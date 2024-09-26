@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import sesac.server.campus.entity.Campus;
+import sesac.server.common.entity.HasCampus;
 
 @Entity
 @Getter
@@ -24,7 +25,7 @@ import sesac.server.campus.entity.Campus;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(value = {AuditingEntityListener.class})
-public class Manager {
+public class Manager implements HasCampus {
 
     @Id
     private Long id;

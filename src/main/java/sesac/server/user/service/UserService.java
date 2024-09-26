@@ -6,10 +6,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.campus.entity.Campus;
 import sesac.server.common.dto.PageResponse;
+import sesac.server.common.entity.HasCampus;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.ErrorCode;
 import sesac.server.common.exception.GlobalErrorCode;
@@ -132,25 +134,27 @@ public class UserService {
 
 
     public Campus getUserCampus(CustomPrincipal principal) {
-        return "STUDENT".equals(principal.role())
-                ? getStudentCampus(principal.id())
-                : getManagerCampus(principal.id());
-    }
+        Long userId = principal.id();
+        String userRole = principal.role();
+        ErrorCode errorCode = UserErrorCode.NO_USER;
 
-    public Campus getManagerCampus(Long managerId) {
-        return managerRepository.findById(managerId)
-                .orElseThrow(() -> new BaseException(UserErrorCode.NO_USER))
-                .getCampus();
-    }
+        HasCampus entity =
+                switch (userRole) {
+                    case "STUDENT" -> getUserOrThrowException(studentRepository, userId, errorCode);
+                    case "MANAGER" -> getUserOrThrowException(managerRepository, userId, errorCode);
+                    default -> throw new IllegalStateException("존재하지 않는 권한입니다: " + userRole);
+                };
 
-    public Campus getStudentCampus(Long studentId) {
-        return studentRepository.findById(studentId)
-                .orElseThrow(() -> new BaseException(UserErrorCode.NO_USER))
-                .getFirstCourse().getCampus();
+        return entity.getCampus();
     }
 
     public User getUserOrThrowException(Long userId, ErrorCode errorCode) {
-        return userRepository.findById(userId)
+        return getUserOrThrowException(userRepository, userId, errorCode);
+    }
+
+    private <T> T getUserOrThrowException(JpaRepository<T, Long> repository, Long userId,
+            ErrorCode errorCode) {
+        return repository.findById(userId)
                 .orElseThrow(() -> new BaseException(errorCode));
     }
 }
