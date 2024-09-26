@@ -10,7 +10,7 @@ public record PostListResponse(
         String title,
         String content,
         LocalDateTime createdAt,
-        String imageUrl,
+        String thumbnail,
         Long likesCount,
         Long replyCount,
         List<String> tags
@@ -24,7 +24,7 @@ public record PostListResponse(
                 post.getTitle(),
                 post.getContent(),
                 post.getCreatedAt(),
-                post.getImage(),
+                post.getThumbnail(),
                 post.getLikesCount(),
                 post.getReplyCount(),
                 post.getHashtags().stream().map(r -> r.getHashtag().getName()).toList()

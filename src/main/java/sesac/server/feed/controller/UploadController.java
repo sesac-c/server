@@ -6,7 +6,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.extern.log4j.Log4j2;
 import net.coobird.thumbnailator.Thumbnailator;
@@ -16,6 +18,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -96,4 +99,31 @@ public class UploadController {
         return ResponseEntity.ok().headers(headers).body(resource);
     }
 
+    @DeleteMapping("/remove/{fileName}")
+    public Map<String, Boolean> removeFile(@PathVariable String fileName) {
+
+        Resource resource = new FileSystemResource(uploadPath + File.separator + fileName);
+        String resourceName = resource.getFilename();
+
+        Map<String, Boolean> resultMap = new HashMap<>();
+        boolean removed = false;
+
+        try {
+            String contentType = Files.probeContentType(resource.getFile().toPath());
+            removed = resource.getFile().delete();
+
+            // 섬네일이 존재하면
+            if (contentType.startsWith("image")) {
+                File thumbnailFile = new File(uploadPath + File.separator + "s_" + fileName);
+                thumbnailFile.delete();
+            }
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+
+        resultMap.put("result", removed);
+
+        return resultMap;
+    }
 }
