@@ -11,19 +11,17 @@ import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.campus.entity.Campus;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
+import sesac.server.common.exception.ErrorCode;
 import sesac.server.common.exception.GlobalErrorCode;
 import sesac.server.user.dto.request.AcceptStatusRequest;
-import sesac.server.user.dto.request.MessageSendRequest;
 import sesac.server.user.dto.request.SearchStudentRequest;
 import sesac.server.user.dto.request.UpdateStudentRequest;
 import sesac.server.user.dto.response.ManagerListResponse;
 import sesac.server.user.dto.response.ManagerPageResponse;
-import sesac.server.user.dto.response.MessageResponse;
 import sesac.server.user.dto.response.SearchStudentResponse;
 import sesac.server.user.dto.response.StudentDetailResponse;
 import sesac.server.user.dto.response.StudentListResponse;
 import sesac.server.user.entity.Manager;
-import sesac.server.user.entity.Message;
 import sesac.server.user.entity.Student;
 import sesac.server.user.entity.User;
 import sesac.server.user.exception.UserErrorCode;
@@ -132,49 +130,6 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public void sendMessage(Long senderId, Long receiverId, MessageSendRequest request) {
-        User sender = userRepository.findById(senderId)
-                .orElseThrow(() -> new BaseException(UserErrorCode.NO_USER));
-
-        User receiver = userRepository.findById(receiverId)
-                .orElseThrow(() -> new BaseException(UserErrorCode.NO_RECEIVER));
-
-        Message message = request.toEntity(sender, receiver);
-
-        messageRepository.save(message);
-    }
-
-    public List<MessageResponse> receivedMessage(Long userId, Pageable pageable) {
-        return messageRepository.findByReceiverId(userId, pageable);
-    }
-
-    public List<MessageResponse> sentMessage(Long userId, Pageable pageable) {
-        return messageRepository.findBySenderId(userId, pageable);
-    }
-
-    public MessageResponse getMessage(Long userId, Long messageId) {
-        Message message = messageRepository.findById(messageId)
-                .orElseThrow(() -> new BaseException(UserErrorCode.NO_MESSAGE));
-
-        if (!message.getReceiver().getId().equals(userId) &&
-                !message.getSender().getId().equals(userId)) {
-            throw new BaseException(UserErrorCode.NO_MESSAGE);
-        }
-
-        return MessageResponse.from(message);
-    }
-
-
-    public void deleteMessage(Long userId, Long messageId) {
-        Message message = messageRepository.findById(messageId)
-                .orElseThrow(() -> new BaseException(UserErrorCode.NO_MESSAGE));
-
-        if (!message.getReceiver().getId().equals(userId)) {
-            throw new BaseException(UserErrorCode.NO_MESSAGE);
-        }
-
-        messageRepository.delete(message);
-    }
 
     public Campus getUserCampus(CustomPrincipal principal) {
         return "STUDENT".equals(principal.role())
@@ -192,5 +147,10 @@ public class UserService {
         return studentRepository.findById(studentId)
                 .orElseThrow(() -> new BaseException(UserErrorCode.NO_USER))
                 .getFirstCourse().getCampus();
+    }
+
+    public User getUserOrThrowException(Long userId, ErrorCode errorCode) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(errorCode));
     }
 }
