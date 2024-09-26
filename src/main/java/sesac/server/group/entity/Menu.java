@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import sesac.server.campus.entity.Campus;
 import sesac.server.group.dto.request.UpdateMenuRequest;
 
 @Entity
@@ -22,7 +23,7 @@ import sesac.server.group.dto.request.UpdateMenuRequest;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Menu {
+public class Menu implements HasCampus {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,5 +46,10 @@ public class Menu {
         if (request.price() != null) {
             this.price = request.price();
         }
+    }
+
+    @Override
+    public Campus getCampus() {
+        return this.restaurant.getCampus();
     }
 }
