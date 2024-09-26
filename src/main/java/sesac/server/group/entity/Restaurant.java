@@ -26,7 +26,7 @@ import sesac.server.group.dto.request.UpdateRestaurantRequest;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Restaurant {
+public class Restaurant implements HasCampus {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

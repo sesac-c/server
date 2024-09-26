@@ -7,6 +7,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import sesac.server.auth.dto.CustomPrincipal;
+import sesac.server.campus.entity.Campus;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.GlobalErrorCode;
@@ -172,5 +174,23 @@ public class UserService {
         }
 
         messageRepository.delete(message);
+    }
+
+    public Campus getUserCampus(CustomPrincipal principal) {
+        return "STUDENT".equals(principal.role())
+                ? getStudentCampus(principal.id())
+                : getManagerCampus(principal.id());
+    }
+
+    public Campus getManagerCampus(Long managerId) {
+        return managerRepository.findById(managerId)
+                .orElseThrow(() -> new BaseException(UserErrorCode.NO_USER))
+                .getCampus();
+    }
+
+    public Campus getStudentCampus(Long studentId) {
+        return studentRepository.findById(studentId)
+                .orElseThrow(() -> new BaseException(UserErrorCode.NO_USER))
+                .getFirstCourse().getCampus();
     }
 }
