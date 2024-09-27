@@ -59,30 +59,7 @@ public class UserController {
     public ResponseEntity<Void> getNotification() {
         return null;
     }
-
-
-    // -----------------------------------------------------------프로필
-    @PutMapping("profiles")
-    public ResponseEntity<Void> updateProfile() {
-        return null;
-    }
-
-    @GetMapping("{userId}/profiles")
-    public ResponseEntity<Void> getProfile(@PathVariable Long userId) {
-        return null;
-    }
-
-    @PostMapping("check-nickname")
-    public ResponseEntity<Void> checkNickname() {
-        return null;
-    }
-
-    @PutMapping("campus/{campusId}/course/{courseId}")
-    public ResponseEntity<Void> updateCampus(@PathVariable Long campusId,
-            @PathVariable Long courseId) {
-        return null;
-    }
-
+    
     // -----------------------------------------------------------작성 이력
     @GetMapping("{userId}/posts")
     public ResponseEntity<Void> getUserPosts(@PathVariable Long userId) {

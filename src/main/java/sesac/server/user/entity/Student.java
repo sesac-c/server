@@ -114,4 +114,8 @@ public class Student implements HasCampus {
     public Campus getCampus() {
         return this.firstCourse.getCampus();
     }
+
+    public Course getCourse() {
+        return this.firstCourse;
+    }
 }
