@@ -17,4 +17,7 @@ public interface StudentRepository extends JpaRepository<Student, Long>, Student
 
     @EntityGraph(attributePaths = {"user", "firstCourse", "firstCourse.campus"})
     Optional<Student> findById(Long id);
+
+    boolean existsByNickname(String nickname);
+
 }

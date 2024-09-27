@@ -18,7 +18,9 @@ public enum UserErrorCode implements ErrorCode {
     NO_RECEIVER(NOT_FOUND, "받는 사람이 존재하지 않습니다."),
     REQUIRED_MESSAGE(BAD_REQUEST, "메시지 내용은 필수입니다."),
     NO_MESSAGE(NOT_FOUND, "메시지가 존재하지 않습니다."),
-    INVALID_USER_ROLE(NOT_FOUND, "유효하지 않은 사용자 역할입니다.");
+    INVALID_USER_ROLE(NOT_FOUND, "유효하지 않은 사용자 역할입니다."),
+
+    REQUIRED_NICKNAME(BAD_REQUEST, "닉네임은 필수입니다.");
 
 
     private final HttpStatus status;
