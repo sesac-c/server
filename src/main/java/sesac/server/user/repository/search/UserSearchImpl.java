@@ -21,7 +21,7 @@ import sesac.server.user.exception.UserErrorCode;
 
 @Log4j2
 @RequiredArgsConstructor
-public class ProfileSearchImpl implements ProfileSearch {
+public class UserSearchImpl implements UserSearch {
 
     private static final String DEFAULT_PROFILE_IMAGE = "default-profile.png";
     private static final String UNKNOWN_AFFILIATION = "Unknown";

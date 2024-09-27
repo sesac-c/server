@@ -7,6 +7,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +21,7 @@ import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.user.dto.request.NicknameCheckRequest;
 import sesac.server.user.dto.response.ProfileResponse;
+import sesac.server.user.dto.response.StudentProfileFormResponse;
 import sesac.server.user.exception.UserErrorCode;
 import sesac.server.user.service.ProfileService;
 
@@ -31,8 +33,37 @@ public class ProfileController {
 
     private final ProfileService profileService;
 
-    @PutMapping("profiles")
-    public ResponseEntity<Void> updateProfile() {
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("student/profiles")
+    public ResponseEntity<StudentProfileFormResponse> getStudentProfileForm(
+            @AuthPrincipal CustomPrincipal customPrincipal
+    ) {
+        StudentProfileFormResponse response = profileService.getStudentProfileForm(customPrincipal);
+
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PreAuthorize("hasRole('STUDENT')")
+    @PutMapping("student/profiles")
+    public ResponseEntity<Void> updateStudentProfile() {
+        return null;
+    }
+
+    @PreAuthorize("hasRole('MANAGER')")
+    @GetMapping("manager/profiles")
+    public ResponseEntity<Map<String, String>> getManagerProfileForm(
+            @AuthPrincipal CustomPrincipal customPrincipal
+    ) {
+        String profileImage = profileService.getManagerProfileForm(customPrincipal);
+        Map<String, String> response = new HashMap<>();
+        response.put("profileImage", profileImage);
+
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PreAuthorize("hasRole('MANAGER')")
+    @PutMapping("manager/profiles")
+    public ResponseEntity<Void> updateManagerProfile() {
         return null;
     }
 
@@ -62,6 +93,7 @@ public class ProfileController {
         return ResponseEntity.ok().body(response);
     }
 
+    @PreAuthorize("hasRole('STUDENT')")
     @PutMapping("campus/{campusId}/course/{courseId}")
     public ResponseEntity<Void> updateCampus(@PathVariable Long campusId,
             @PathVariable Long courseId) {

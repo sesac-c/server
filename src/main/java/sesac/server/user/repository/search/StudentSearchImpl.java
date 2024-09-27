@@ -5,8 +5,11 @@ import static sesac.server.campus.entity.QCourse.course;
 import static sesac.server.user.entity.QStudent.student;
 import static sesac.server.user.entity.QUser.user;
 
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
@@ -16,18 +19,25 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
+import sesac.server.auth.dto.CustomPrincipal;
+import sesac.server.common.exception.BaseException;
 import sesac.server.common.util.JPAQueryUtil;
 import sesac.server.user.dto.request.SearchStudentRequest;
 import sesac.server.user.dto.response.QSearchStudentResponse;
+import sesac.server.user.dto.response.QStudentProfileFormResponse;
 import sesac.server.user.dto.response.SearchStudentResponse;
+import sesac.server.user.dto.response.StudentProfileFormResponse;
 import sesac.server.user.entity.QStudent;
 import sesac.server.user.entity.Student;
+import sesac.server.user.exception.UserErrorCode;
 
 @Log4j2
 @RequiredArgsConstructor
 public class StudentSearchImpl implements StudentSearch {
 
     private final JPAQueryFactory queryFactory;
+
+    private static final String DEFAULT_PROFILE_IMAGE = "default-profile.png";
 
     @Override
     public Page<SearchStudentResponse> searchStudent(
@@ -75,6 +85,29 @@ public class StudentSearchImpl implements StudentSearch {
 
     }
 
+    @Override
+    public StudentProfileFormResponse getStudentProfileFormResponse(CustomPrincipal principal) {
+        QStudent student = QStudent.student;
+
+        StudentProfileFormResponse result = queryFactory
+                .select(new QStudentProfileFormResponse(
+                        getStudentProfileImageExpression(student),
+                        student.nickname,
+                        student.firstCourse.campus.id,
+                        getFormattedCampus(),
+                        student.firstCourse.id,
+                        getFormattedCourse()
+                ))
+                .from(student)
+                .where(student.id.eq(principal.id()))
+                .fetchOne();
+
+        if (result == null) {
+            throw new BaseException(UserErrorCode.NO_USER);
+        }
+        return result;
+    }
+
     private BooleanExpression statusEq(Integer statusCode) {
         return statusCode != null ? student.statusCode.eq(statusCode) : null;
     }
@@ -93,5 +126,28 @@ public class StudentSearchImpl implements StudentSearch {
         orderSpecifiers.add(student.id.desc());
 
         return orderSpecifiers.toArray(OrderSpecifier[]::new);
+    }
+
+
+    private Expression<String> getStudentProfileImageExpression(QStudent student) {
+        return new CaseBuilder()
+                .when(student.profileImage.isNotNull())
+                .then(student.profileImage)
+                .otherwise(DEFAULT_PROFILE_IMAGE);
+    }
+
+    private Expression<String> getFormattedCampus() {
+        return Expressions.stringTemplate(
+                "CONCAT({0}, ' 캠퍼스')",
+                Expressions.asString(student.firstCourse.campus.name)
+        );
+    }
+
+    private Expression<String> getFormattedCourse() {
+        return Expressions.stringTemplate(
+                "CONCAT('(', {0}, '기)', {1})",
+                Expressions.asString(student.firstCourse.classNumber),
+                Expressions.asString(student.firstCourse.name)
+        );
     }
 }
