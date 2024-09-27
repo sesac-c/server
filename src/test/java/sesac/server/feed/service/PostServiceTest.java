@@ -174,12 +174,12 @@ class PostServiceTest {
         em.clear();
 
         // when
-        PostResponse post = postService.getPostDetail(created.getId());
+        PostResponse post = postService.getPostDetail(student1.getId(), created.getId());
 
         // then
         assertThat(post.title()).isEqualTo("제목");
         assertThat(post.content()).isEqualTo("내용");
-        assertThat(post.writer()).isEqualTo(student1.getNickname());
+        assertThat(post.nickname()).isEqualTo(student1.getNickname());
     }
 
     @Test

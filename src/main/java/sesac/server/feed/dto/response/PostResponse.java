@@ -6,29 +6,31 @@ import sesac.server.feed.entity.Post;
 
 public record PostResponse(
         Long id,
-        String writer,
+        String nickname,
+        String campusName,
         String title,
         String content,
         LocalDateTime createdAt,
         List<String> hashtags,
         String imageUrl,
+        boolean likesStatus,
         Long likesCount,
-        Long replyCount,
         String profileImage
 ) {
 
-    public PostResponse(Post post) {
+    public PostResponse(Post post, boolean likesStatus) {
         this(
                 post.getId(),
                 post.getUser().getStudent().getNickname(),
+                post.getUser().getStudent().getFirstCourse().getCampus().getName(),
                 post.getTitle(),
                 post.getContent(),
                 post.getCreatedAt(),
                 post.getHashtags().stream().map(postHashtag -> postHashtag.getHashtag().getName())
                         .toList(),
                 post.getImage(),
+                likesStatus,
                 post.getLikesCount(),
-                post.getReplyCount(),
                 post.getUser().getStudent().getProfileImage()
         );
     }
