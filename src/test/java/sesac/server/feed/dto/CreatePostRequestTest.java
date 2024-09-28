@@ -27,7 +27,7 @@ class CreatePostRequestTest extends DtoTest {
     @Test
     @DisplayName("제목이 빈 값인 경우")
     public void titleIsEmpty() {
-        CreatePostRequest request = new CreatePostRequest("", null, null, null);
+        CreatePostRequest request = new CreatePostRequest("", null, null, null, null);
         BindingResult bindingResult = getBindingResult(request);
 
         BaseException ex = assertThrows(BaseException.class,
@@ -39,7 +39,7 @@ class CreatePostRequestTest extends DtoTest {
     @Test
     @DisplayName("제목이 null인 경우")
     public void titleIsNull() {
-        CreatePostRequest request = new CreatePostRequest("", null, null, null);
+        CreatePostRequest request = new CreatePostRequest("", null, null, null, null);
         BindingResult bindingResult = getBindingResult(request);
 
         BaseException ex = assertThrows(BaseException.class,
@@ -55,7 +55,7 @@ class CreatePostRequestTest extends DtoTest {
         log.info("제목 길이: {} ", title.length());
 
         CreatePostRequest request = new CreatePostRequest(title,
-                null, null, null);
+                null, null, null, null);
         BindingResult bindingResult = getBindingResult(request);
 
         BaseException ex = assertThrows(BaseException.class,
@@ -67,7 +67,7 @@ class CreatePostRequestTest extends DtoTest {
     @Test
     @DisplayName("내용이 빈 값인 경우")
     public void contentIsEmpty() {
-        CreatePostRequest request = new CreatePostRequest("제목", "", null, null);
+        CreatePostRequest request = new CreatePostRequest("제목", "", null, null, null);
         BindingResult bindingResult = getBindingResult(request);
 
         BaseException ex = assertThrows(BaseException.class,
@@ -79,7 +79,7 @@ class CreatePostRequestTest extends DtoTest {
     @Test
     @DisplayName("내용이 null인 경우")
     public void contentIsNull() {
-        CreatePostRequest request = new CreatePostRequest("제목", null, null, null);
+        CreatePostRequest request = new CreatePostRequest("제목", null, null, null, null);
         BindingResult bindingResult = getBindingResult(request);
 
         BaseException ex = assertThrows(BaseException.class,
@@ -95,7 +95,7 @@ class CreatePostRequestTest extends DtoTest {
         log.info("내용 길이: {} ", content.length());
 
         CreatePostRequest request = new CreatePostRequest("제목",
-                content, null, null);
+                content, null, null, null);
         BindingResult bindingResult = getBindingResult(request);
 
         BaseException ex = assertThrows(BaseException.class,
@@ -108,7 +108,7 @@ class CreatePostRequestTest extends DtoTest {
     @DisplayName("통과")
     public void complete() {
         CreatePostRequest request = new CreatePostRequest("제목",
-                "내용", null, null);
+                "내용", null, null, null);
         BindingResult bindingResult = getBindingResult(request);
 
         assertThat(bindingResult.hasErrors()).isFalse();

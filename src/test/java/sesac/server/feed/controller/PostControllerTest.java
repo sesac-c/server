@@ -41,7 +41,7 @@ class PostControllerTest {
     public void 등록_성공() throws Exception {
         // give
         String token = JwtTestUtil.createTestJwtToken("1", "STUDENT");
-        CreatePostRequest request = new CreatePostRequest("제목", "내용", null, null);
+        CreatePostRequest request = new CreatePostRequest("제목", "내용", null, null, null);
 
         // when & then
         mockMvc.perform(JwtTestUtil.addJwtToken(post("/posts/campus"), token)
@@ -63,7 +63,7 @@ class PostControllerTest {
     public void 등록_실패_400() throws Exception {
         // give
         String token = JwtTestUtil.createTestJwtToken("1", "STUDENT");
-        CreatePostRequest request = new CreatePostRequest(null, null, null, null);
+        CreatePostRequest request = new CreatePostRequest(null, null, null, null, null);
 
         // when & then
         mockMvc.perform(JwtTestUtil.addJwtToken(post("/posts/campus"), token)

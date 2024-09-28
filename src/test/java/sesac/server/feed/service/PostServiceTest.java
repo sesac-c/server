@@ -118,7 +118,8 @@ class PostServiceTest {
     @DisplayName("게시글 작성")
     public void createPostTest() {
         // give
-        CreatePostRequest request = new CreatePostRequest("제목", "내용", List.of("해시1", "해시2"), null);
+        CreatePostRequest request = new CreatePostRequest("제목", "내용", List.of("해시1", "해시2"), null,
+                null);
 
         // when
         Post created = postService.createPost(student1.getId(), PostType.CAMPUS, request);
@@ -137,9 +138,10 @@ class PostServiceTest {
     @DisplayName("중복 해시코드")
     public void hashcodeTest() {
         // give
-        CreatePostRequest request1 = new CreatePostRequest("제목", "내용", List.of("해시1", "해시2"), null);
-        CreatePostRequest request2 = new CreatePostRequest("제목", "내용", List.of("해시1", "해시2", "해시3"),
+        CreatePostRequest request1 = new CreatePostRequest("제목", "내용", List.of("해시1", "해시2"), null,
                 null);
+        CreatePostRequest request2 = new CreatePostRequest("제목", "내용", List.of("해시1", "해시2", "해시3"),
+                null, null);
 
         // when
         Post created1 = postService.createPost(student1.getId(), PostType.CAMPUS, request1);
@@ -172,12 +174,12 @@ class PostServiceTest {
         em.clear();
 
         // when
-        PostResponse post = postService.getPostDetail(created.getId());
+        PostResponse post = postService.getPostDetail(student1.getId(), created.getId());
 
         // then
         assertThat(post.title()).isEqualTo("제목");
         assertThat(post.content()).isEqualTo("내용");
-        assertThat(post.writer()).isEqualTo(student1.getNickname());
+        assertThat(post.nickname()).isEqualTo(student1.getNickname());
     }
 
     @Test

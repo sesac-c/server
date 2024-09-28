@@ -24,6 +24,7 @@ import sesac.server.feed.entity.PostHashtag;
 import sesac.server.feed.entity.PostType;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.feed.repository.HashtagRepository;
+import sesac.server.feed.repository.LikesRepository;
 import sesac.server.feed.repository.PostHashtagRepository;
 import sesac.server.feed.repository.PostRepository;
 import sesac.server.user.entity.User;
@@ -41,17 +42,13 @@ public class PostService {
     private final UserRepository userRepository;
     private final HashtagRepository hashtagRepository;
     private final PostHashtagRepository postHashtagRepository;
+    private final LikesRepository likesRepository;
 
     public Post createPost(Long userId, PostType postType, CreatePostRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AccountException(UserErrorCode.NO_USER));
 
-        Post post = Post.builder()
-                .type(postType)
-                .title(request.title())
-                .content(request.content())
-                .user(user)
-                .build();
+        Post post = request.toEntity(user, postType);
 
         postRepository.save(post);
 
@@ -83,11 +80,13 @@ public class PostService {
         return post;
     }
 
-    public PostResponse getPostDetail(Long postId) {
+    public PostResponse getPostDetail(Long userId, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BaseException(PostErrorCode.NO_POST));
 
-        return new PostResponse(post);
+        boolean likesStatus = likesRepository.existsByUserIdAndPostId(userId, postId);
+
+        return new PostResponse(post, likesStatus);
     }
 
     public List<PostListResponse> getPostList(

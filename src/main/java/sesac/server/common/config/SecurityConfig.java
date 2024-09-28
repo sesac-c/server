@@ -78,6 +78,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE,
                         "/runningmates/members/{memberId}").authenticated()
                 .requestMatchers("/runningmates/**").hasRole("MANAGER")
+                .requestMatchers("/view/**").permitAll()
 
                 .anyRequest().authenticated());
 
