@@ -18,6 +18,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import sesac.server.campus.entity.Campus;
 import sesac.server.common.entity.HasCampus;
+import sesac.server.user.dto.request.UpdateProfileRequest;
 
 @Entity
 @Getter
@@ -44,4 +45,14 @@ public class Manager implements HasCampus {
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public void updateProfile(UpdateProfileRequest request) {
+        if (request.profileImage() == null && request.removed()) {
+            this.profileImage = null;
+        }
+
+        if (request.profileImage() != null) {
+            this.profileImage = request.profileImage();
+        }
+    }
 }

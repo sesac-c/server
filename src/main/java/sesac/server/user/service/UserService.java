@@ -1,19 +1,12 @@
 package sesac.server.user.service;
 
-import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-import sesac.server.auth.dto.CustomPrincipal;
-import sesac.server.campus.entity.Campus;
 import sesac.server.common.dto.PageResponse;
-import sesac.server.common.entity.HasCampus;
 import sesac.server.common.exception.BaseException;
-import sesac.server.common.exception.ErrorCode;
 import sesac.server.common.exception.GlobalErrorCode;
 import sesac.server.user.dto.request.AcceptStatusRequest;
 import sesac.server.user.dto.request.SearchStudentRequest;
@@ -28,21 +21,17 @@ import sesac.server.user.entity.Student;
 import sesac.server.user.entity.User;
 import sesac.server.user.exception.UserErrorCode;
 import sesac.server.user.repository.ManagerRepository;
-import sesac.server.user.repository.MessageRepository;
 import sesac.server.user.repository.StudentRepository;
 import sesac.server.user.repository.UserRepository;
 
-@Log4j2
 @Service
-@Transactional
 @RequiredArgsConstructor
-public class UserService {
+public class UserService extends CommonUserService {
 
-    private final StudentRepository studentRepository;
-    private final ManagerRepository managerRepository;
     private final UserRepository userRepository;
-    private final MessageRepository messageRepository;
-
+    private final ManagerRepository managerRepository;
+    private final StudentRepository studentRepository;
+    
     public List<StudentListResponse> getSearchStudentList(String nickname) {
         List<Student> studentList = studentRepository.findByNicknameContainingIgnoreCase(nickname);
 
@@ -130,31 +119,5 @@ public class UserService {
         User user = student.getUser();
         studentRepository.delete(student);
         userRepository.delete(user);
-    }
-
-
-    public Campus getUserCampus(CustomPrincipal principal) {
-        Long userId = principal.id();
-        String userRole = principal.role();
-        ErrorCode errorCode = UserErrorCode.NO_USER;
-
-        HasCampus entity =
-                switch (userRole) {
-                    case "STUDENT" -> getUserOrThrowException(studentRepository, userId, errorCode);
-                    case "MANAGER" -> getUserOrThrowException(managerRepository, userId, errorCode);
-                    default -> throw new IllegalStateException("존재하지 않는 권한입니다: " + userRole);
-                };
-
-        return entity.getCampus();
-    }
-
-    public User getUserOrThrowException(Long userId, ErrorCode errorCode) {
-        return getUserOrThrowException(userRepository, userId, errorCode);
-    }
-
-    private <T> T getUserOrThrowException(JpaRepository<T, Long> repository, Long userId,
-            ErrorCode errorCode) {
-        return repository.findById(userId)
-                .orElseThrow(() -> new BaseException(errorCode));
     }
 }

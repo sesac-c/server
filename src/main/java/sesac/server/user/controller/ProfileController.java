@@ -20,6 +20,7 @@ import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.user.dto.request.NicknameCheckRequest;
+import sesac.server.user.dto.request.UpdateProfileRequest;
 import sesac.server.user.dto.response.ProfileResponse;
 import sesac.server.user.dto.response.StudentProfileFormResponse;
 import sesac.server.user.exception.UserErrorCode;
@@ -45,8 +46,15 @@ public class ProfileController {
 
     @PreAuthorize("hasRole('STUDENT')")
     @PutMapping("student/profiles")
-    public ResponseEntity<Void> updateStudentProfile() {
-        return null;
+    public ResponseEntity<Void> updateStudentProfile(
+            @AuthPrincipal CustomPrincipal principal,
+            @Valid @RequestBody UpdateProfileRequest request,
+            BindingResult bindingResult
+    ) {
+        validateProfileInput(bindingResult);
+        profileService.updateProfile(principal, request);
+
+        return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasRole('MANAGER')")
@@ -63,8 +71,15 @@ public class ProfileController {
 
     @PreAuthorize("hasRole('MANAGER')")
     @PutMapping("manager/profiles")
-    public ResponseEntity<Void> updateManagerProfile() {
-        return null;
+    public ResponseEntity<Void> updateManagerProfile(
+            @AuthPrincipal CustomPrincipal principal,
+            @Valid @RequestBody UpdateProfileRequest request,
+            BindingResult bindingResult
+    ) {
+        validateProfileInput(bindingResult);
+        profileService.updateProfile(principal, request);
+
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("{userId}/profiles")
@@ -98,5 +113,13 @@ public class ProfileController {
     public ResponseEntity<Void> updateCampus(@PathVariable Long campusId,
             @PathVariable Long courseId) {
         return null;
+    }
+
+    private void validateProfileInput(BindingResult bindingResult) {
+        BindingResultHandler.handle(bindingResult, List.of(
+                UserErrorCode.INVALID_NICKNAME,
+                UserErrorCode.INVALID_NICKNAME_SIZE,
+                UserErrorCode.INVALID_NICKNAME_COMBINATION
+        ));
     }
 }

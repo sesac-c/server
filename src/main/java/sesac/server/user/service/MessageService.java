@@ -1,9 +1,7 @@
 package sesac.server.user.service;
 
-import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sesac.server.common.exception.BaseException;
@@ -13,20 +11,19 @@ import sesac.server.user.entity.Message;
 import sesac.server.user.entity.User;
 import sesac.server.user.exception.UserErrorCode;
 import sesac.server.user.repository.MessageRepository;
+import sesac.server.user.repository.UserRepository;
 
-@Log4j2
 @Service
-@Transactional
 @RequiredArgsConstructor
-public class MessageService {
+public class MessageService extends CommonUserService {
 
-    private final UserService userService;
+    private final UserRepository userRepository;
     private final MessageRepository messageRepository;
 
     public void sendMessage(Long senderId, Long receiverId, MessageSendRequest request) {
-        User sender = userService.getUserOrThrowException(senderId, UserErrorCode.NO_USER);
+        User sender = getUserOrThrowException(senderId, UserErrorCode.NO_USER);
 
-        User receiver = userService.getUserOrThrowException(receiverId, UserErrorCode.NO_RECEIVER);
+        User receiver = getUserOrThrowException(receiverId, UserErrorCode.NO_RECEIVER);
 
         Message message = request.toEntity(sender, receiver);
 

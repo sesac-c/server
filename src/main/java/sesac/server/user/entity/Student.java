@@ -26,6 +26,7 @@ import sesac.server.campus.entity.Course;
 import sesac.server.common.entity.HasCampus;
 import sesac.server.common.exception.BaseException;
 import sesac.server.user.dto.request.AcceptStatusRequest;
+import sesac.server.user.dto.request.UpdateProfileRequest;
 import sesac.server.user.dto.request.UpdateStudentRequest;
 import sesac.server.user.exception.UserErrorCode;
 
@@ -117,5 +118,18 @@ public class Student implements HasCampus {
 
     public Course getCourse() {
         return this.firstCourse;
+    }
+
+    public void updateProfile(UpdateProfileRequest request) {
+        if (hasText(request.nickname())) {
+            this.nickname = request.nickname();
+        }
+        if (request.profileImage() == null && request.removed()) {
+            this.profileImage = null;
+        }
+
+        if (request.profileImage() != null) {
+            this.profileImage = request.profileImage();
+        }
     }
 }
