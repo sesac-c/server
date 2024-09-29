@@ -110,9 +110,13 @@ public class ProfileController {
 
     @PreAuthorize("hasRole('STUDENT')")
     @PutMapping("campus/{campusId}/course/{courseId}")
-    public ResponseEntity<Void> updateCampus(@PathVariable Long campusId,
+    public ResponseEntity<Void> requestChangeCourse(
+            @AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long campusId,
             @PathVariable Long courseId) {
-        return null;
+
+        profileService.requestChangeCourse(principal, campusId, courseId);
+        return ResponseEntity.noContent().build();
     }
 
     private void validateProfileInput(BindingResult bindingResult) {

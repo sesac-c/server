@@ -76,7 +76,7 @@ public class CourseService {
 
         Course course = (Course) getEntity("course", courseId);// 코스 존재 여부 확인
 
-        if (!hasCoursePermssion(course, principal)) { // 권한 검사
+        if (!hasCoursePermission(course, principal)) { // 권한 검사
             throw new BaseException(CourseErrorCode.NO_PERMISSION);
         }
 
@@ -102,18 +102,23 @@ public class CourseService {
 
         Course course = (Course) getEntity("course", courseId);// 코스 존재 여부 확인
 
-        if (!hasCoursePermssion(course, principal)) { // 권한 검사
+        if (!hasCoursePermission(course, principal)) { // 권한 검사
             throw new BaseException(CourseErrorCode.NO_PERMISSION);
         }
 
         courseRepository.delete(course);
     }
 
+    public Course getCourseByIdAndCampusId(Long courseId, Long campusId) {
+        return courseRepository.findByIdAndCampusId(courseId, campusId).
+                orElseThrow(() -> new BaseException(CourseErrorCode.NO_COURSE));
+    }
+
     private CourseResponse campusToResponse(Course course) {
         return new CourseResponse(course.getId(), course.getName(), course.getClassNumber());
     }
 
-    private boolean hasCoursePermssion(Course course, CustomPrincipal principal) {
+    private boolean hasCoursePermission(Course course, CustomPrincipal principal) {
         Manager manager = (Manager) getEntity("manager", principal.id());
 
         Long courseCampusId = course.getCampus().getId();
