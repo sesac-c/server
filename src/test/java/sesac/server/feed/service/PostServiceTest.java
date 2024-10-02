@@ -316,10 +316,10 @@ class PostServiceTest {
             PostListRequest request = new PostListRequest(null, null);
 
             // when
-            List<PostListResponse> list = postService.getPostList(pageable1, request, null);
+            PageResponse<PostListResponse> list = postService.getPostList(pageable1, request, null);
 
             // then
-            assertThat(list).hasSize(10);
+            assertThat(list.getContent()).hasSize(10);
         }
 
 

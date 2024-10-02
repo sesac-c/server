@@ -89,14 +89,14 @@ public class PostService {
         return new PostResponse(post, likesStatus);
     }
 
-    public List<PostListResponse> getPostList(
+    public PageResponse<PostListResponse> getPostList(
             Pageable pageable,
             PostListRequest request,
             PostType postType
     ) {
-        List<PostListResponse> posts = postRepository.searchPost(pageable, request, postType);
+        Page<PostListResponse> posts = postRepository.searchPostPage(pageable, request, postType);
 
-        return posts;
+        return new PageResponse<>(posts);
     }
 
     public void updatePost(CustomPrincipal principal, Long postId, UpdatePostRequest request) {

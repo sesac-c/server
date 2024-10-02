@@ -52,12 +52,12 @@ public class PostController {
 
     // -----------------------------------------------------------게시글 CRUD
     @GetMapping
-    public ResponseEntity<List<PostListResponse>> getPostList(
+    public ResponseEntity<PageResponse<PostListResponse>> getPostList(
             @PageableDefault(page = 0, size = 10) Pageable pageable,
             @PathVariable PostType postType,
             @ModelAttribute PostListRequest request
     ) {
-        List<PostListResponse> posts = postService.getPostList(pageable, request, postType);
+        PageResponse<PostListResponse> posts = postService.getPostList(pageable, request, postType);
 
         return ResponseEntity.ok(posts);
     }
