@@ -1,13 +1,17 @@
 package sesac.server.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.campus.entity.Course;
 import sesac.server.campus.service.CourseService;
+import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.user.dto.request.NicknameCheckRequest;
 import sesac.server.user.dto.request.UpdateProfileRequest;
+import sesac.server.user.dto.response.CourseChangeRequestResponse;
 import sesac.server.user.dto.response.ProfileResponse;
 import sesac.server.user.dto.response.StudentProfileFormResponse;
 import sesac.server.user.entity.CourseChangeRequest;
@@ -81,6 +85,14 @@ public class ProfileService extends CommonUserService {
                 .build();
 
         courseChangeRequestRepository.save(courseChangeRequest);
+    }
+
+    public PageResponse<CourseChangeRequestResponse> getCourseChangeRequestList(
+            Pageable pageable, String status
+    ) {
+        Page<CourseChangeRequestResponse> responses = courseChangeRequestRepository
+                .searchCourseChangeRequests(pageable, status);
+        return new PageResponse<>(responses);
     }
 
     private void updateStudentProfile(Long id, UpdateProfileRequest request) {

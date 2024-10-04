@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -15,12 +17,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
+import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.user.dto.request.NicknameCheckRequest;
 import sesac.server.user.dto.request.UpdateProfileRequest;
+import sesac.server.user.dto.response.CourseChangeRequestResponse;
 import sesac.server.user.dto.response.ProfileResponse;
 import sesac.server.user.dto.response.StudentProfileFormResponse;
 import sesac.server.user.exception.UserErrorCode;
@@ -109,7 +114,7 @@ public class ProfileController {
     }
 
     @PreAuthorize("hasRole('STUDENT')")
-    @PutMapping("campus/{campusId}/course/{courseId}")
+    @PostMapping("campus/{campusId}/course/{courseId}")
     public ResponseEntity<Void> requestChangeCourse(
             @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long campusId,
@@ -117,6 +122,18 @@ public class ProfileController {
 
         profileService.requestChangeCourse(principal, campusId, courseId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('MANAGER')")
+    @GetMapping("course-changes")
+    public ResponseEntity<PageResponse<CourseChangeRequestResponse>> getCourseChangeRequestList(
+            @PageableDefault(page = 0, size = 10) Pageable pageable,
+            @RequestParam(required = false) String status
+    ) {
+        PageResponse<CourseChangeRequestResponse> response = profileService.getCourseChangeRequestList(
+                pageable, status
+        );
+        return ResponseEntity.ok().body(response);
     }
 
     private void validateProfileInput(BindingResult bindingResult) {
