@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>SeSACTalk</title>
+</head>
+<body>
+<!-- 회색 배경 -->
+<table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#F4F5F7"
+       style="padding: 20px 16px 82px; color: #191919; font-family: 'Noto Sans KR', sans-serif; width: 100%"
+       class="wrapper">
+  <tbody style="display: block; max-width: 600px; margin: 0 auto;">
+  <tr width="100%" style="display:block; padding-top: 24px;"></tr>
+  <tr>
+    <td width="100%" style="display: block;">
+      <!-- 본문 -->
+      <table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF"
+             style="display: inline-block; padding: 32px; text-align: left; border-top: 3px solid #187B46; border-collapse: collapse;"
+             class="container">
+        <tbody
+            style="display: flex; flex-direction: column; width: 100%;">
+        <!-- 본문 컨텐츠 -->
+        <tr width="100%" style="display: block;">
+          <td width="100%" style="display: block;">
+            <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                   style="padding: 20px; border-radius: 4px;"
+                   class="content">
+              <tbody style="display: block;">
+              <tr style="display: block;">
+                <td style="display: block; padding-bottom: 16px; font-size: 32px; font-weight: bold;"></td>
+              </tr>
+              <tr style="display: block; ">
+                <td>
+                  <div style="font-size: 1.2em;font-weight: 900;">
+                    <p>
+                      <span style="color:#187B46; ">[SeSACC] </span>
+                      <span>강의 변경 신청 결과를 알려드립니다.</span>
+                    </p>
+                  </div>
+                </td>
+              </tr>
+              <tr width="70%"
+                  style="display:block; border-top: 1.5px solid #A7A7A7; margin-top:2px"></tr>
+              <tr style="font-size:0.8em; letter-spacing: -1px; color:dimgray;">
+              </tr>
+              <!--이메일 내용-->
+              <tr width="100%" style="padding:20px 0;">
+                <td width="100%" style="display: block;">
+                  <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                         style="padding: 50px 20px; border-radius: 4px;"
+                         class="content">
+                    <tbody style="display: block;">
+                    <tr style="font-size:0.8em; color:dimgray;">
+                      <td style="padding: 10px 5px; font-size: 1.1em; color:#191919"
+                          colspan="2">
+                        <div style="text-align: left;">
+                          요청하신 강의 변경 신청에 대한 결과를 알려드립니다.
+                        </div>
+                      </td>
+                    </tr>
+                    <tr style="font-size:0.8em; letter-spacing: -1px; color:dimgray;">
+                      <td style="padding: 10px;">
+                        <div style="text-align: left;">
+                          신청 강의
+                        </div>
+                      </td>
+                      <td style="text-align: left; padding: 10px 10px 10px 30px; color:black;"
+                          th:text="${newCourse}"></td>
+                    </tr>
+                    <tr style="font-size:0.8em; letter-spacing: -1px; color:dimgray;">
+                      <td style="padding: 10px;">
+                        <div style="text-align: left;">
+                          처리 결과
+                        </div>
+                      </td>
+                      <td style="text-align: left; padding: 10px 10px 10px 30px; color:black;"
+                          th:text="${status}"></td>
+                    </tr>
+                    <tr style="font-size:0.8em; letter-spacing: -1px; color:dimgray;"
+                        th:if="${status != '승인'}">
+                      <td style="padding: 10px;">
+                        <div style="text-align: left;">
+                          사유
+                        </div>
+                      </td>
+                      <td style="text-align: left; padding: 10px 10px 10px 30px; color:black;"
+                          th:text="${rejectResult}"></td>
+                    </tr>
+                    <tr style="font-size:0.8em; letter-spacing: -1px; color:dimgray;">
+                      <td style="padding: 10px;">
+                        <div style="text-align: left;">
+                          처리 시각
+                        </div>
+                      </td>
+                      <td style="text-align: left; padding: 10px 10px 10px 30px; color:black;"
+                          th:text="${currentTime}"></td>
+                    </tr>
+                    <tr width="70%"
+                        style="display:block; margin-top: 15px; margin-bottom: 10px;"></tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+              <tr width="70%"
+                  style="display:block; margin-bottom:80px; border-top: 1.5px solid #A7A7A7;"></tr>
+              <!-- 저작권 -->
+              <tr>
+                <td style="color: #A7A7A7; font-size: 12px; line-height: 20px;">
+                  <div style="text-align: center;">
+                    © SeSACC. All Rights Reserved.
+                  </div>
+                </td>
+              </tr>
+              <!-- footer (청년취업사관학교, SeSACC url 연결) -->
+              <tr width="100%"
+                  style="display:block; padding: 5px 0; font-size: 0.5em;">
+                <td style="position: relative;">
+                  <div style="text-align: center;">
+                    <a style="height:16px; vertical-align: middle; display: inline-block; padding: 0 5px 0 0; text-decoration: none; color:dimgray;"
+                       th:href="@{https://sesac.seoul.kr/common/greeting.do}">청년취업사관학교</a>
+                    <!--TODO: SeSACC 도메인으로 연결시키기-->
+                    <a style="height:16px; vertical-align: middle; display: inline-block; padding: 0 5px 0 0; text-decoration: none; color:dimgray;"
+                       th:href="@{http://localhost:3000/}">SeSACC</a>
+                  </div>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>

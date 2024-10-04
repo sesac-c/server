@@ -39,4 +39,13 @@ public class CourseChangeRequest extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String rejectReason;
+
+    public void update(int statusCode, String rejectReason) {
+        if (statusCode != this.statusCode) {
+            this.statusCode = statusCode;
+        }
+        if (rejectReason != null) {
+            this.rejectReason = rejectReason;
+        }
+    }
 }

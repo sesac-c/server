@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -23,6 +24,7 @@ import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BindingResultHandler;
+import sesac.server.user.dto.request.CourseChangeRequestRequest;
 import sesac.server.user.dto.request.NicknameCheckRequest;
 import sesac.server.user.dto.request.UpdateProfileRequest;
 import sesac.server.user.dto.response.CourseChangeRequestResponse;
@@ -136,11 +138,30 @@ public class ProfileController {
         return ResponseEntity.ok().body(response);
     }
 
+
+    @PreAuthorize("hasRole('MANAGER')")
+    @PatchMapping("course-changes/{courseChangeRequestId}")
+    public ResponseEntity<Void> reviewCourseChangeRequest(
+            @Valid @RequestBody CourseChangeRequestRequest request,
+            BindingResult bindingResult,
+            @PathVariable Long courseChangeRequestId
+    ) {
+        validateCourseChangeRequestInput(bindingResult);
+        profileService.processCourseChangeRequest(courseChangeRequestId, request);
+        return ResponseEntity.noContent().build();
+    }
+
     private void validateProfileInput(BindingResult bindingResult) {
         BindingResultHandler.handle(bindingResult, List.of(
                 UserErrorCode.INVALID_NICKNAME,
                 UserErrorCode.INVALID_NICKNAME_SIZE,
                 UserErrorCode.INVALID_NICKNAME_COMBINATION
+        ));
+    }
+
+    private void validateCourseChangeRequestInput(BindingResult bindingResult) {
+        BindingResultHandler.handle(bindingResult, List.of(
+                UserErrorCode.NO_COURSE_CHANGE_REQUEST_STATUS
         ));
     }
 }

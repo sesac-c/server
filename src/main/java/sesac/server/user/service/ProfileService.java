@@ -1,14 +1,22 @@
 package sesac.server.user.service;
 
+import static org.springframework.util.StringUtils.hasText;
+
+import jakarta.validation.Valid;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.campus.entity.Course;
 import sesac.server.campus.service.CourseService;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
+import sesac.server.common.util.EmailUtil;
+import sesac.server.user.dto.request.CourseChangeRequestRequest;
 import sesac.server.user.dto.request.NicknameCheckRequest;
 import sesac.server.user.dto.request.UpdateProfileRequest;
 import sesac.server.user.dto.response.CourseChangeRequestResponse;
@@ -33,6 +41,8 @@ public class ProfileService extends CommonUserService {
     private final CourseChangeRequestRepository courseChangeRequestRepository;
 
     private final CourseService courseService;
+
+    private final EmailUtil emailUtil;
 
     private static final String DEFAULT_PROFILE_IMAGE = "default-profile.png";
     private static final int COURSE_CHANGE_REQUEST_STATUS = 0;
@@ -95,6 +105,17 @@ public class ProfileService extends CommonUserService {
         return new PageResponse<>(responses);
     }
 
+    public void processCourseChangeRequest(Long courseChangeRequestId,
+            @Valid CourseChangeRequestRequest request) {
+        validateCourseChangeRequestRequest(request);
+        CourseChangeRequest courseChangeRequest = courseChangeRequestRepository.findById(
+                        courseChangeRequestId)
+                .orElseThrow(() -> new BaseException(UserErrorCode.NO_COURSE_CHANGE_REQUEST));
+
+        courseChangeRequest.update(request.status(), request.rejectReason());
+        sendCourseChangeRequestResult(courseChangeRequest);
+    }
+
     private void updateStudentProfile(Long id, UpdateProfileRequest request) {
         Student student = getUserOrThrowException(studentRepository, id);
         student.updateProfile(request);
@@ -111,14 +132,49 @@ public class ProfileService extends CommonUserService {
     private void validateNoPendingCourseChangeRequest(Long studentId) {
         if (courseChangeRequestRepository.existsByStudentIdAndStatusCode(studentId,
                 COURSE_CHANGE_REQUEST_STATUS)) {
-            throw new BaseException(UserErrorCode.EXISTING_CHANGE_REQUEST);
+            throw new BaseException(UserErrorCode.EXISTING_COURSE_CHANGE_REQUEST);
         }
     }
 
     private void validateRequestedCourseIsDifferent(Long studentId, Long courseId) {
         Student student = getUserOrThrowException(studentRepository, studentId);
         if (courseId == student.getCourse().getId()) {
-            throw new BaseException(UserErrorCode.SAME_COURSE_REQUEST);
+            throw new BaseException(UserErrorCode.SAME_COURSE_CHANGE_REQUEST);
         }
+    }
+
+    private void validateCourseChangeRequestRequest(CourseChangeRequestRequest request) {
+        int status = request.status();
+        String rejectReason = request.rejectReason();
+
+        if (status != 10 && status != 20 && status != 30) {
+            throw new BaseException(UserErrorCode.INVALID_STATUS_CODE);
+        }
+        if (status != 10 && !hasText(rejectReason)) {
+            throw new BaseException(UserErrorCode.NO_COURSE_CHANGE_REQUEST_REJECT_REASON);
+        }
+    }
+
+    private void sendCourseChangeRequestResult(CourseChangeRequest courseChangeRequest) {
+        String email = courseChangeRequest.getStudent().getUser().getEmail();
+        String subject = "[SeSACC] 강의 변경 신청 결과를 알려드립니다.";
+        String templateName = "email/course-change-request_result";
+
+        Context context = new Context();
+        context.setVariable("currentTime",
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm:ss")));
+        context.setVariable("newCourse", courseChangeRequest.getNewCourse().getName());
+        context.setVariable("status", getStatusString(courseChangeRequest.getStatusCode()));
+        context.setVariable("rejectResult", courseChangeRequest.getRejectReason());
+
+        emailUtil.sendTemplateEmail(email, subject, templateName, context);
+    }
+
+    private String getStatusString(int statusCode) {
+        return switch (statusCode) {
+            case 10 -> "승인";
+            case 20 -> "보류";
+            default -> "거절";
+        };
     }
 }
