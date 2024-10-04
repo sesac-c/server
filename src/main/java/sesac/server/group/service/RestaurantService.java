@@ -9,6 +9,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.campus.entity.Campus;
+import sesac.server.common.entity.HasCampus;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.GlobalErrorCode;
 import sesac.server.group.dto.request.CreateMenuRequest;
@@ -20,7 +21,6 @@ import sesac.server.group.dto.response.RestaurantDetailResponse;
 import sesac.server.group.dto.response.RestaurantListForManagerResponse;
 import sesac.server.group.dto.response.RestaurantListResponse;
 import sesac.server.group.entity.GroupType;
-import sesac.server.group.entity.HasCampus;
 import sesac.server.group.entity.Menu;
 import sesac.server.group.entity.Restaurant;
 import sesac.server.group.exception.MenuErrorCode;
@@ -42,7 +42,7 @@ public class RestaurantService {
     // Restaurant
     public void createRestaurant(CustomPrincipal principal, GroupType groupType,
             CreateRestaurantRequest request) {
-        Campus campus = userService.getManagerCampus(principal.id());
+        Campus campus = userService.getUserCampus(principal);
 
         // TODO: validateAddressInfo
 
@@ -54,7 +54,7 @@ public class RestaurantService {
     public List<RestaurantListForManagerResponse> getRestaurantListForManager(
             CustomPrincipal principal,
             GroupType type) {
-        Campus campus = userService.getManagerCampus(principal.id());
+        Campus campus = userService.getUserCampus(principal);
 
         return getRestaurantList(campus, type, RestaurantListForManagerResponse::from);
     }
@@ -62,7 +62,7 @@ public class RestaurantService {
     public List<RestaurantListResponse> getRestaurantList(
             CustomPrincipal principal,
             GroupType type) {
-        Campus campus = userService.getStudentCampus(principal.id());
+        Campus campus = userService.getUserCampus(principal);
 
         return getRestaurantList(campus, type, RestaurantListResponse::from);
     }
@@ -80,7 +80,7 @@ public class RestaurantService {
     public void updateRestaurant(CustomPrincipal principal, GroupType type, Long restaurantId,
             UpdateRestaurantRequest request) {
         Restaurant restaurant = findRestaurantByIdAndType(restaurantId, type);
-        Campus managerCampus = userService.getManagerCampus(principal.id());
+        Campus managerCampus = userService.getUserCampus(principal);
 
         validateUserPermission(restaurant, managerCampus);
         validateAddressUpdate(request);
@@ -90,7 +90,7 @@ public class RestaurantService {
 
     public void deleteRestaurant(CustomPrincipal principal, GroupType type, Long restaurantId) {
         Restaurant restaurant = findRestaurantByIdAndType(restaurantId, type);
-        Campus managerCampus = userService.getManagerCampus(principal.id());
+        Campus managerCampus = userService.getUserCampus(principal);
         validateUserPermission(restaurant, managerCampus);
 
         restaurantRepository.delete(restaurant);
@@ -100,7 +100,7 @@ public class RestaurantService {
     public void createRestaurantMenu(CustomPrincipal principal, GroupType type,
             Long restaurantId, CreateMenuRequest request) {
         Restaurant restaurant = findRestaurantByIdAndType(restaurantId, type);
-        Campus managerCampus = userService.getManagerCampus(principal.id());
+        Campus managerCampus = userService.getUserCampus(principal);
         validateUserPermission(restaurant, managerCampus);
 
         // 메뉴 생성
@@ -120,7 +120,7 @@ public class RestaurantService {
                 .orElseThrow(
                         () -> new BaseException(MenuErrorCode.NOT_FOUND_MENU)
                 );
-        Campus managerCampus = userService.getManagerCampus(principal.id());
+        Campus managerCampus = userService.getUserCampus(principal);
         validateUserPermission(menu, managerCampus);
 
         menu.update(request);
@@ -132,7 +132,7 @@ public class RestaurantService {
                 .orElseThrow(
                         () -> new BaseException(MenuErrorCode.NOT_FOUND_MENU)
                 );
-        Campus managerCampus = userService.getManagerCampus(principal.id());
+        Campus managerCampus = userService.getUserCampus(principal);
         validateUserPermission(menu, managerCampus);
 
         menuRepository.delete(menu);

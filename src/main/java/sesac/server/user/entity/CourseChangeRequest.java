@@ -20,15 +20,15 @@ import sesac.server.common.entity.BaseEntity;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CampusChangeRequest extends BaseEntity {
+public class CourseChangeRequest extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "student_id")
+    private Student student;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "new_course_id")
@@ -39,4 +39,13 @@ public class CampusChangeRequest extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String rejectReason;
+
+    public void update(int statusCode, String rejectReason) {
+        if (statusCode != this.statusCode) {
+            this.statusCode = statusCode;
+        }
+        if (rejectReason != null) {
+            this.rejectReason = rejectReason;
+        }
+    }
 }

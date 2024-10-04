@@ -21,9 +21,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import sesac.server.campus.entity.Campus;
 import sesac.server.campus.entity.Course;
+import sesac.server.common.entity.HasCampus;
 import sesac.server.common.exception.BaseException;
 import sesac.server.user.dto.request.AcceptStatusRequest;
+import sesac.server.user.dto.request.UpdateProfileRequest;
 import sesac.server.user.dto.request.UpdateStudentRequest;
 import sesac.server.user.exception.UserErrorCode;
 
@@ -33,7 +36,7 @@ import sesac.server.user.exception.UserErrorCode;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(value = {AuditingEntityListener.class})
-public class Student {
+public class Student implements HasCampus {
 
     @Id
     private Long id;
@@ -105,6 +108,28 @@ public class Student {
 
         if (hasText(request.rejectReason())) {
             this.rejectReason = request.rejectReason();
+        }
+    }
+
+    @Override
+    public Campus getCampus() {
+        return this.firstCourse.getCampus();
+    }
+
+    public Course getCourse() {
+        return this.firstCourse;
+    }
+
+    public void updateProfile(UpdateProfileRequest request) {
+        if (hasText(request.nickname())) {
+            this.nickname = request.nickname();
+        }
+        if (request.profileImage() == null && request.removed()) {
+            this.profileImage = null;
+        }
+
+        if (request.profileImage() != null) {
+            this.profileImage = request.profileImage();
         }
     }
 }

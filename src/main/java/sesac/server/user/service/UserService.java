@@ -1,48 +1,37 @@
 package sesac.server.user.service;
 
-import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import sesac.server.auth.dto.CustomPrincipal;
-import sesac.server.campus.entity.Campus;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.GlobalErrorCode;
 import sesac.server.user.dto.request.AcceptStatusRequest;
-import sesac.server.user.dto.request.MessageSendRequest;
 import sesac.server.user.dto.request.SearchStudentRequest;
 import sesac.server.user.dto.request.UpdateStudentRequest;
 import sesac.server.user.dto.response.ManagerListResponse;
 import sesac.server.user.dto.response.ManagerPageResponse;
-import sesac.server.user.dto.response.MessageResponse;
 import sesac.server.user.dto.response.SearchStudentResponse;
 import sesac.server.user.dto.response.StudentDetailResponse;
 import sesac.server.user.dto.response.StudentListResponse;
 import sesac.server.user.entity.Manager;
-import sesac.server.user.entity.Message;
 import sesac.server.user.entity.Student;
 import sesac.server.user.entity.User;
 import sesac.server.user.exception.UserErrorCode;
 import sesac.server.user.repository.ManagerRepository;
-import sesac.server.user.repository.MessageRepository;
 import sesac.server.user.repository.StudentRepository;
 import sesac.server.user.repository.UserRepository;
 
-@Log4j2
 @Service
-@Transactional
 @RequiredArgsConstructor
-public class UserService {
+public class UserService extends CommonUserService {
 
-    private final StudentRepository studentRepository;
-    private final ManagerRepository managerRepository;
     private final UserRepository userRepository;
-    private final MessageRepository messageRepository;
-
+    private final ManagerRepository managerRepository;
+    private final StudentRepository studentRepository;
+    
     public List<StudentListResponse> getSearchStudentList(String nickname) {
         List<Student> studentList = studentRepository.findByNicknameContainingIgnoreCase(nickname);
 
@@ -130,67 +119,5 @@ public class UserService {
         User user = student.getUser();
         studentRepository.delete(student);
         userRepository.delete(user);
-    }
-
-    public void sendMessage(Long senderId, Long receiverId, MessageSendRequest request) {
-        User sender = userRepository.findById(senderId)
-                .orElseThrow(() -> new BaseException(UserErrorCode.NO_USER));
-
-        User receiver = userRepository.findById(receiverId)
-                .orElseThrow(() -> new BaseException(UserErrorCode.NO_RECEIVER));
-
-        Message message = request.toEntity(sender, receiver);
-
-        messageRepository.save(message);
-    }
-
-    public List<MessageResponse> receivedMessage(Long userId, Pageable pageable) {
-        return messageRepository.findByReceiverId(userId, pageable);
-    }
-
-    public List<MessageResponse> sentMessage(Long userId, Pageable pageable) {
-        return messageRepository.findBySenderId(userId, pageable);
-    }
-
-    public MessageResponse getMessage(Long userId, Long messageId) {
-        Message message = messageRepository.findById(messageId)
-                .orElseThrow(() -> new BaseException(UserErrorCode.NO_MESSAGE));
-
-        if (!message.getReceiver().getId().equals(userId) &&
-                !message.getSender().getId().equals(userId)) {
-            throw new BaseException(UserErrorCode.NO_MESSAGE);
-        }
-
-        return MessageResponse.from(message);
-    }
-
-
-    public void deleteMessage(Long userId, Long messageId) {
-        Message message = messageRepository.findById(messageId)
-                .orElseThrow(() -> new BaseException(UserErrorCode.NO_MESSAGE));
-
-        if (!message.getReceiver().getId().equals(userId)) {
-            throw new BaseException(UserErrorCode.NO_MESSAGE);
-        }
-
-        messageRepository.delete(message);
-    }
-
-    public Campus getUserCampus(CustomPrincipal principal) {
-        return "STUDENT".equals(principal.role())
-                ? getStudentCampus(principal.id())
-                : getManagerCampus(principal.id());
-    }
-
-    public Campus getManagerCampus(Long managerId) {
-        return managerRepository.findById(managerId)
-                .orElseThrow(() -> new BaseException(UserErrorCode.NO_USER))
-                .getCampus();
-    }
-
-    public Campus getStudentCampus(Long studentId) {
-        return studentRepository.findById(studentId)
-                .orElseThrow(() -> new BaseException(UserErrorCode.NO_USER))
-                .getFirstCourse().getCampus();
     }
 }
