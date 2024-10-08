@@ -4,7 +4,7 @@ import com.querydsl.core.annotations.QueryProjection;
 
 public record ImportantNoticeResponse(
         Long id,
-        String title,
+        String text,
         String campus
 ) {
 

@@ -79,9 +79,10 @@ public class NoticeController {
 
     @GetMapping("{noticeId}")
     public ResponseEntity<NoticeResponse> getNotice(
+            @AuthPrincipal CustomPrincipal user,
             @PathVariable NoticeType noticeType, @PathVariable Long noticeId
     ) {
-        NoticeResponse response = noticeService.getNotice(noticeId);
+        NoticeResponse response = noticeService.getNotice(user.id(), noticeId);
 
         return ResponseEntity.ok(response);
     }
