@@ -23,6 +23,7 @@ import sesac.server.feed.entity.NoticeType;
 import sesac.server.feed.entity.PostHashtag;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.feed.repository.HashtagRepository;
+import sesac.server.feed.repository.LikesRepository;
 import sesac.server.feed.repository.NoticeRepository;
 import sesac.server.feed.repository.PostHashtagRepository;
 import sesac.server.user.entity.User;
@@ -39,6 +40,7 @@ public class NoticeService {
     private final UserRepository userRepository;
     private final HashtagRepository hashtagRepository;
     private final PostHashtagRepository postHashtagRepository;
+    private final LikesRepository likesRepository;
 
     public Notice createNotice(Long userId, CreateNoticeRequest request, NoticeType noticeType) {
         User user = userRepository.findById(userId)
@@ -85,16 +87,13 @@ public class NoticeService {
         return noticeRepository.searchNoticePage(pageable, request, type);
     }
 
-    public NoticeResponse getNotice(Long noticeId) {
+    public NoticeResponse getNotice(Long userId, Long noticeId) {
         Notice notice = noticeRepository.findById(noticeId)
                 .orElseThrow(() -> new BaseException(PostErrorCode.NO_POST));
 
-//        List<ReplyResponse> replies = notice.getReplies().stream()
-//                .map(ReplyResponse::new)
-//                .toList();
-//
-//        return new PostResponse(post, replies);
-        return new NoticeResponse(notice);
+        boolean likesStatus = likesRepository.existsByUserIdAndNoticeId(userId, noticeId);
+
+        return new NoticeResponse(notice, likesStatus);
     }
 
     public void updateNotice(Long noticeId, UpdateNoticeRequest request) {
