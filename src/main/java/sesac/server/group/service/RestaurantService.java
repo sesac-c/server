@@ -53,10 +53,10 @@ public class RestaurantService {
 
     public List<RestaurantListForManagerResponse> getRestaurantListForManager(
             CustomPrincipal principal,
-            GroupType type) {
+            String name) {
         Campus campus = userService.getUserCampus(principal);
 
-        return getRestaurantList(campus, type, RestaurantListForManagerResponse::from);
+        return getRestaurantList(campus, name, RestaurantListForManagerResponse::from);
     }
 
     public List<RestaurantListResponse> getRestaurantList(
@@ -64,7 +64,8 @@ public class RestaurantService {
             GroupType type) {
         Campus campus = userService.getUserCampus(principal);
 
-        return getRestaurantList(campus, type, RestaurantListResponse::from);
+        return restaurantRepository.findByCampusAndTypeOrderByIdDesc(campus, type).stream()
+                .map(RestaurantListResponse::from).toList();
     }
 
     public RestaurantDetailResponse getRestaurant(CustomPrincipal principal,
@@ -138,11 +139,11 @@ public class RestaurantService {
         menuRepository.delete(menu);
     }
 
-    private <T> List<T> getRestaurantList(Campus campus, GroupType type,
+    private <T> List<T> getRestaurantList(Campus campus, String name,
             Function<Restaurant, T> mapper) {
-        List<Restaurant> restaurants = (type == null)
-                ? restaurantRepository.findByCampus(campus)
-                : restaurantRepository.findByCampusAndType(campus, type);
+        List<Restaurant> restaurants = (name == null)
+                ? restaurantRepository.findByCampusOrderByIdDesc(campus)
+                : restaurantRepository.findByCampusAndNameContainingOrderByIdDesc(campus, name);
 
         return restaurants.stream().map(mapper).toList();
     }
