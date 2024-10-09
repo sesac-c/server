@@ -1,6 +1,7 @@
 package sesac.server.user.service;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.jpa.repository.JpaRepository;
 import sesac.server.auth.dto.CustomPrincipal;
@@ -16,12 +17,12 @@ import sesac.server.user.repository.UserRepository;
 
 @Log4j2
 @Transactional
+@RequiredArgsConstructor
 public abstract class CommonUserService {
 
-    private final UserRepository userRepository = null;
-    private final StudentRepository studentRepository = null;
-    private final ManagerRepository managerRepository = null;
-
+    protected final UserRepository userRepository;
+    protected final StudentRepository studentRepository;
+    protected final ManagerRepository managerRepository;
 
     public Campus getUserCampus(CustomPrincipal principal) {
         Long userId = principal.id();
