@@ -20,4 +20,5 @@ public interface StudentRepository extends JpaRepository<Student, Long>, Student
 
     boolean existsByNickname(String nickname);
 
+    List<Student> findByFirstCourseId(Long courseId);
 }

@@ -1,6 +1,7 @@
 package sesac.server.user.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +32,7 @@ public class UserService extends CommonUserService {
     private final UserRepository userRepository;
     private final ManagerRepository managerRepository;
     private final StudentRepository studentRepository;
-    
+
     public List<StudentListResponse> getSearchStudentList(String nickname) {
         List<Student> studentList = studentRepository.findByNicknameContainingIgnoreCase(nickname);
 
@@ -119,5 +120,11 @@ public class UserService extends CommonUserService {
         User user = student.getUser();
         studentRepository.delete(student);
         userRepository.delete(user);
+    }
+
+    public List<StudentListResponse> getCourseUsers(Long courseId) {
+        List<Student> students = studentRepository.findByFirstCourseId(courseId);
+
+        return students.stream().map(StudentListResponse::new).collect(Collectors.toList());
     }
 }
