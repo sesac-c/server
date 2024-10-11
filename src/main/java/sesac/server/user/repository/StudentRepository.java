@@ -20,4 +20,9 @@ public interface StudentRepository extends JpaRepository<Student, Long>, Student
 
     boolean existsByNickname(String nickname);
 
+    List<Student> findByFirstCourseId(Long courseId);
+
+    @Query("select s from Student s join RunningMateMember rmm on s.id = rmm.user.id where rmm.runningMate.id = :runningMateId")
+    List<Student> findByRunningMateId(Long runningMateId);
+
 }

@@ -111,6 +111,12 @@ public class RunningMateService {
         runningmateRepository.delete(runningMate);
     }
 
+    public RunningMateDetailResponse runningmate(Long userId) {
+        RunningMate runningMate = runningmateRepository.findByUserId(userId).orElse(null);
+
+        return RunningMateDetailResponse.from(runningMate);
+    }
+
     public List<RunningMateMemberListResponse> getRunningmateMemberList(Long runningmateId) {
         return runningMateMemberRepository.runningMateMembers(runningmateId);
     }

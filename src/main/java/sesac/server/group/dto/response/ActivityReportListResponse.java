@@ -4,6 +4,7 @@ import java.time.format.DateTimeFormatter;
 import sesac.server.group.entity.ActivityReport;
 
 public record ActivityReportListResponse(
+        Long id,
         String photo,
         String title
 ) {
@@ -12,6 +13,7 @@ public record ActivityReportListResponse(
         String title = activityReport.getCreatedAt()
                 .format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 보고서"));
 
-        return new ActivityReportListResponse(activityReport.getPhoto(), title);
+        return new ActivityReportListResponse(
+                activityReport.getId(), activityReport.getPhoto(), title);
     }
 }
