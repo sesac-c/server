@@ -7,7 +7,9 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import sesac.server.account.exception.AccountException;
+import sesac.server.campus.entity.Course;
+import sesac.server.campus.exception.CourseErrorCode;
+import sesac.server.campus.repository.CourseRepository;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.feed.dto.request.CreateNoticeRequest;
@@ -27,8 +29,7 @@ import sesac.server.feed.repository.LikesRepository;
 import sesac.server.feed.repository.NoticeRepository;
 import sesac.server.feed.repository.PostHashtagRepository;
 import sesac.server.user.entity.User;
-import sesac.server.user.exception.UserErrorCode;
-import sesac.server.user.repository.UserRepository;
+import sesac.server.user.service.UserService;
 
 @Log4j2
 @Service
@@ -37,17 +38,16 @@ import sesac.server.user.repository.UserRepository;
 public class NoticeService {
 
     private final NoticeRepository noticeRepository;
-    private final UserRepository userRepository;
     private final HashtagRepository hashtagRepository;
     private final PostHashtagRepository postHashtagRepository;
     private final LikesRepository likesRepository;
 
-    public Notice createNotice(Long userId, CreateNoticeRequest request, NoticeType noticeType) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AccountException(UserErrorCode.NO_USER));
+    private final CourseRepository courseRepository;
+    private final UserService userService;
 
-        Notice notice = request.toEntity(user, noticeType);
-
+    public Notice createNotice(Long userId, CreateNoticeRequest request,
+            NoticeType noticeType) {
+        Notice notice = getNotice(userId, noticeType, request);
         noticeRepository.save(notice);
 
         List<Hashtag> hashtags = hashtagRepository.findByNameIn(request.hashtags());
@@ -124,4 +124,25 @@ public class NoticeService {
     public List<ImportantNoticeResponse> getImportantNotices() {
         return noticeRepository.findImportanceNotices();
     }
+
+    private Notice getNotice(Long userId, NoticeType noticeType,
+            CreateNoticeRequest request) {
+
+        User user = userService.getUserOrThrowException(userId);
+
+        return switch (noticeType) {
+            case ALL -> request.toEntity(user, noticeType, null);
+            case GROUP -> getGroupNotice(user, noticeType, request);
+        };
+    }
+
+    private Notice getGroupNotice(User user, NoticeType noticeType,
+            CreateNoticeRequest request) {
+        Course course = courseRepository.findById(request.courseId()).orElseThrow(
+                () -> new BaseException(CourseErrorCode.NO_COURSE)
+        );
+        return request.toEntity(user, noticeType, course);
+    }
 }
+
+

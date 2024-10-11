@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
+import sesac.server.campus.entity.Course;
 import sesac.server.feed.entity.Notice;
 import sesac.server.feed.entity.NoticeType;
 import sesac.server.user.entity.User;
@@ -21,7 +22,9 @@ public record CreateNoticeRequest(
 
         List<String> hashtags,
 
-        Integer importance
+        Integer importance,
+
+        Long courseId
 ) {
 
     public CreateNoticeRequest {
@@ -34,7 +37,7 @@ public record CreateNoticeRequest(
         }
     }
 
-    public Notice toEntity(User user, NoticeType noticeType) {
+    public Notice toEntity(User user, NoticeType noticeType, Course course) {
         return Notice.builder()
                 .user(user)
                 .title(title)
@@ -43,6 +46,7 @@ public record CreateNoticeRequest(
                 .importance(importance)
                 .image(image)
                 .status(true)
+                .course(course)
                 .build();
     }
 }
