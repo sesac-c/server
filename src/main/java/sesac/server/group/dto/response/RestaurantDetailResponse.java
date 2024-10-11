@@ -1,16 +1,14 @@
 package sesac.server.group.dto.response;
 
-import java.math.BigDecimal;
 import sesac.server.group.entity.GroupType;
 import sesac.server.group.entity.Restaurant;
 
 public record RestaurantDetailResponse(
         Long id,
         String name,
-        Long addressId,
         String address,
-        BigDecimal longitude,
-        BigDecimal latitude,
+        String longitude,
+        String latitude,
         String category,
         GroupType type
 ) {
@@ -19,7 +17,6 @@ public record RestaurantDetailResponse(
         this(
                 restaurant.getId(),
                 restaurant.getName(),
-                restaurant.getAddressId(),
                 restaurant.getAddress(),
                 restaurant.getLongitude(),
                 restaurant.getLatitude(),

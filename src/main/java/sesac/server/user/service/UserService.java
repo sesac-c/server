@@ -1,8 +1,10 @@
 package sesac.server.user.service;
 
 import java.util.List;
+
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,15 +28,18 @@ import sesac.server.user.repository.StudentRepository;
 import sesac.server.user.repository.UserRepository;
 
 @Service
-@RequiredArgsConstructor
 public class UserService extends CommonUserService {
 
-    private final UserRepository userRepository;
-    private final ManagerRepository managerRepository;
-    private final StudentRepository studentRepository;
+    public UserService(UserRepository userRepository,
+            StudentRepository studentRepository,
+            ManagerRepository managerRepository) {
+        super(userRepository, studentRepository, managerRepository);
+    }
+
 
     public List<StudentListResponse> getSearchStudentList(String nickname) {
-        List<Student> studentList = studentRepository.findByNicknameContainingIgnoreCase(nickname);
+        List<Student> studentList = studentRepository.findByNicknameContainingIgnoreCase(
+                nickname);
 
         List<StudentListResponse> response = studentList.stream().map(StudentListResponse::new)
                 .toList();

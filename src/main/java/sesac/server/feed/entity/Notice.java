@@ -13,6 +13,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -20,6 +22,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Formula;
+import sesac.server.campus.entity.Course;
 import sesac.server.common.entity.BaseEntity;
 import sesac.server.feed.dto.request.UpdateNoticeRequest;
 import sesac.server.user.entity.User;
@@ -78,6 +81,21 @@ public class Notice extends BaseEntity {
     @Builder.Default
     private List<PostHashtag> hashtags = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id")
+    private Course course;
+
+    @PrePersist
+    @PreUpdate
+    private void validateCourseReference() {
+        if (type == NoticeType.GROUP && course == null) {
+            throw new IllegalStateException("GROUP 타입의 Notice는 Course를 참조해야 합니다.");
+        }
+        if (type != NoticeType.GROUP && course != null) {
+            throw new IllegalStateException("GROUP 타입이 아닌 Notice는 Course를 참조할 수 없습니다.");
+        }
+    }
+    
     public void update(UpdateNoticeRequest request) {
         if (hasText(request.title())) {
             title = request.title();

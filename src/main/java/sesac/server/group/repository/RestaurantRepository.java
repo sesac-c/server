@@ -9,9 +9,11 @@ import sesac.server.group.entity.Restaurant;
 
 public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
 
-    List<Restaurant> findByCampus(Campus campus);
+    List<Restaurant> findByCampusOrderByIdDesc(Campus campus);
 
-    List<Restaurant> findByCampusAndType(Campus campus, GroupType type);
+    List<Restaurant> findByCampusAndNameContainingOrderByIdDesc(Campus campus, String name);
+
+    List<Restaurant> findByCampusAndTypeOrderByIdDesc(Campus campus, GroupType type);
 
     Optional<Restaurant> findByIdAndType(Long restaurantId, GroupType groupType);
 }

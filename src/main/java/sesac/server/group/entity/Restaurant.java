@@ -13,7 +13,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,15 +35,14 @@ public class Restaurant implements HasCampus {
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "address_id")
-    private Long addressId;
-
     @Column(columnDefinition = "TEXT")
     private String address;
 
-    private BigDecimal longitude;
+    @Column(nullable = true)
+    private String longitude;
 
-    private BigDecimal latitude;
+    @Column(nullable = true)
+    private String latitude;
 
     private String category;
 
@@ -66,11 +64,9 @@ public class Restaurant implements HasCampus {
         }
 
         if (hasText(request.address()) &&
-                request.addressId() != null &&
-                request.latitude() != null &&
-                request.longitude() != null) {
+                hasText(request.latitude()) &&
+                hasText(request.longitude())) {
             this.address = request.address();
-            this.addressId = request.addressId();
             this.latitude = request.latitude();
             this.longitude = request.longitude();
         }

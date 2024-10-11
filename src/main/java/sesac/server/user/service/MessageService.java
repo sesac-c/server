@@ -1,7 +1,6 @@
 package sesac.server.user.service;
 
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sesac.server.common.exception.BaseException;
@@ -10,15 +9,24 @@ import sesac.server.user.dto.response.MessageResponse;
 import sesac.server.user.entity.Message;
 import sesac.server.user.entity.User;
 import sesac.server.user.exception.UserErrorCode;
+import sesac.server.user.repository.ManagerRepository;
 import sesac.server.user.repository.MessageRepository;
+import sesac.server.user.repository.StudentRepository;
 import sesac.server.user.repository.UserRepository;
 
 @Service
-@RequiredArgsConstructor
 public class MessageService extends CommonUserService {
 
-    private final UserRepository userRepository;
     private final MessageRepository messageRepository;
+
+    protected MessageService(UserRepository userRepository,
+            StudentRepository studentRepository,
+            ManagerRepository managerRepository,
+            MessageRepository messageRepository
+    ) {
+        super(userRepository, studentRepository, managerRepository);
+        this.messageRepository = messageRepository;
+    }
 
     public void sendMessage(Long senderId, Long receiverId, MessageSendRequest request) {
         User sender = getUserOrThrowException(senderId, UserErrorCode.NO_USER);

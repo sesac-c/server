@@ -2,7 +2,6 @@ package sesac.server.group.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.math.BigDecimal;
 import sesac.server.campus.entity.Campus;
 import sesac.server.group.entity.GroupType;
 import sesac.server.group.entity.Restaurant;
@@ -20,20 +19,14 @@ public record CreateRestaurantRequest(
         @Size(min = 1, max = 150, message = "INVALID_ADDRESS_SIZE")
         String address,
 
-        @NotNull(message = "REQUIRED_ADDRESS_ID")
-        Long addressId,
+        String latitude,
 
-        @NotNull(message = "REQUIRED_LATITUDE")
-        BigDecimal latitude,
-
-        @NotNull(message = "REQUIRED_LONGITUDE")
-        BigDecimal longitude
+        String longitude
 ) {
 
     public Restaurant toEntity(Campus campus, GroupType groupType) {
         return Restaurant.builder()
                 .name(name)
-                .addressId(addressId)
                 .address(address)
                 .longitude(longitude)
                 .latitude(latitude)

@@ -76,11 +76,11 @@ public class RestaurantController {
     @PreAuthorize("hasRole('MANAGER')")
     @GetMapping
     public ResponseEntity<List<RestaurantListForManagerResponse>> getRestaurantListForManager(
-            @AuthPrincipal CustomPrincipal principal, @Param("type") GroupType type
+            @AuthPrincipal CustomPrincipal principal, @Param("name") String name
     ) {
         // 필터링: type(GroupType)
         List<RestaurantListForManagerResponse> response = restaurantService.getRestaurantListForManager(
-                principal, type);
+                principal, name);
         return ResponseEntity.ok().body(response);
     }
 

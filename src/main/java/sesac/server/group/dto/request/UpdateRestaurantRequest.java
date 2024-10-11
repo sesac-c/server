@@ -1,7 +1,6 @@
 package sesac.server.group.dto.request;
 
 import jakarta.validation.constraints.Size;
-import java.math.BigDecimal;
 
 public record UpdateRestaurantRequest(
         @Size(min = 1, max = 20, message = "INVALID_NAME_SIZE")
@@ -13,19 +12,17 @@ public record UpdateRestaurantRequest(
         @Size(min = 1, max = 150, message = "INVALID_ADDRESS_SIZE")
         String address,
 
-        Long addressId,
+        String latitude,
 
-        BigDecimal latitude,
-
-        BigDecimal longitude
+        String longitude
 ) {
 
     public boolean isAddressInfoChanged() {
-        return address != null || addressId != null || latitude != null || longitude != null;
+        return address != null || latitude != null || longitude != null;
     }
 
     public boolean isAddressInfoComplete() {
-        return address != null && addressId != null && latitude != null && longitude != null;
+        return address != null && latitude != null && longitude != null;
     }
 
 }

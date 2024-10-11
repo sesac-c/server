@@ -5,7 +5,6 @@ import static org.springframework.util.StringUtils.hasText;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -32,17 +31,25 @@ import sesac.server.user.repository.StudentRepository;
 import sesac.server.user.repository.UserRepository;
 
 @Service
-@RequiredArgsConstructor
 public class ProfileService extends CommonUserService {
 
-    private final UserRepository userRepository;
-    private final ManagerRepository managerRepository;
-    private final StudentRepository studentRepository;
     private final CourseChangeRequestRepository courseChangeRequestRepository;
 
     private final CourseService courseService;
 
     private final EmailUtil emailUtil;
+
+    protected ProfileService(UserRepository userRepository,
+            StudentRepository studentRepository,
+            ManagerRepository managerRepository,
+            CourseChangeRequestRepository courseChangeRequestRepository,
+            CourseService courseService, EmailUtil emailUtil
+    ) {
+        super(userRepository, studentRepository, managerRepository);
+        this.courseChangeRequestRepository = courseChangeRequestRepository;
+        this.courseService = courseService;
+        this.emailUtil = emailUtil;
+    }
 
     private static final String DEFAULT_PROFILE_IMAGE = "default-profile.png";
     private static final int COURSE_CHANGE_REQUEST_STATUS = 0;

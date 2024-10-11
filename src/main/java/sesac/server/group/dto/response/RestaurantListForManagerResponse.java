@@ -5,7 +5,7 @@ import sesac.server.group.entity.Restaurant;
 
 public record RestaurantListForManagerResponse(
         Long id,
-        GroupType type,
+        String type,
         String name,
         String category,
         String address
@@ -14,7 +14,7 @@ public record RestaurantListForManagerResponse(
     private RestaurantListForManagerResponse(Restaurant restaurant) {
         this(
                 restaurant.getId(),
-                restaurant.getType(),
+                restaurant.getType().equals(GroupType.CAMPUS) ? "캠퍼스" : "러닝메이트",
                 restaurant.getName(),
                 restaurant.getCategory(),
                 restaurant.getAddress()
