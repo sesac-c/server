@@ -23,6 +23,7 @@ import sesac.server.common.exception.BaseException;
 import sesac.server.user.entity.Manager;
 import sesac.server.user.exception.UserErrorCode;
 import sesac.server.user.repository.ManagerRepository;
+import sesac.server.user.service.UserService;
 
 @Service
 @Log4j2
@@ -34,13 +35,17 @@ public class CourseService {
     private final ManagerRepository managerRepository;
     private final CourseUpdateValidationService updateValidationService;
 
+    private final UserService userService;
+
     public List<CourseResponse> findAll(Long campusId) {
-        List<Course> list = courseRepository.findByCampusId(campusId);
+        return getCourseList(campusId);
+    }
 
-        List<CourseResponse> response =
-                list.stream().map(r -> campusToResponse(r)).toList();
-
-        return response;
+    public List<CourseResponse> findManagerCourseAll(CustomPrincipal principal) {
+        Manager manager = managerRepository.findById(principal.id()).orElseThrow(
+                () -> new BaseException(UserErrorCode.NO_USER)
+        );
+        return getCourseList(manager.getCampus().getId());
     }
 
     public PageResponse<ExtendedCourseResponse> getCourseList(
@@ -56,8 +61,8 @@ public class CourseService {
         return new PageResponse<>(courses);
     }
 
-    public void createCourse(Long campusId, CreateCourseRequest request) {
-        Campus campus = (Campus) getEntity("campus", campusId);
+    public void createCourse(CustomPrincipal principal, CreateCourseRequest request) {
+        Campus campus = userService.getUserCampus(principal);
 
         Course course = Course.builder()
                 .name(request.name())
@@ -71,7 +76,7 @@ public class CourseService {
         courseRepository.save(course);
     }
 
-    public void updateCourse(CustomPrincipal principal, Long campusId, Long courseId,
+    public void updateCourse(CustomPrincipal principal, Long courseId,
             UpdateCourseRequest request) {
 
         Course course = (Course) getEntity("course", courseId);// 코스 존재 여부 확인
@@ -98,7 +103,7 @@ public class CourseService {
         return CourseDetailResponse.from(course);
     }
 
-    public void deleteCourse(CustomPrincipal principal, Long campusId, Long courseId) {
+    public void deleteCourse(CustomPrincipal principal, Long courseId) {
 
         Course course = (Course) getEntity("course", courseId);// 코스 존재 여부 확인
 
@@ -140,5 +145,14 @@ public class CourseService {
             );
             default -> null;
         };
+    }
+
+    private List<CourseResponse> getCourseList(Long campusId) {
+        List<Course> list = courseRepository.findByCampusId(campusId);
+
+        List<CourseResponse> response =
+                list.stream().map(r -> campusToResponse(r)).toList();
+
+        return response;
     }
 }

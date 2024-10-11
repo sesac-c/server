@@ -98,20 +98,33 @@ public class CampusController {
     }
 
     // 매니저 권한: 과정 등록
-    @PostMapping("{campusId}/courses")
+    @PostMapping("courses")
     public ResponseEntity<Void> createCourse(
-            @PathVariable Long campusId, @Valid @RequestBody CreateCourseRequest request,
+            @AuthPrincipal CustomPrincipal principal,
+            @Valid @RequestBody CreateCourseRequest request,
             BindingResult bindingResult
     ) {
         validateCourseInput(bindingResult);
 
-        courseService.createCourse(campusId, request);
+        courseService.createCourse(principal, request);
         return ResponseEntity.noContent().build();
+    }
+
+
+    // 매니저 권한: 매니저 관리 강의 리스트
+    @PreAuthorize("hasRole('MANAGER')")
+    @GetMapping("manager-courses")
+    public ResponseEntity<List<CourseResponse>> getManagerCourses(
+            @AuthPrincipal CustomPrincipal principal
+    ) {
+        List<CourseResponse> response = courseService.findManagerCourseAll(principal);
+
+        return ResponseEntity.ok().body(response);
     }
 
     // 매니저 권한: 과정 상세 리스트
     @PreAuthorize("hasRole('MANAGER')")
-    @GetMapping("/courses-extended")
+    @GetMapping("courses-extended")
     public ResponseEntity<PageResponse<ExtendedCourseResponse>> getDetailCourses(
             @AuthPrincipal CustomPrincipal principal,
             @RequestParam(required = false) String name,
@@ -134,33 +147,34 @@ public class CampusController {
     }
 
     // 매니저 권한: 과정 상세
-    @GetMapping("{campusId}/courses/{courseId}")
-    public ResponseEntity<CourseDetailResponse> getCourse(@PathVariable Long campusId,
+    @GetMapping("courses/{courseId}")
+    public ResponseEntity<CourseDetailResponse> getCourse(
             @PathVariable Long courseId) {
         CourseDetailResponse response = courseService.getCourseDetail(courseId);
         return ResponseEntity.ok().body(response);
     }
 
     // 매니저 권한: 과정 수정
-    @PutMapping("{campusId}/courses/{courseId}")
+    @PutMapping("courses/{courseId}")
     public ResponseEntity<Void> updateCourse(
             @AuthPrincipal CustomPrincipal principal,
-            @PathVariable Long campusId, @PathVariable Long courseId,
-            @Valid @RequestBody UpdateCourseRequest request, BindingResult bindingResult
+            @PathVariable Long courseId,
+            @Valid @RequestBody UpdateCourseRequest request,
+            BindingResult bindingResult
     ) {
         validateCourseInput(bindingResult);
 
-        courseService.updateCourse(principal, campusId, courseId, request);
+        courseService.updateCourse(principal, courseId, request);
         return ResponseEntity.noContent().build();
     }
 
     // 매니저 권한: 과정 삭제
-    @DeleteMapping("{campusId}/courses/{courseId}")
+    @DeleteMapping("courses/{courseId}")
     public ResponseEntity<Void> deleteCourse(
             @AuthPrincipal CustomPrincipal principal,
-            @PathVariable Long campusId,
-            @PathVariable Long courseId) {
-        courseService.deleteCourse(principal, campusId, courseId);
+            @PathVariable Long courseId
+    ) {
+        courseService.deleteCourse(principal, courseId);
         return ResponseEntity.noContent().build();
     }
 
