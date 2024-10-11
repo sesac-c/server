@@ -28,8 +28,10 @@ public class MemberController {
     }
 
     @GetMapping("runningmate/{runningmateId}")
-    public ResponseEntity<Void> getRunningmateMembers(
+    public ResponseEntity<List<StudentListResponse>> getRunningmateMembers(
             @PathVariable("runningmateId") Long runningmateId) {
-        return null;
+        List<StudentListResponse> students = userService.getRunningMateUsers(runningmateId);
+
+        return ResponseEntity.ok(students);
     }
 }

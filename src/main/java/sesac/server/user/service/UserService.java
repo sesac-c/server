@@ -127,4 +127,10 @@ public class UserService extends CommonUserService {
 
         return students.stream().map(StudentListResponse::new).collect(Collectors.toList());
     }
+
+    public List<StudentListResponse> getRunningMateUsers(Long runningMateId) {
+        List<Student> students = studentRepository.findByRunningMateId(runningMateId);
+
+        return students.stream().map(StudentListResponse::new).collect(Collectors.toList());
+    }
 }
