@@ -17,13 +17,12 @@ public record PasswordResetResponse(
         this.data.put(key, value);
     }
 
-    public static PasswordResetResponse emailVerificationSuccess(String code) {
+    public static PasswordResetResponse emailVerificationSuccess() {
         PasswordResetResponse response = new PasswordResetResponse(
                 true,
                 "이메일 확인 성공. 인증 코드가 전송되었습니다.",
                 new HashMap<>()
         );
-        response.addData("code", code);
         return response;
     }
 
@@ -48,7 +47,7 @@ public record PasswordResetResponse(
     public static PasswordResetResponse codeVerificationFailure() {
         return new PasswordResetResponse(
                 false,
-                "잘못된 인증 코드입니다. 다시 시도해주세요.",
+                "인증 코드가 일치하지 않습니다. 다시 시도해주세요.",
                 Map.of()
         );
     }

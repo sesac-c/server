@@ -42,7 +42,6 @@ public enum AccountErrorCode implements ErrorCode {
     REQUIRED_UUID(BAD_REQUEST, "UUID가 필요합니다."),
     PASSWORD_SAME_AS_PREVIOUS(BAD_REQUEST,
             "새 비밀번호가 이전 비밀번호와 동일합니다.");
-
     private final HttpStatus status;
     private final String message;
 

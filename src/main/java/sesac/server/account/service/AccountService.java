@@ -196,7 +196,7 @@ public class AccountService {
 
         sendCode(email, code);                                              // 이메일 전송(비동기)
 
-        return PasswordResetResponse.emailVerificationSuccess(code);
+        return PasswordResetResponse.emailVerificationSuccess();
     }
 
     public PasswordResetResponse validateCodeAndGeneratePasswordResetUrl(VerifyCodeRequest request)
