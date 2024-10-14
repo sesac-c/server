@@ -3,6 +3,7 @@ package sesac.server.group.dto.response;
 import sesac.server.group.entity.RunningMate;
 
 public record RunningMateDetailResponse(
+        Long id,
         String name,
         String subject,
         String goal,
@@ -11,6 +12,7 @@ public record RunningMateDetailResponse(
 
     private RunningMateDetailResponse(RunningMate runningMate) {
         this(
+                runningMate.getId(),
                 runningMate.getName(),
                 runningMate.getSubject(),
                 runningMate.getGoal(),

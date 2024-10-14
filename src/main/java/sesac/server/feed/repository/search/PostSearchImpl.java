@@ -113,7 +113,8 @@ public class PostSearchImpl implements PostSearch {
         List<PopularPostResponse> posts = queryFactory
                 .select(new QPopularPostResponse(
                         post.id,
-                        post.title
+                        post.title,
+                        post.type
                 ))
                 .from(post)
                 .where(

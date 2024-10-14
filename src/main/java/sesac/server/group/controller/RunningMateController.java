@@ -103,6 +103,13 @@ public class RunningMateController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("detail")
+    public ResponseEntity<RunningMateDetailResponse> getRunningMate(
+            @AuthPrincipal CustomPrincipal user) {
+        RunningMateDetailResponse response = runningMateService.runningmate(user.id());
+        return ResponseEntity.ok().body(response);
+    }
+
     // -----------------------------------------------------------매니저 권한
     // 러닝메이트 관리
     @GetMapping
