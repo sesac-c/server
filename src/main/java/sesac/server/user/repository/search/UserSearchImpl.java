@@ -24,7 +24,7 @@ import sesac.server.user.exception.UserErrorCode;
 @RequiredArgsConstructor
 public class UserSearchImpl implements UserSearch {
 
-    private static final String UNKNOWN_AFFILIATION = "Unknown";
+    private static final String UNKNOWN = "Unknown";
 
     private final JPAQueryFactory queryFactory;
 
@@ -39,11 +39,13 @@ public class UserSearchImpl implements UserSearch {
 
         ProfileResponse result = queryFactory
                 .select(new QProfileResponse(
+                        getNickname(student, manager),
                         getAffiliationExpression(student, manager),
                         getProfileImageExpression(student, manager),
                         user.id.eq(principal.id()),
-                        getFollowerCountSubquery(follow, profileUserId),
                         getFollowingCountSubquery(follow, profileUserId),
+                        getFollowerCountSubquery(follow, profileUserId),
+                        getIsFollowingExpression(follow, profileUserId, principal.id())
                 ))
                 .from(user)
                 .leftJoin(student).on(user.id.eq(student.id))
@@ -56,6 +58,20 @@ public class UserSearchImpl implements UserSearch {
         validateProfileResponse(result);
 
         return result;
+    }
+
+    private Expression<String> getNickname(QStudent student, QManager manager) {
+        Expression<String> formattedCampusInfo = Expressions.stringTemplate(
+                "CONCAT({0}, ' 캠퍼스')",
+                Expressions.asString(manager.campus.name)
+        );
+
+        return new CaseBuilder()
+                .when(manager.isNotNull())
+                .then(formattedCampusInfo)
+                .when(student.isNotNull())
+                .then(student.nickname)
+                .otherwise(UNKNOWN);
     }
 
     private Expression<String> getAffiliationExpression(QStudent student, QManager manager) {
@@ -75,7 +91,7 @@ public class UserSearchImpl implements UserSearch {
                 .then(formattedCampusInfo)
                 .when(student.isNotNull())
                 .then(formattedCourseInfo)
-                .otherwise(UNKNOWN_AFFILIATION);
+                .otherwise(UNKNOWN);
     }
 
     private Expression<String> getProfileImageExpression(QStudent student, QManager manager) {
@@ -103,8 +119,18 @@ public class UserSearchImpl implements UserSearch {
         if (result == null) {
             throw new BaseException(UserErrorCode.NO_USER);
         }
-        if (UNKNOWN_AFFILIATION.equals(result.nickname()) || UNKNOWN_AFFILIATION.equals(result.affiliation())) {
+        if (UNKNOWN.equals(result.nickname()) || UNKNOWN.equals(result.affiliation())) {
             throw new BaseException(UserErrorCode.INVALID_USER_ROLE);
         }
+    }
+
+    private Expression<Boolean> getIsFollowingExpression(QFollow follow, Long profileUserId,
+            Long principalId) {
+        return JPAExpressions
+                .selectOne()
+                .from(follow)
+                .where(follow.follower.id.eq(principalId)
+                        .and(follow.following.id.eq(profileUserId)))
+                .exists();
     }
 }
