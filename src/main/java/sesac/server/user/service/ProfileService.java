@@ -12,6 +12,7 @@ import org.thymeleaf.context.Context;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.campus.entity.Course;
 import sesac.server.campus.service.CourseService;
+import sesac.server.common.constants.AppConstants;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.util.EmailUtil;
@@ -51,9 +52,6 @@ public class ProfileService extends CommonUserService {
         this.emailUtil = emailUtil;
     }
 
-    private static final String DEFAULT_PROFILE_IMAGE = "default-profile.png";
-    private static final int COURSE_CHANGE_REQUEST_STATUS = 0;
-
     public ProfileResponse getProfile(CustomPrincipal principal, Long profileUserId) {
         return userRepository.getProfileResponse(profileUserId, principal);
     }
@@ -65,7 +63,7 @@ public class ProfileService extends CommonUserService {
     public String getManagerProfileForm(CustomPrincipal customPrincipal) {
         String profileImage = managerRepository.findProfileImageById(customPrincipal.id());
         if (profileImage == null) {
-            profileImage = DEFAULT_PROFILE_IMAGE;
+            profileImage = AppConstants.DEFAULT_PROFILE_IMAGE;
         }
         return profileImage;
     }
@@ -138,7 +136,7 @@ public class ProfileService extends CommonUserService {
 
     private void validateNoPendingCourseChangeRequest(Long studentId) {
         if (courseChangeRequestRepository.existsByStudentIdAndStatusCode(studentId,
-                COURSE_CHANGE_REQUEST_STATUS)) {
+                AppConstants.COURSE_CHANGE_REQUEST_STATUS)) {
             throw new BaseException(UserErrorCode.EXISTING_COURSE_CHANGE_REQUEST);
         }
     }

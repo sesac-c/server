@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import sesac.server.auth.dto.CustomPrincipal;
+import sesac.server.common.constants.AppConstants;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.util.JPAQueryUtil;
 import sesac.server.user.dto.request.SearchStudentRequest;
@@ -36,8 +37,6 @@ import sesac.server.user.exception.UserErrorCode;
 public class StudentSearchImpl implements StudentSearch {
 
     private final JPAQueryFactory queryFactory;
-
-    private static final String DEFAULT_PROFILE_IMAGE = "default-profile.png";
 
     @Override
     public Page<SearchStudentResponse> searchStudent(
@@ -133,7 +132,7 @@ public class StudentSearchImpl implements StudentSearch {
         return new CaseBuilder()
                 .when(student.profileImage.isNotNull())
                 .then(student.profileImage)
-                .otherwise(DEFAULT_PROFILE_IMAGE);
+                .otherwise(AppConstants.DEFAULT_PROFILE_IMAGE);
     }
 
     private Expression<String> getFormattedCampus() {

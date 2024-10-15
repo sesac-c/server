@@ -10,6 +10,7 @@ import lombok.extern.log4j.Log4j2;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.campus.entity.QCampus;
 import sesac.server.campus.entity.QCourse;
+import sesac.server.common.constants.AppConstants;
 import sesac.server.common.exception.BaseException;
 import sesac.server.user.dto.response.ProfileResponse;
 import sesac.server.user.dto.response.QProfileResponse;
@@ -23,7 +24,6 @@ import sesac.server.user.exception.UserErrorCode;
 @RequiredArgsConstructor
 public class UserSearchImpl implements UserSearch {
 
-    private static final String DEFAULT_PROFILE_IMAGE = "default-profile.png";
     private static final String UNKNOWN_AFFILIATION = "Unknown";
 
     private final JPAQueryFactory queryFactory;
@@ -43,7 +43,7 @@ public class UserSearchImpl implements UserSearch {
                         getProfileImageExpression(student, manager),
                         user.id.eq(principal.id()),
                         getFollowerCountSubquery(follow, profileUserId),
-                        getFollowingCountSubquery(follow, profileUserId)
+                        getFollowingCountSubquery(follow, profileUserId),
                 ))
                 .from(user)
                 .leftJoin(student).on(user.id.eq(student.id))
@@ -60,7 +60,7 @@ public class UserSearchImpl implements UserSearch {
 
     private Expression<String> getAffiliationExpression(QStudent student, QManager manager) {
         Expression<String> formattedCourseInfo = Expressions.stringTemplate(
-                "CONCAT('(', {0}, '기)', {1})",
+                "CONCAT('(', {0}, '기) ', {1})",
                 Expressions.asString(student.firstCourse.classNumber),
                 Expressions.asString(student.firstCourse.name)
         );
@@ -84,7 +84,7 @@ public class UserSearchImpl implements UserSearch {
                 .then(manager.profileImage)
                 .when(student.isNotNull().and(student.profileImage.isNotNull()))
                 .then(student.profileImage)
-                .otherwise(DEFAULT_PROFILE_IMAGE);
+                .otherwise(AppConstants.DEFAULT_PROFILE_IMAGE);
     }
 
     private Expression<Long> getFollowerCountSubquery(QFollow follow, Long profileUserId) {
@@ -103,7 +103,7 @@ public class UserSearchImpl implements UserSearch {
         if (result == null) {
             throw new BaseException(UserErrorCode.NO_USER);
         }
-        if (UNKNOWN_AFFILIATION.equals(result.affiliation())) {
+        if (UNKNOWN_AFFILIATION.equals(result.nickname()) || UNKNOWN_AFFILIATION.equals(result.affiliation())) {
             throw new BaseException(UserErrorCode.INVALID_USER_ROLE);
         }
     }
