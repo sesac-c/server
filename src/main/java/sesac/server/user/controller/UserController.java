@@ -1,6 +1,8 @@
 package sesac.server.user.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +41,16 @@ public class UserController {
     private final UserService userService;
 
     // -----------------------------------------------------------유저 목록
+    @GetMapping("info")
+    public ResponseEntity<Map<String, String>> getUserInfo(
+            @AuthPrincipal CustomPrincipal principal
+    ) {
+        Map<String, String> response = new HashMap<>();
+        response.put("id", principal.id().toString());
+
+        return ResponseEntity.ok().body(response);
+    }
+
     @GetMapping("search-students")
     public ResponseEntity<List<StudentListResponse>> getSearchStudentList(
             @Param("nickname") String nickname
