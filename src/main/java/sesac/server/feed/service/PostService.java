@@ -122,6 +122,10 @@ public class PostService {
         postRepository.delete(post);
     }
 
+    public List<Post> getUserPostList(Long userId) {
+        return postRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    }
+
     private boolean hasPermission(CustomPrincipal principal, Long userId) {
         return principal.role().equals(UserRole.MANAGER.toString()) ||
                 principal.id().equals(userId);

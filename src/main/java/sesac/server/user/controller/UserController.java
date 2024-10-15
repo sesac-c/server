@@ -27,6 +27,7 @@ import sesac.server.user.dto.response.ManagerListResponse;
 import sesac.server.user.dto.response.SearchStudentResponse;
 import sesac.server.user.dto.response.StudentDetailResponse;
 import sesac.server.user.dto.response.StudentListResponse;
+import sesac.server.user.dto.response.UserPostReponse;
 import sesac.server.user.service.UserService;
 
 @Log4j2
@@ -59,11 +60,14 @@ public class UserController {
     public ResponseEntity<Void> getNotification() {
         return null;
     }
-    
+
     // -----------------------------------------------------------작성 이력
     @GetMapping("{userId}/posts")
-    public ResponseEntity<Void> getUserPosts(@PathVariable Long userId) {
-        return null;
+    public ResponseEntity<List<UserPostReponse>> getUserPosts(
+            @PathVariable Long userId
+    ) {
+        List<UserPostReponse> response = userService.getUserPosts(userId);
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("likes")

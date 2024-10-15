@@ -1,16 +1,14 @@
 package sesac.server.user.service;
 
 import java.util.List;
-
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.GlobalErrorCode;
+import sesac.server.feed.service.PostService;
 import sesac.server.user.dto.request.AcceptStatusRequest;
 import sesac.server.user.dto.request.SearchStudentRequest;
 import sesac.server.user.dto.request.UpdateStudentRequest;
@@ -19,6 +17,7 @@ import sesac.server.user.dto.response.ManagerPageResponse;
 import sesac.server.user.dto.response.SearchStudentResponse;
 import sesac.server.user.dto.response.StudentDetailResponse;
 import sesac.server.user.dto.response.StudentListResponse;
+import sesac.server.user.dto.response.UserPostReponse;
 import sesac.server.user.entity.Manager;
 import sesac.server.user.entity.Student;
 import sesac.server.user.entity.User;
@@ -30,10 +29,15 @@ import sesac.server.user.repository.UserRepository;
 @Service
 public class UserService extends CommonUserService {
 
+    private final PostService postService;
+
     public UserService(UserRepository userRepository,
             StudentRepository studentRepository,
-            ManagerRepository managerRepository) {
+            ManagerRepository managerRepository,
+            PostService postService
+    ) {
         super(userRepository, studentRepository, managerRepository);
+        this.postService = postService;
     }
 
 
@@ -137,5 +141,10 @@ public class UserService extends CommonUserService {
         List<Student> students = studentRepository.findByRunningMateId(runningMateId);
 
         return students.stream().map(StudentListResponse::new).collect(Collectors.toList());
+    }
+
+    public List<UserPostReponse> getUserPosts(Long profileUserId) {
+        return postService.getUserPostList(profileUserId).stream().map(UserPostReponse::from)
+                .toList();
     }
 }
