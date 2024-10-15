@@ -79,6 +79,8 @@ public class SecurityConfig {
                         "/runningmates/members/{memberId}").authenticated()
                 .requestMatchers(HttpMethod.GET,
                         "/runningmates/detail").authenticated()
+                .requestMatchers(HttpMethod.GET, "/runningmates/{runningmateId}/members")
+                .authenticated()
                 .requestMatchers("/runningmates/**").hasRole("MANAGER")
                 .requestMatchers("/view/**").permitAll()
 
