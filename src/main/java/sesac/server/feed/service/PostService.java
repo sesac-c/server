@@ -86,7 +86,7 @@ public class PostService {
 
         boolean likesStatus = likesRepository.existsByUserIdAndPostId(userId, postId);
 
-        return new PostResponse(post, likesStatus);
+        return PostResponse.from(userId, post, likesStatus);
     }
 
     public PageResponse<PostListResponse> getPostList(

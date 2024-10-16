@@ -1,37 +1,65 @@
 package sesac.server.feed.dto.response;
 
+import static org.springframework.util.StringUtils.hasText;
+
 import java.time.LocalDateTime;
 import java.util.List;
+import sesac.server.common.constants.AppConstants;
 import sesac.server.feed.entity.Notice;
+import sesac.server.user.entity.User;
 
 public record NoticeResponse(
         Long id,
         String nickname,
+        String campusName,
         String title,
         String content,
         LocalDateTime createdAt,
         List<String> hashtags,
         String imageUrl,
-        Long likesCount,
         boolean likesStatus,
-        String profileImage
-//        List<ReplyResponse> replies
+        Long likesCount,
+        String profileImage,
+        Long userId,
+        boolean isNoticeMine
 ) {
 
-    public NoticeResponse(Notice notice, boolean likesStatus) {
+    private NoticeResponse(Long currentUserId, Notice notice, User user, String profileImage,
+            String campusName,
+            boolean likesStatus) {
         this(
                 notice.getId(),
-                notice.getUser().getManager().getCampus().getName(),
+                campusName + " 캠퍼스",
+                campusName,
                 notice.getTitle(),
                 notice.getContent(),
                 notice.getCreatedAt(),
-                notice.getHashtags().stream().map(postHashtag -> postHashtag.getHashtag().getName())
-                        .toList(),
+                notice.getHashtags().stream()
+                        .map(noticeHashtag -> noticeHashtag.getHashtag().getName()).toList(),
                 notice.getImage(),
-                notice.getLikesCount(),
                 likesStatus,
-                notice.getUser().getManager().getProfileImage()
-//                replies
+                notice.getLikesCount(),
+                profileImage,
+                user.getId(),
+                currentUserId == user.getId()
+        );
+    }
+
+    private static String getProfile(User user) {
+        String profileImage = user.getManager().getProfileImage();
+        return hasText(profileImage) ? profileImage : AppConstants.DEFAULT_PROFILE_IMAGE;
+    }
+
+    public static NoticeResponse from(Long currentUserId, Notice notice, boolean likesStatus) {
+        User user = notice.getUser();
+        String campusName = user.getManager().getCampus().getName();
+        return new NoticeResponse(
+                currentUserId,
+                notice,
+                user,
+                getProfile(user),
+                campusName,
+                likesStatus
         );
     }
 }
