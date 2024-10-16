@@ -276,7 +276,7 @@ public class RunningMateService {
         RunningMateMember leader = runningMateMemberRepository.findByUserId(leaderId)
                 .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE_MEMBER));
 
-        RunningMateMember member = runningMateMemberRepository.findById(memberId)
+        RunningMateMember member = runningMateMemberRepository.findByUserId(memberId)
                 .orElseThrow(() -> new BaseException(RunningMateErrorCode.NO_RUNNING_MATE_MEMBER));
 
         if (!leader.getRole().equals(MemberRole.LEADER)) {
