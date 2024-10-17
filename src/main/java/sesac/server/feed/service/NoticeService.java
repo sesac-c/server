@@ -93,7 +93,7 @@ public class NoticeService {
 
         boolean likesStatus = likesRepository.existsByUserIdAndNoticeId(userId, noticeId);
 
-        return new NoticeResponse(notice, likesStatus);
+        return NoticeResponse.from(userId, notice, likesStatus);
     }
 
     public void updateNotice(Long noticeId, UpdateNoticeRequest request) {

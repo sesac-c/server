@@ -1,6 +1,8 @@
 package sesac.server.user.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,6 +40,16 @@ public class UserController {
     private final UserService userService;
 
     // -----------------------------------------------------------유저 목록
+    @GetMapping("info")
+    public ResponseEntity<Map<String, String>> getUserInfo(
+            @AuthPrincipal CustomPrincipal principal
+    ) {
+        Map<String, String> response = new HashMap<>();
+        response.put("id", principal.id().toString());
+
+        return ResponseEntity.ok().body(response);
+    }
+
     @GetMapping("search-students")
     public ResponseEntity<List<StudentListResponse>> getSearchStudentList(
             @Param("nickname") String nickname
@@ -77,32 +88,6 @@ public class UserController {
 
     @GetMapping("replies")
     public ResponseEntity<Void> getUserReplies() {
-        return null;
-    }
-
-    // -----------------------------------------------------------팔로우, 팔로워
-    @GetMapping("{userId}/follows")
-    public ResponseEntity<Void> getUserFollows(@PathVariable Long userId) {
-        return null;
-    }
-
-    @PostMapping("{userId}/follow")
-    public ResponseEntity<Void> followUser(@PathVariable Long userId) {
-        return null;
-    }
-
-    @DeleteMapping("{userId}/follow")
-    public ResponseEntity<Void> unfollowUser(@PathVariable Long userId) {
-        return null;
-    }
-
-    @GetMapping("{userId}/followers")
-    public ResponseEntity<Void> getUserFollowers(@PathVariable Long userId) {
-        return null;
-    }
-
-    @DeleteMapping("{userId}/follower")
-    public ResponseEntity<Void> deleteUserFollower(@PathVariable Long userId) {
         return null;
     }
 

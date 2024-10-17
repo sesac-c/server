@@ -163,9 +163,12 @@ public class NoticeController {
 
     // -----------------------------------------------------------댓글
     @GetMapping("{noticeId}/replies")
-    public ResponseEntity<List<ReplyResponse>> getReplyList(@PathVariable Long noticeId,
+    public ResponseEntity<List<ReplyResponse>> getReplyList(
+            @AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long noticeId,
             @PathVariable NoticeType noticeType) {
-        List<ReplyResponse> response = replyService.getReplyList(noticeId, ArticleType.NOTICE);
+        List<ReplyResponse> response = replyService.getReplyList(principal, noticeId,
+                ArticleType.NOTICE);
         return ResponseEntity.ok().body(response);
     }
 

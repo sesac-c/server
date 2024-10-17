@@ -1,8 +1,12 @@
 package sesac.server.feed.dto.response;
 
+import static org.springframework.util.StringUtils.hasText;
+
 import java.time.LocalDateTime;
 import java.util.List;
+import sesac.server.common.constants.AppConstants;
 import sesac.server.feed.entity.Post;
+import sesac.server.user.entity.User;
 
 public record PostResponse(
         Long id,
@@ -15,14 +19,17 @@ public record PostResponse(
         String imageUrl,
         boolean likesStatus,
         Long likesCount,
-        String profileImage
+        String profileImage,
+        Long userId,
+        boolean isPostMine
 ) {
 
-    public PostResponse(Post post, boolean likesStatus) {
+    private PostResponse(Long currentUserId, Post post, User user, String profileImage,
+            boolean likesStatus) {
         this(
                 post.getId(),
-                post.getUser().getStudent().getNickname(),
-                post.getUser().getStudent().getFirstCourse().getCampus().getName(),
+                user.getStudent().getNickname(),
+                user.getStudent().getFirstCourse().getCampus().getName(),
                 post.getTitle(),
                 post.getContent(),
                 post.getCreatedAt(),
@@ -31,7 +38,20 @@ public record PostResponse(
                 post.getImage(),
                 likesStatus,
                 post.getLikesCount(),
-                post.getUser().getStudent().getProfileImage()
+                profileImage,
+                user.getId(),
+                currentUserId == user.getId()
         );
+    }
+
+    private static String getProfile(User user) {
+        String profileImage = user.getStudent().getProfileImage();
+        return hasText(profileImage) ? profileImage : AppConstants.DEFAULT_PROFILE_IMAGE;
+    }
+
+    public static PostResponse from(Long currentUserId, Post post, boolean likesStatus) {
+        User user = post.getUser();
+        return new PostResponse(currentUserId, post, user, getProfile(user),
+                likesStatus);
     }
 }

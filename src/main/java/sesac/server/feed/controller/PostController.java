@@ -158,9 +158,11 @@ public class PostController {
     // -----------------------------------------------------------댓글
     @GetMapping("{postId}/replies")
     public ResponseEntity<List<ReplyResponse>> getReplyList(
+            @AuthPrincipal CustomPrincipal principal,
             @PathVariable Long postId, @PathVariable PostType postType
     ) {
-        List<ReplyResponse> response = replyService.getReplyList(postId, ArticleType.POST);
+        List<ReplyResponse> response = replyService.getReplyList(principal, postId,
+                ArticleType.POST);
         return ResponseEntity.ok().body(response);
     }
 
