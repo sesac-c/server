@@ -45,10 +45,21 @@ public class UserController {
             @AuthPrincipal CustomPrincipal principal
     ) {
         Map<String, String> response = new HashMap<>();
+        response.put("id", String.valueOf(principal.id()));
+
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("account-info")
+    public ResponseEntity<Map<String, String>> getUserAccountInfo(
+            @AuthPrincipal CustomPrincipal principal
+    ) {
+        Map<String, String> response = userService.getUserAccountInfo(principal);
         response.put("id", principal.id().toString());
 
         return ResponseEntity.ok().body(response);
     }
+
 
     @GetMapping("search-students")
     public ResponseEntity<List<StudentListResponse>> getSearchStudentList(

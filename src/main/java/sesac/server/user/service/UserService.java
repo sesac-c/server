@@ -1,6 +1,10 @@
 package sesac.server.user.service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +26,7 @@ import sesac.server.user.dto.response.UserArchiveResponse;
 import sesac.server.user.entity.Manager;
 import sesac.server.user.entity.Student;
 import sesac.server.user.entity.User;
+import sesac.server.user.entity.UserRole;
 import sesac.server.user.exception.UserErrorCode;
 import sesac.server.user.repository.ManagerRepository;
 import sesac.server.user.repository.StudentRepository;
@@ -159,5 +164,23 @@ public class UserService extends CommonUserService {
         return postService.getUserReplyPostList(principal.id()).stream()
                 .map(UserArchiveResponse::from)
                 .toList();
+    }
+
+    public Map<String, String> getUserAccountInfo(CustomPrincipal principal) {
+        Map<String, String> accountInfo = new HashMap<>();
+
+        User user = getUserOrThrowException(principal.id());
+
+        accountInfo.put("id", String.valueOf(user.getId()));
+        accountInfo.put("email", user.getEmail());
+        accountInfo.put("birthdate",
+                user.getRole().equals(UserRole.MANAGER) ? null : String.valueOf(
+                        formatDate(user.getStudent().getBirthDate())));
+        return accountInfo;
+    }
+
+    private String formatDate(LocalDate date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 M월 d일");
+        return date.format(formatter);
     }
 }
