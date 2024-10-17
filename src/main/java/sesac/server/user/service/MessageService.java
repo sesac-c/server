@@ -55,6 +55,9 @@ public class MessageService extends CommonUserService {
             throw new BaseException(UserErrorCode.NO_MESSAGE);
         }
 
+        message.read();
+        messageRepository.save(message);
+
         return MessageResponse.from(message);
     }
 

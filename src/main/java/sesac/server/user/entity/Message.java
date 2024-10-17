@@ -46,4 +46,8 @@ public class Message {
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    public void read() {
+        this.isRead = true;
+    }
 }
