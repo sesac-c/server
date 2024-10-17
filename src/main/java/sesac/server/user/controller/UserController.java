@@ -28,7 +28,7 @@ import sesac.server.user.dto.response.ManagerListResponse;
 import sesac.server.user.dto.response.SearchStudentResponse;
 import sesac.server.user.dto.response.StudentDetailResponse;
 import sesac.server.user.dto.response.StudentListResponse;
-import sesac.server.user.dto.response.UserPostReponse;
+import sesac.server.user.dto.response.UserArchiveResponse;
 import sesac.server.user.service.UserService;
 
 @Log4j2
@@ -74,20 +74,24 @@ public class UserController {
 
     // -----------------------------------------------------------작성 이력
     @GetMapping("{userId}/posts")
-    public ResponseEntity<List<UserPostReponse>> getUserPosts(
+    public ResponseEntity<List<UserArchiveResponse>> getUserPosts(
             @PathVariable Long userId
     ) {
-        List<UserPostReponse> response = userService.getUserPosts(userId);
+        List<UserArchiveResponse> response = userService.getUserPosts(userId);
         return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("likes")
-    public ResponseEntity<Void> getUserLikes() {
-        return null;
+    public ResponseEntity<List<UserArchiveResponse>> getUserLikePosts(
+            @AuthPrincipal CustomPrincipal principal
+    ) {
+        List<UserArchiveResponse> response = userService.getUserLikePosts(principal);
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("replies")
-    public ResponseEntity<Void> getUserReplies() {
+    public ResponseEntity<List<UserArchiveResponse>> getUserReplyPosts(
+            @AuthPrincipal CustomPrincipal principal) {
         return null;
     }
 

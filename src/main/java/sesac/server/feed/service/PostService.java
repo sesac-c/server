@@ -122,8 +122,17 @@ public class PostService {
         postRepository.delete(post);
     }
 
+    public List<PopularPostResponse> getPopularPostList() {
+        return postRepository.popularPosts();
+    }
+
     public List<Post> getUserPostList(Long userId) {
         return postRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    }
+
+
+    public List<Post> getUserLikePostList(Long userId) {
+        return postRepository.findPostsLikedByUserOrderByCreatedAtDesc(userId);
     }
 
     private boolean hasPermission(CustomPrincipal principal, Long userId) {
@@ -142,7 +151,4 @@ public class PostService {
         return new PageResponse(response);
     }
 
-    public List<PopularPostResponse> getPopularPostList() {
-        return postRepository.popularPosts();
-    }
 }

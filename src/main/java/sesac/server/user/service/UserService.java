@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.GlobalErrorCode;
@@ -17,7 +18,7 @@ import sesac.server.user.dto.response.ManagerPageResponse;
 import sesac.server.user.dto.response.SearchStudentResponse;
 import sesac.server.user.dto.response.StudentDetailResponse;
 import sesac.server.user.dto.response.StudentListResponse;
-import sesac.server.user.dto.response.UserPostReponse;
+import sesac.server.user.dto.response.UserArchiveResponse;
 import sesac.server.user.entity.Manager;
 import sesac.server.user.entity.Student;
 import sesac.server.user.entity.User;
@@ -143,8 +144,14 @@ public class UserService extends CommonUserService {
         return students.stream().map(StudentListResponse::new).collect(Collectors.toList());
     }
 
-    public List<UserPostReponse> getUserPosts(Long profileUserId) {
-        return postService.getUserPostList(profileUserId).stream().map(UserPostReponse::from)
+    public List<UserArchiveResponse> getUserPosts(Long profileUserId) {
+        return postService.getUserPostList(profileUserId).stream().map(UserArchiveResponse::from)
+                .toList();
+    }
+
+    public List<UserArchiveResponse> getUserLikePosts(CustomPrincipal principal) {
+        return postService.getUserLikePostList(principal.id()).stream()
+                .map(UserArchiveResponse::from)
                 .toList();
     }
 }
