@@ -1,8 +1,11 @@
 package sesac.server.user.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.exception.BaseException;
+import sesac.server.user.dto.response.FollowResponse;
 import sesac.server.user.entity.Follow;
 import sesac.server.user.entity.User;
 import sesac.server.user.exception.FollowErrorCode;
@@ -57,6 +60,20 @@ public class FollowService extends CommonUserService {
                 FollowErrorCode.SELF_REMOVE_FOLLOWING_NOT_ALLOWED);
     }
 
+    public List<FollowResponse> getFollowerList(CustomPrincipal principal, Long userId) {
+        User user = getUserOrThrowException(userId);
+        List<Follow> followers = followRepository.findAllByFollowingOrderByCreatedAtDesc(user);
+        return createFollowResponseList(principal,
+                followers.stream().map(Follow::getFollower).toList());
+    }
+
+    public List<FollowResponse> getFollowingList(CustomPrincipal principal, Long userId) {
+        User user = getUserOrThrowException(userId);
+        List<Follow> followings = followRepository.findAllByFollowerOrderByCreatedAtDesc(user);
+        return createFollowResponseList(principal,
+                followings.stream().map(Follow::getFollowing).toList());
+    }
+
     private void removeFollowRelation(Long followerId, Long followingId,
             FollowErrorCode selfActionError) {
         if (followerId.equals(followingId)) {
@@ -70,5 +87,27 @@ public class FollowService extends CommonUserService {
                 .orElseThrow(() -> new BaseException(FollowErrorCode.NOT_FOLLOWING));
 
         followRepository.delete(follow);
+    }
+
+
+    private List<FollowResponse> createFollowResponseList(CustomPrincipal principal,
+            List<User> users) {
+        List<Long> principalFollowingIds = followRepository.findAllFollowingIdsByFollowerId(
+                principal.id());
+
+        return users.stream()
+                .map(user -> createFollowResponse(user,
+                        principal.id(),
+                        principalFollowingIds.contains(user.getId())))
+                .collect(Collectors.toList());
+    }
+
+    private FollowResponse createFollowResponse(User user, Long currentUserId,
+            boolean isFollowing) {
+        return switch (user.getRole()) {
+            case MANAGER -> FollowResponse.from(user.getManager(), currentUserId, isFollowing);
+            case STUDENT, GRADUATE ->
+                    FollowResponse.from(user.getStudent(), currentUserId, isFollowing);
+        };
     }
 }

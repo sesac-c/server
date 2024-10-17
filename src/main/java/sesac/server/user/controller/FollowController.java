@@ -1,5 +1,6 @@
 package sesac.server.user.controller;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
+import sesac.server.user.dto.response.FollowResponse;
 import sesac.server.user.service.FollowService;
 
 @Log4j2
@@ -22,8 +24,13 @@ public class FollowController {
     private final FollowService followService;
 
     @GetMapping("{userId}/follows")
-    public ResponseEntity<Void> getUserFollows(@PathVariable Long userId) {
-        return null;
+    public ResponseEntity<List<FollowResponse>> getUserFollows(
+            @AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long userId
+    ) {
+        // 사용자가 팔로우 하는 사람의 목록
+        List<FollowResponse> response = followService.getFollowingList(principal, userId);
+        return ResponseEntity.ok().body(response);
     }
 
     @PostMapping("{userId}/follow")
@@ -47,8 +54,13 @@ public class FollowController {
     }
 
     @GetMapping("{userId}/followers")
-    public ResponseEntity<Void> getUserFollowers(@PathVariable Long userId) {
-        return null;
+    public ResponseEntity<List<FollowResponse>> getUserFollowers(
+            @AuthPrincipal CustomPrincipal principal,
+            @PathVariable Long userId
+    ) {
+        // 사용자를 팔로우하는 사람들의 목록
+        List<FollowResponse> response = followService.getFollowerList(principal, userId);
+        return ResponseEntity.ok().body(response);
     }
 
     @DeleteMapping("{userId}/follower")
