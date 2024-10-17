@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -89,32 +88,6 @@ public class UserController {
 
     @GetMapping("replies")
     public ResponseEntity<Void> getUserReplies() {
-        return null;
-    }
-
-    // -----------------------------------------------------------팔로우, 팔로워
-    @GetMapping("{userId}/follows")
-    public ResponseEntity<Void> getUserFollows(@PathVariable Long userId) {
-        return null;
-    }
-
-    @PostMapping("{userId}/follow")
-    public ResponseEntity<Void> followUser(@PathVariable Long userId) {
-        return null;
-    }
-
-    @DeleteMapping("{userId}/follow")
-    public ResponseEntity<Void> unfollowUser(@PathVariable Long userId) {
-        return null;
-    }
-
-    @GetMapping("{userId}/followers")
-    public ResponseEntity<Void> getUserFollowers(@PathVariable Long userId) {
-        return null;
-    }
-
-    @DeleteMapping("{userId}/follower")
-    public ResponseEntity<Void> deleteUserFollower(@PathVariable Long userId) {
         return null;
     }
 
