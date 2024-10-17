@@ -92,7 +92,8 @@ public class UserController {
     @GetMapping("replies")
     public ResponseEntity<List<UserArchiveResponse>> getUserReplyPosts(
             @AuthPrincipal CustomPrincipal principal) {
-        return null;
+        List<UserArchiveResponse> response = userService.getUserReplyPosts(principal);
+        return ResponseEntity.ok().body(response);
     }
 
     // -----------------------------------------------------------매니저 권한

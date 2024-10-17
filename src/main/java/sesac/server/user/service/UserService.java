@@ -154,4 +154,10 @@ public class UserService extends CommonUserService {
                 .map(UserArchiveResponse::from)
                 .toList();
     }
+
+    public List<UserArchiveResponse> getUserReplyPosts(CustomPrincipal principal) {
+        return postService.getUserReplyPostList(principal.id()).stream()
+                .map(UserArchiveResponse::from)
+                .toList();
+    }
 }

@@ -135,6 +135,10 @@ public class PostService {
         return postRepository.findPostsLikedByUserOrderByCreatedAtDesc(userId);
     }
 
+    public List<Post> getUserReplyPostList(Long userId) {
+        return postRepository.findDistinctPostsByUserRepliesOrderByCreatedAtDesc(userId);
+    }
+
     private boolean hasPermission(CustomPrincipal principal, Long userId) {
         return principal.role().equals(UserRole.MANAGER.toString()) ||
                 principal.id().equals(userId);
@@ -150,5 +154,4 @@ public class PostService {
                 request, postType);
         return new PageResponse(response);
     }
-
 }
