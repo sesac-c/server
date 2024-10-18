@@ -34,5 +34,19 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
+    public void followNotification(Long userId, Long senderId) {
+        User user = userRepository.findById(userId).get();
+        User sender = userRepository.findById(senderId).get();
+
+        Notification notification = Notification.builder()
+                .user(user)
+                .sender(sender)
+                .type(NotificationType.FOLLOW)
+                .isRead(false)
+                .build();
+
+        notificationRepository.save(notification);
+
+    }
 
 }
