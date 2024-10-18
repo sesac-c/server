@@ -1,5 +1,6 @@
 package sesac.server.user.controller;
 
+import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -18,11 +20,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import sesac.server.account.exception.AccountErrorCode;
 import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.dto.PageResponse;
+import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.user.dto.request.AcceptStatusRequest;
 import sesac.server.user.dto.request.SearchStudentRequest;
+import sesac.server.user.dto.request.UpdatePasswordRequest;
 import sesac.server.user.dto.request.UpdateStudentRequest;
 import sesac.server.user.dto.response.ManagerListResponse;
 import sesac.server.user.dto.response.SearchStudentResponse;
@@ -38,6 +43,7 @@ import sesac.server.user.service.UserService;
 public class UserController {
 
     private final UserService userService;
+    private final BindingResultHandler bindingResultHandler;
 
     // -----------------------------------------------------------유저 목록
     @GetMapping("info")
@@ -105,6 +111,26 @@ public class UserController {
             @AuthPrincipal CustomPrincipal principal) {
         List<UserArchiveResponse> response = userService.getUserReplyPosts(principal);
         return ResponseEntity.ok().body(response);
+    }
+
+    // -----------------------------------------------------------비밀번호 업데이트
+    @PatchMapping("update-password")
+    public ResponseEntity<Void> updatePassword(
+            @AuthPrincipal CustomPrincipal principal,
+            @Valid @RequestBody UpdatePasswordRequest request,
+            BindingResult bindingResult
+    ) {
+
+        bindingResultHandler.handleBindingResult(bindingResult, List.of(
+                AccountErrorCode.REQUIRED_UUID,
+                AccountErrorCode.REQUIRED_PASSWORD,
+                AccountErrorCode.INVALID_PASSWORD_PATTERN,
+                AccountErrorCode.REQUIRED_PASSWORD_CONFIRM,
+                AccountErrorCode.DIFFERENT_PASSWORD_CONFIRM
+        ));
+
+        userService.updatePassword(principal, request);
+        return ResponseEntity.ok().build();
     }
 
     // -----------------------------------------------------------매니저 권한

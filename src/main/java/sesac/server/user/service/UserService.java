@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.dto.PageResponse;
@@ -16,6 +17,7 @@ import sesac.server.common.exception.GlobalErrorCode;
 import sesac.server.feed.service.PostService;
 import sesac.server.user.dto.request.AcceptStatusRequest;
 import sesac.server.user.dto.request.SearchStudentRequest;
+import sesac.server.user.dto.request.UpdatePasswordRequest;
 import sesac.server.user.dto.request.UpdateStudentRequest;
 import sesac.server.user.dto.response.ManagerListResponse;
 import sesac.server.user.dto.response.ManagerPageResponse;
@@ -36,14 +38,17 @@ import sesac.server.user.repository.UserRepository;
 public class UserService extends CommonUserService {
 
     private final PostService postService;
+    private final PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository,
             StudentRepository studentRepository,
             ManagerRepository managerRepository,
-            PostService postService
+            PostService postService,
+            PasswordEncoder passwordEncoder
     ) {
         super(userRepository, studentRepository, managerRepository);
         this.postService = postService;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -182,5 +187,16 @@ public class UserService extends CommonUserService {
     private String formatDate(LocalDate date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 M월 d일");
         return date.format(formatter);
+    }
+
+    public void updatePassword(CustomPrincipal principal, UpdatePasswordRequest request) {
+        User user = getUserOrThrowException(principal.id());
+
+        if (passwordEncoder.matches(request.password(), user.getPassword())) {
+            // 이전 비밀번호와 같은지 확인
+            throw new BaseException(UserErrorCode.PASSWORD_SAME_AS_PREVIOUS);
+        }
+        user.updatePassword(passwordEncoder.encode(request.password()));
+        userRepository.save(user);
     }
 }
