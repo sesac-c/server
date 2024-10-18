@@ -58,4 +58,13 @@ public class NotificationService {
         return list.stream().map(NotificationResponse::from).toList();
     }
 
+    public NotificationResponse getNotificationsDetail(Long notificationId) {
+        Notification notification = notificationRepository.findById(notificationId).get();
+
+        notification.read();
+        notificationRepository.save(notification);
+
+        return NotificationResponse.from(notification);
+    }
+
 }

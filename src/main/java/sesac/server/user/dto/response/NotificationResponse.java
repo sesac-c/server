@@ -11,7 +11,8 @@ public record NotificationResponse(
         Long notificationId,
         String nickname,
         String profileImage,
-        NotificationType type
+        NotificationType type,
+        boolean isRead
 ) {
 
     private NotificationResponse(Notification notification) {
@@ -20,7 +21,8 @@ public record NotificationResponse(
                 notification.getId(),
                 getUserName(notification.getSender()),
                 getUserProfile(notification.getSender()),
-                notification.getType()
+                notification.getType(),
+                notification.getIsRead()
         );
     }
 

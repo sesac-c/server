@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -76,8 +78,22 @@ public class UserController {
             @PageableDefault Pageable pageable
 
     ) {
+        Sort sort = Sort.by(Sort.Order.asc("isRead"), Sort.Order.desc("id"));
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+                sort);
         List<NotificationResponse> response = notificationService.getNotifications(user.id(),
-                pageable);
+                sortedPageable);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("notifications/{notificationId}")
+    public ResponseEntity<NotificationResponse> getNotificationDetails(
+            @AuthPrincipal CustomPrincipal user,
+            @PathVariable Long notificationId
+
+    ) {
+        NotificationResponse response = notificationService.getNotificationsDetail(
+                notificationId);
         return ResponseEntity.ok().body(response);
     }
 
