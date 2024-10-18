@@ -175,12 +175,17 @@ public class UserService extends CommonUserService {
         Map<String, String> accountInfo = new HashMap<>();
 
         User user = getUserOrThrowException(principal.id());
+        boolean isManager = user.getRole().equals(UserRole.MANAGER);
 
-        accountInfo.put("id", String.valueOf(user.getId()));
         accountInfo.put("email", user.getEmail());
-        accountInfo.put("birthdate",
-                user.getRole().equals(UserRole.MANAGER) ? null : String.valueOf(
-                        formatDate(user.getStudent().getBirthDate())));
+        if (isManager) {
+            accountInfo.put("campusName", user.getManager().getCampus().getName());
+        } else {
+            Student student = user.getStudent();
+
+            accountInfo.put("name", student.getName());
+            accountInfo.put("birthdate", formatDate(student.getBirthDate()));
+        }
         return accountInfo;
     }
 
