@@ -25,10 +25,12 @@ import sesac.server.user.dto.request.AcceptStatusRequest;
 import sesac.server.user.dto.request.SearchStudentRequest;
 import sesac.server.user.dto.request.UpdateStudentRequest;
 import sesac.server.user.dto.response.ManagerListResponse;
+import sesac.server.user.dto.response.NotificationResponse;
 import sesac.server.user.dto.response.SearchStudentResponse;
 import sesac.server.user.dto.response.StudentDetailResponse;
 import sesac.server.user.dto.response.StudentListResponse;
 import sesac.server.user.dto.response.UserPostReponse;
+import sesac.server.user.service.NotificationService;
 import sesac.server.user.service.UserService;
 
 @Log4j2
@@ -38,6 +40,7 @@ import sesac.server.user.service.UserService;
 public class UserController {
 
     private final UserService userService;
+    private final NotificationService notificationService;
 
     // -----------------------------------------------------------유저 목록
     @GetMapping("info")
@@ -68,8 +71,14 @@ public class UserController {
 
     // -----------------------------------------------------------알림
     @GetMapping("notifications")
-    public ResponseEntity<Void> getNotification() {
-        return null;
+    public ResponseEntity<List<NotificationResponse>> getNotification(
+            @AuthPrincipal CustomPrincipal user,
+            @PageableDefault Pageable pageable
+
+    ) {
+        List<NotificationResponse> response = notificationService.getNotifications(user.id(),
+                pageable);
+        return ResponseEntity.ok().body(response);
     }
 
     // -----------------------------------------------------------작성 이력

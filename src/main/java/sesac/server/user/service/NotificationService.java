@@ -1,9 +1,12 @@
 package sesac.server.user.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import sesac.server.feed.entity.Post;
 import sesac.server.feed.repository.PostRepository;
+import sesac.server.user.dto.response.NotificationResponse;
 import sesac.server.user.entity.Notification;
 import sesac.server.user.entity.NotificationType;
 import sesac.server.user.entity.User;
@@ -47,6 +50,12 @@ public class NotificationService {
 
         notificationRepository.save(notification);
 
+    }
+
+    public List<NotificationResponse> getNotifications(Long userId, Pageable pageable) {
+        List<Notification> list = notificationRepository.findAllByUserId(userId, pageable);
+
+        return list.stream().map(NotificationResponse::from).toList();
     }
 
 }
