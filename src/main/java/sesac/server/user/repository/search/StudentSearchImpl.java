@@ -2,6 +2,7 @@ package sesac.server.user.repository.search;
 
 import static sesac.server.campus.entity.QCampus.campus;
 import static sesac.server.campus.entity.QCourse.course;
+import static sesac.server.user.entity.QCourseChangeRequest.courseChangeRequest;
 import static sesac.server.user.entity.QStudent.student;
 import static sesac.server.user.entity.QUser.user;
 
@@ -10,6 +11,8 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.StringExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
@@ -86,8 +89,6 @@ public class StudentSearchImpl implements StudentSearch {
 
     @Override
     public StudentProfileFormResponse getStudentProfileFormResponse(CustomPrincipal principal) {
-        QStudent student = QStudent.student;
-
         StudentProfileFormResponse result = queryFactory
                 .select(new QStudentProfileFormResponse(
                         getStudentProfileImageExpression(student),
@@ -95,7 +96,8 @@ public class StudentSearchImpl implements StudentSearch {
                         student.firstCourse.campus.id,
                         getFormattedCampus(),
                         student.firstCourse.id,
-                        getFormattedCourse()
+                        getFormattedCourse(),
+                        isStudentCourseChanging(student)
                 ))
                 .from(student)
                 .where(student.id.eq(principal.id()))
@@ -129,8 +131,10 @@ public class StudentSearchImpl implements StudentSearch {
 
 
     private Expression<String> getStudentProfileImageExpression(QStudent student) {
+        StringExpression profileImage = student.profileImage;
+
         return new CaseBuilder()
-                .when(student.profileImage.isNotNull())
+                .when(profileImage.isNotNull().and(profileImage.trim().ne("")))
                 .then(student.profileImage)
                 .otherwise(AppConstants.DEFAULT_PROFILE_IMAGE);
     }
@@ -148,5 +152,14 @@ public class StudentSearchImpl implements StudentSearch {
                 Expressions.asString(student.firstCourse.classNumber),
                 Expressions.asString(student.firstCourse.name)
         );
+    }
+
+    private BooleanExpression isStudentCourseChanging(QStudent student) {
+        return JPAExpressions
+                .selectOne()
+                .from(courseChangeRequest)
+                .where(courseChangeRequest.student.id.eq(student.id)
+                        .and(courseChangeRequest.statusCode.eq(0)))
+                .exists();
     }
 }

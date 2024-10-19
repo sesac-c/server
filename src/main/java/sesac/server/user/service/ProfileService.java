@@ -72,7 +72,7 @@ public class ProfileService extends CommonUserService {
         return studentRepository.getStudentProfileFormResponse(customPrincipal);
     }
 
-    public void updateProfile(CustomPrincipal principal, UpdateProfileRequest request) {
+    public void updateProfile(CustomPrincipal principal, @Valid UpdateProfileRequest request) {
         String role = principal.role();
         Long id = principal.id();
 
@@ -122,6 +122,12 @@ public class ProfileService extends CommonUserService {
     }
 
     private void updateStudentProfile(Long id, UpdateProfileRequest request) {
+        if (!hasText(request.nickname())) {
+            throw new BaseException(UserErrorCode.REQUIRED_NICKNAME);
+        }
+        if (isNumber(request.nickname())) {
+            throw new BaseException(UserErrorCode.INVALID_NICKNAME_COMBINATION);
+        }
         Student student = getUserOrThrowException(studentRepository, id);
         student.updateProfile(request);
         studentRepository.save(student);
@@ -181,5 +187,9 @@ public class ProfileService extends CommonUserService {
             case 20 -> "보류";
             default -> "거절";
         };
+    }
+
+    private boolean isNumber(String nickname) {
+        return nickname.matches("\\d+");
     }
 }

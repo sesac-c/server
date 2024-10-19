@@ -8,7 +8,8 @@ public record StudentProfileFormResponse(
         Long campusId,
         String campusName,
         Long courseId,
-        String courseName
+        String courseName,
+        boolean isCourseChanging
 ) {
 
     @QueryProjection
