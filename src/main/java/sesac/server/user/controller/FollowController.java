@@ -14,6 +14,7 @@ import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.user.dto.response.FollowResponse;
 import sesac.server.user.service.FollowService;
+import sesac.server.user.service.NotificationService;
 
 @Log4j2
 @RestController
@@ -22,6 +23,7 @@ import sesac.server.user.service.FollowService;
 public class FollowController {
 
     private final FollowService followService;
+    private final NotificationService notificationService;
 
     @GetMapping("{userId}/follows")
     public ResponseEntity<List<FollowResponse>> getUserFollows(
@@ -40,6 +42,7 @@ public class FollowController {
     ) {
         // 팔로우 하기
         followService.followUser(principal, userId);
+        notificationService.followNotification(userId, principal.id());
         return ResponseEntity.noContent().build();
     }
 

@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +27,12 @@ import sesac.server.user.dto.request.AcceptStatusRequest;
 import sesac.server.user.dto.request.SearchStudentRequest;
 import sesac.server.user.dto.request.UpdateStudentRequest;
 import sesac.server.user.dto.response.ManagerListResponse;
+import sesac.server.user.dto.response.NotificationResponse;
 import sesac.server.user.dto.response.SearchStudentResponse;
 import sesac.server.user.dto.response.StudentDetailResponse;
 import sesac.server.user.dto.response.StudentListResponse;
 import sesac.server.user.dto.response.UserPostReponse;
+import sesac.server.user.service.NotificationService;
 import sesac.server.user.service.UserService;
 
 @Log4j2
@@ -38,6 +42,7 @@ import sesac.server.user.service.UserService;
 public class UserController {
 
     private final UserService userService;
+    private final NotificationService notificationService;
 
     // -----------------------------------------------------------유저 목록
     @GetMapping("info")
@@ -68,8 +73,28 @@ public class UserController {
 
     // -----------------------------------------------------------알림
     @GetMapping("notifications")
-    public ResponseEntity<Void> getNotification() {
-        return null;
+    public ResponseEntity<List<NotificationResponse>> getNotification(
+            @AuthPrincipal CustomPrincipal user,
+            @PageableDefault Pageable pageable
+
+    ) {
+        Sort sort = Sort.by(Sort.Order.asc("isRead"), Sort.Order.desc("id"));
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+                sort);
+        List<NotificationResponse> response = notificationService.getNotifications(user.id(),
+                sortedPageable);
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("notifications/{notificationId}")
+    public ResponseEntity<NotificationResponse> getNotificationDetails(
+            @AuthPrincipal CustomPrincipal user,
+            @PathVariable Long notificationId
+
+    ) {
+        NotificationResponse response = notificationService.getNotificationsDetail(
+                notificationId);
+        return ResponseEntity.ok().body(response);
     }
 
     // -----------------------------------------------------------작성 이력
