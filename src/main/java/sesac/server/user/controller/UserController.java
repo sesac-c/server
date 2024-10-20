@@ -46,13 +46,21 @@ public class UserController {
     private final BindingResultHandler bindingResultHandler;
 
     // -----------------------------------------------------------유저 목록
-    @GetMapping("info")
-    public ResponseEntity<Map<String, String>> getUserInfo(
+    @GetMapping("id")
+    public ResponseEntity<Map<String, String>> getUserId(
             @AuthPrincipal CustomPrincipal principal
     ) {
         Map<String, String> response = new HashMap<>();
         response.put("id", String.valueOf(principal.id()));
 
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("info")
+    public ResponseEntity<Map<String, String>> getUserInfo(
+            @AuthPrincipal CustomPrincipal principal
+    ) {
+        Map<String, String> response = userService.getUserInfo(principal);
         return ResponseEntity.ok().body(response);
     }
 

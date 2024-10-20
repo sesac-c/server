@@ -1,5 +1,7 @@
 package sesac.server.user.service;
 
+import static org.springframework.util.StringUtils.hasText;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -11,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import sesac.server.auth.dto.CustomPrincipal;
+import sesac.server.common.constants.AppConstants;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.GlobalErrorCode;
@@ -189,11 +192,6 @@ public class UserService extends CommonUserService {
         return accountInfo;
     }
 
-    private String formatDate(LocalDate date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 M월 d일");
-        return date.format(formatter);
-    }
-
     public void updatePassword(CustomPrincipal principal, UpdatePasswordRequest request) {
         User user = getUserOrThrowException(principal.id());
 
@@ -203,5 +201,30 @@ public class UserService extends CommonUserService {
         }
         user.updatePassword(passwordEncoder.encode(request.password()));
         userRepository.save(user);
+    }
+
+    public Map<String, String> getUserInfo(CustomPrincipal principal) {
+        User user = getUserOrThrowException(principal.id());
+        boolean isManager = user.getRole().equals(UserRole.MANAGER);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("role", isManager ? UserRole.MANAGER.toString() : UserRole.STUDENT.toString());
+
+        String profileImage = isManager ? user.getManager().getProfileImage()
+                : user.getStudent().getProfileImage();
+
+        response.put("profileImage",
+                hasText(profileImage) ? profileImage : AppConstants.DEFAULT_PROFILE_IMAGE);
+
+        if (!isManager) {
+            response.put("nickname", user.getStudent().getNickname());
+        }
+
+        return response;
+    }
+
+    private String formatDate(LocalDate date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 M월 d일");
+        return date.format(formatter);
     }
 }
