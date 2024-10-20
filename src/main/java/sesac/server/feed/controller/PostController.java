@@ -39,6 +39,8 @@ import sesac.server.feed.exception.ReplyErrorCode;
 import sesac.server.feed.service.LikesService;
 import sesac.server.feed.service.PostService;
 import sesac.server.feed.service.ReplyService;
+import sesac.server.user.entity.NotificationType;
+import sesac.server.user.service.NotificationService;
 
 @Log4j2
 @RestController
@@ -49,6 +51,7 @@ public class PostController {
     private final PostService postService;
     private final LikesService likesService;
     private final ReplyService replyService;
+    private final NotificationService notificationService;
 
     // -----------------------------------------------------------게시글 CRUD
     @GetMapping
@@ -136,11 +139,12 @@ public class PostController {
     // -----------------------------------------------------------좋아요
     @PostMapping("{postId}/like")
     public ResponseEntity<Void> likePost(
-            @AuthPrincipal CustomPrincipal principal,
+            @AuthPrincipal CustomPrincipal user,
             @PathVariable Long postId,
             @PathVariable PostType postType
     ) {
-        likesService.likeFeed(principal, postId, ArticleType.POST);
+        likesService.likeFeed(user, postId, ArticleType.POST);
+        notificationService.postNotification(postId, user.id(), NotificationType.LIKE);
 
         return ResponseEntity.noContent().build();
     }
@@ -168,7 +172,7 @@ public class PostController {
 
     @PostMapping("{postId}/replies")
     public ResponseEntity<Void> createReply(
-            @AuthPrincipal CustomPrincipal principal,
+            @AuthPrincipal CustomPrincipal user,
             @PathVariable Long postId,
             @PathVariable PostType postType,
             @Valid @RequestBody ReplyRequest request,
@@ -178,7 +182,8 @@ public class PostController {
                 ReplyErrorCode.REQUIRED_CONTENT,
                 ReplyErrorCode.INVALID_CONTENT_SIZE
         ));
-        replyService.createReply(principal, postId, request, ArticleType.POST);
+        replyService.createReply(user, postId, request, ArticleType.POST);
+        notificationService.postNotification(postId, user.id(), NotificationType.REPLY);
 
         return ResponseEntity.noContent().build();
     }
