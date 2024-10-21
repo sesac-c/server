@@ -1,8 +1,10 @@
 package sesac.server.user.repository.search;
 
 import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -94,11 +96,15 @@ public class UserSearchImpl implements UserSearch {
                 .otherwise(UNKNOWN);
     }
 
+    private BooleanExpression getProfileImage(StringExpression profileImage) {
+        return profileImage.isNotNull().and(profileImage.trim().ne(""));
+    }
+
     private Expression<String> getProfileImageExpression(QStudent student, QManager manager) {
         return new CaseBuilder()
-                .when(manager.isNotNull().and(manager.profileImage.isNotNull()))
+                .when(manager.profileImage.isNotNull().and(getProfileImage(manager.profileImage)))
                 .then(manager.profileImage)
-                .when(student.isNotNull().and(student.profileImage.isNotNull()))
+                .when(student.profileImage.isNotNull().and(getProfileImage(student.profileImage)))
                 .then(student.profileImage)
                 .otherwise(AppConstants.DEFAULT_PROFILE_IMAGE);
     }

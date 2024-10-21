@@ -43,6 +43,6 @@ public record NotificationResponse(
                 user.getManager().getProfileImage() :
                 user.getStudent().getProfileImage();
 
-        return Strings.hasText(profileImage) ? AppConstants.DEFAULT_PROFILE_IMAGE : profileImage;
+        return Strings.hasText(profileImage) ? profileImage : AppConstants.DEFAULT_PROFILE_IMAGE;
     }
 }

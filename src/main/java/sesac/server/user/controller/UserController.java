@@ -1,5 +1,6 @@
 package sesac.server.user.controller;
 
+import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -20,18 +22,21 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import sesac.server.account.exception.AccountErrorCode;
 import sesac.server.auth.dto.AuthPrincipal;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.dto.PageResponse;
+import sesac.server.common.exception.BindingResultHandler;
 import sesac.server.user.dto.request.AcceptStatusRequest;
 import sesac.server.user.dto.request.SearchStudentRequest;
+import sesac.server.user.dto.request.UpdatePasswordRequest;
 import sesac.server.user.dto.request.UpdateStudentRequest;
 import sesac.server.user.dto.response.ManagerListResponse;
 import sesac.server.user.dto.response.NotificationResponse;
 import sesac.server.user.dto.response.SearchStudentResponse;
 import sesac.server.user.dto.response.StudentDetailResponse;
 import sesac.server.user.dto.response.StudentListResponse;
-import sesac.server.user.dto.response.UserPostReponse;
+import sesac.server.user.dto.response.UserArchiveResponse;
 import sesac.server.user.service.NotificationService;
 import sesac.server.user.service.UserService;
 
@@ -43,15 +48,32 @@ public class UserController {
 
     private final UserService userService;
     private final NotificationService notificationService;
+    private final BindingResultHandler bindingResultHandler;
 
     // -----------------------------------------------------------유저 목록
+    @GetMapping("id")
+    public ResponseEntity<Map<String, String>> getUserId(
+            @AuthPrincipal CustomPrincipal principal
+    ) {
+        Map<String, String> response = new HashMap<>();
+        response.put("id", String.valueOf(principal.id()));
+
+        return ResponseEntity.ok().body(response);
+    }
+
     @GetMapping("info")
     public ResponseEntity<Map<String, String>> getUserInfo(
             @AuthPrincipal CustomPrincipal principal
     ) {
-        Map<String, String> response = new HashMap<>();
-        response.put("id", principal.id().toString());
+        Map<String, String> response = userService.getUserInfo(principal);
+        return ResponseEntity.ok().body(response);
+    }
 
+    @GetMapping("account-info")
+    public ResponseEntity<Map<String, String>> getUserAccountInfo(
+            @AuthPrincipal CustomPrincipal principal
+    ) {
+        Map<String, String> response = userService.getUserAccountInfo(principal);
         return ResponseEntity.ok().body(response);
     }
 
@@ -99,21 +121,46 @@ public class UserController {
 
     // -----------------------------------------------------------작성 이력
     @GetMapping("{userId}/posts")
-    public ResponseEntity<List<UserPostReponse>> getUserPosts(
+    public ResponseEntity<List<UserArchiveResponse>> getUserPosts(
             @PathVariable Long userId
     ) {
-        List<UserPostReponse> response = userService.getUserPosts(userId);
+        List<UserArchiveResponse> response = userService.getUserPosts(userId);
         return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("likes")
-    public ResponseEntity<Void> getUserLikes() {
-        return null;
+    public ResponseEntity<List<UserArchiveResponse>> getUserLikePosts(
+            @AuthPrincipal CustomPrincipal principal
+    ) {
+        List<UserArchiveResponse> response = userService.getUserLikePosts(principal);
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("replies")
-    public ResponseEntity<Void> getUserReplies() {
-        return null;
+    public ResponseEntity<List<UserArchiveResponse>> getUserReplyPosts(
+            @AuthPrincipal CustomPrincipal principal) {
+        List<UserArchiveResponse> response = userService.getUserReplyPosts(principal);
+        return ResponseEntity.ok().body(response);
+    }
+
+    // -----------------------------------------------------------비밀번호 업데이트
+    @PatchMapping("update-password")
+    public ResponseEntity<Void> updatePassword(
+            @AuthPrincipal CustomPrincipal principal,
+            @Valid @RequestBody UpdatePasswordRequest request,
+            BindingResult bindingResult
+    ) {
+
+        bindingResultHandler.handleBindingResult(bindingResult, List.of(
+                AccountErrorCode.REQUIRED_UUID,
+                AccountErrorCode.REQUIRED_PASSWORD,
+                AccountErrorCode.INVALID_PASSWORD_PATTERN,
+                AccountErrorCode.REQUIRED_PASSWORD_CONFIRM,
+                AccountErrorCode.DIFFERENT_PASSWORD_CONFIRM
+        ));
+
+        userService.updatePassword(principal, request);
+        return ResponseEntity.ok().build();
     }
 
     // -----------------------------------------------------------매니저 권한

@@ -30,7 +30,15 @@ public enum UserErrorCode implements ErrorCode {
     SAME_COURSE_CHANGE_REQUEST(BAD_REQUEST, "현재 수강 중인 강의와 동일한 강의로 변경 신청할 수 없습니다"),
     NO_COURSE_CHANGE_REQUEST_STATUS(BAD_REQUEST, "과정 변경 상태가 입력되지 않았습니다."),
     INVALID_STATUS_CODE(BAD_REQUEST, "올바른 과정 변경 상태가 아닙니다."),
-    NO_COURSE_CHANGE_REQUEST_REJECT_REASON(BAD_REQUEST, "보류 또는 거절 사유가 입력되지 않았습니다.");
+    NO_COURSE_CHANGE_REQUEST_REJECT_REASON(BAD_REQUEST, "보류 또는 거절 사유가 입력되지 않았습니다."),
+
+
+    PASSWORD_SAME_AS_PREVIOUS(BAD_REQUEST,
+            "새 비밀번호가 이전 비밀번호와 동일합니다."),
+    REQUIRED_PASSWORD(BAD_REQUEST, "비밀번호를 입력해 주세요"),
+    INVALID_PASSWORD_PATTERN(BAD_REQUEST, "비밀번호는 8~20자 이내로 영어, 숫자, 특수문자를 포함해야 합니다"),
+    REQUIRED_PASSWORD_CONFIRM(BAD_REQUEST, "비밀번호 확인이 입력되지 않았습니다"),
+    DIFFERENT_PASSWORD_CONFIRM(BAD_REQUEST, "비밀번호 확인이 일치하지 않습니다");
 
 
     private final HttpStatus status;

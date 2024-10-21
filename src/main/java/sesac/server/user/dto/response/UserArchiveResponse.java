@@ -3,7 +3,7 @@ package sesac.server.user.dto.response;
 import sesac.server.feed.entity.Post;
 import sesac.server.feed.entity.PostType;
 
-public record UserPostReponse(
+public record UserArchiveResponse(
         Long id,
         PostType postType,
         String title,
@@ -11,11 +11,11 @@ public record UserPostReponse(
         String image
 ) {
 
-    private UserPostReponse(Post post) {
+    private UserArchiveResponse(Post post) {
         this(post.getId(), post.getType(), post.getTitle(), post.getContent(), post.getImage());
     }
 
-    public static UserPostReponse from(Post post) {
-        return new UserPostReponse(post);
+    public static UserArchiveResponse from(Post post) {
+        return new UserArchiveResponse(post);
     }
 }
