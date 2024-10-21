@@ -112,7 +112,9 @@ public class RunningMateService {
     }
 
     public RunningMateDetailResponse runningmate(Long userId) {
-        RunningMate runningMate = runningmateRepository.findByUserId(userId).orElse(null);
+        RunningMate runningMate = runningmateRepository.findByUserId(userId).orElseThrow(
+                () -> new BaseException(RunningMateErrorCode.NO_RUNNINGMATE)
+        );
 
         return RunningMateDetailResponse.from(runningMate);
     }

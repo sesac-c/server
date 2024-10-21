@@ -27,7 +27,7 @@ public enum RunningMateErrorCode implements ErrorCode {
     REQUIRED_PHOTO(HttpStatus.BAD_REQUEST, "활동 사진을 첨부해주세요"),
 
     NO_ACTIVITY_REPORT(HttpStatus.BAD_REQUEST, "활동보고서가 없습니다"),
-    ;
+    NO_RUNNINGMATE(HttpStatus.NOT_FOUND, "가입된 러닝메이트가 없습니다");;
 
     private final HttpStatus status;
     private final String message;
