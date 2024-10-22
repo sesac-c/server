@@ -1,5 +1,6 @@
 package sesac.server.campus.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -7,12 +8,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sesac.server.campus.dto.request.UpdateCourseRequest;
+import sesac.server.chat.entity.CourseChatRoom;
 import sesac.server.common.entity.BaseEntity;
 
 @Entity
@@ -42,6 +45,8 @@ public class Course extends BaseEntity {
     @JoinColumn(name = "campus_id")
     private Campus campus;
 
+    @OneToOne(mappedBy = "course", cascade = CascadeType.REMOVE)
+    private CourseChatRoom courseChatRoom;
 
     public void updateCourse(UpdateCourseRequest updateCourseRequest, Campus newCampus) {
         if (updateCourseRequest.name() != null) {
