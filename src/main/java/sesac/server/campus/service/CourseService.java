@@ -18,6 +18,7 @@ import sesac.server.campus.exception.CampusErrorCode;
 import sesac.server.campus.exception.CourseErrorCode;
 import sesac.server.campus.repository.CampusRepository;
 import sesac.server.campus.repository.CourseRepository;
+import sesac.server.chat.service.CourseChatService;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.user.entity.Manager;
@@ -34,6 +35,7 @@ public class CourseService {
     private final CampusRepository campusRepository;
     private final ManagerRepository managerRepository;
     private final CourseUpdateValidationService updateValidationService;
+    private final CourseChatService courseChatService;
 
     private final UserService userService;
 
@@ -73,7 +75,10 @@ public class CourseService {
                 .campus(campus)
                 .build();
 
-        courseRepository.save(course);
+        Course savedCourse = courseRepository.save(course);
+
+        // 채팅방 생성
+        courseChatService.createChatRoom(savedCourse);
     }
 
     public void updateCourse(CustomPrincipal principal, Long courseId,
