@@ -1,9 +1,6 @@
 package sesac.server.feed.dto.response;
 
-import static org.springframework.util.StringUtils.hasText;
-
 import java.time.LocalDateTime;
-import sesac.server.common.constants.AppConstants;
 import sesac.server.feed.entity.Reply;
 import sesac.server.user.entity.User;
 
@@ -39,12 +36,11 @@ public record ReplyResponse(
     }
 
     private static String getProfileImageFromEntity(User user) {
-        String profileImage = switch (user.getRole()) {
-            case MANAGER -> user.getManager().getProfileImage();
-            case STUDENT -> user.getStudent().getProfileImage();
+        return switch (user.getRole()) {
+            case MANAGER -> user.getManager().getProfile();
+            case STUDENT -> user.getStudent().getProfile();
             default -> null;
         };
-        return hasText(profileImage) ? profileImage : AppConstants.DEFAULT_PROFILE_IMAGE;
     }
 
     public static ReplyResponse from(Reply reply, Long currentUserId) {

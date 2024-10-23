@@ -1,5 +1,7 @@
 package sesac.server.user.entity;
 
+import static org.springframework.util.StringUtils.hasText;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -17,6 +19,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import sesac.server.campus.entity.Campus;
+import sesac.server.common.constants.AppConstants;
 import sesac.server.common.entity.HasCampus;
 import sesac.server.user.dto.request.UpdateProfileRequest;
 
@@ -54,5 +57,10 @@ public class Manager implements HasCampus {
         if (request.profileImage() != null) {
             this.profileImage = request.profileImage();
         }
+    }
+
+    public String getProfile() {
+        return hasText(this.profileImage) ? this.profileImage
+                : AppConstants.DEFAULT_PROFILE_IMAGE;
     }
 }
