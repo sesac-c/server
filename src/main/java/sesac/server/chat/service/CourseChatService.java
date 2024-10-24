@@ -3,6 +3,8 @@ package sesac.server.chat.service;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,7 @@ import sesac.server.chat.redis.repository.ChatMessageCacheRepository;
 import sesac.server.chat.redis.repository.CourseChatRoomCacheRepository;
 import sesac.server.chat.repository.CourseChatMessageRepository;
 import sesac.server.chat.repository.CourseChatRoomRepository;
+import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.user.entity.Student;
 import sesac.server.user.service.CommonUserService;
@@ -64,6 +67,22 @@ public class CourseChatService {
 
         saveMessageCache(chatRoom, message, sender);
         sendMessageToTopic(courseId, message);
+    }
+
+
+    @Transactional(readOnly = true)
+    public PageResponse<ChatMessageResponse> getMessages(CustomPrincipal principal, Long courseId,
+            Pageable pageable) {
+        validateSenderIsCourseMember(userService.getStudentOrThrowException(principal), courseId);
+
+        CourseChatRoom chatRoom = chatRoomRepository.findByCourseId(courseId)
+                .orElseThrow(() -> new BaseException(ChatErrorCode.CHAT_ROOM_NOT_FOUND));
+
+        Page<ChatMessageResponse> messages = chatMessageRepository
+                .findByCourseChatRoomIdOrderByCreatedAtDesc(chatRoom.getId(), pageable)
+                .map(ChatMessageResponse::from);
+
+        return new PageResponse<>(messages);
     }
 
     // 새로운 채팅방이 존재하는지 확인
