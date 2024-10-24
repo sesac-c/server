@@ -19,6 +19,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.common.util.JwtUtil;
 
 @Component
@@ -67,17 +68,23 @@ public class WebSocketInterceptor implements ChannelInterceptor {
     }
 
     public Authentication createAuthenticationFromToken(String token) {
-        Map<String, Object> payload = jwtUtil.validateToken(token); // JWT 토큰 검증 및 payload 추출
+        Map<String, Object> payload = jwtUtil.validateToken(token);
 
-        String email = (String) payload.get("email");               // payload에서 사용자 정보 추출
+        // payload에서 id와 role 추출
+        Long id = Long.valueOf(payload.get("id").toString());  // id 추출
         String role = (String) payload.get("role");
 
-        List<GrantedAuthority> authorities = Collections.singletonList(// 권한 ROLE list
+        // CustomPrincipal 생성
+        CustomPrincipal customPrincipal = new CustomPrincipal(id, role);
+
+        List<GrantedAuthority> authorities = Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_" + role)
         );
 
-        return new UsernamePasswordAuthenticationToken(             // Authentication 객체 생성, 반환
-                email, null, authorities
+        return new UsernamePasswordAuthenticationToken(
+                customPrincipal,  // CustomPrincipal을 principal로 설정
+                null,
+                authorities
         );
     }
 }
