@@ -9,6 +9,8 @@ import sesac.server.campus.entity.Campus;
 import sesac.server.common.entity.HasCampus;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.ErrorCode;
+import sesac.server.user.entity.Manager;
+import sesac.server.user.entity.Student;
 import sesac.server.user.entity.User;
 import sesac.server.user.exception.UserErrorCode;
 import sesac.server.user.repository.ManagerRepository;
@@ -18,7 +20,7 @@ import sesac.server.user.repository.UserRepository;
 @Log4j2
 @Transactional
 @RequiredArgsConstructor
-public abstract class CommonUserService {
+public class CommonUserService {
 
     protected final UserRepository userRepository;
     protected final StudentRepository studentRepository;
@@ -37,6 +39,14 @@ public abstract class CommonUserService {
         return entity.getCampus();
     }
 
+
+    public Student getStudentOrThrowException(CustomPrincipal principal) {
+        return getUserOrThrowException(studentRepository, principal.id());
+    }
+
+    public Manager getManagerOrThrowException(CustomPrincipal principal) {
+        return getUserOrThrowException(managerRepository, principal.id());
+    }
 
     public <T> T getUserOrThrowException(JpaRepository<T, Long> repository, Long userId,
             ErrorCode errorCode) {

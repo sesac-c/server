@@ -227,4 +227,13 @@ public class UserService extends CommonUserService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 M월 d일");
         return date.format(formatter);
     }
+
+    public Map<String, Long> getCourseId(CustomPrincipal principal) {
+        Student student = getStudentOrThrowException(principal);
+
+        Map<String, Long> response = new HashMap<>();
+        response.put("courseId", student.getFirstCourse().getId());
+        
+        return response;
+    }
 }
