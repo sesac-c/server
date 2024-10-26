@@ -61,11 +61,11 @@ public class UserController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("courseId")
-    public ResponseEntity<Map<String, Long>> getUserCourseId(
+    @GetMapping("course")
+    public ResponseEntity<Map<String, String>> getUserCourseInfo(
             @AuthPrincipal CustomPrincipal principal
     ) {
-        Map<String, Long> response = userService.getCourseId(principal);
+        Map<String, String> response = userService.getCourseInfo(principal);
         return ResponseEntity.ok().body(response);
     }
 

@@ -1,6 +1,8 @@
 package sesac.server.chat.dto.response;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.chat.entity.CourseChatMessage;
 
 public record ChatMessageResponse(
@@ -9,21 +11,24 @@ public record ChatMessageResponse(
         Long senderId,
         String senderName,
         String content,
-        String createdAt,
+        LocalDateTime createdAt,
+        boolean isMine,
         boolean delivered
 ) {
 
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH:mm");
 
-    public static ChatMessageResponse from(CourseChatMessage message) {
+    public static ChatMessageResponse from(CourseChatMessage message, CustomPrincipal principal) {
         return new ChatMessageResponse(
                 message.getId(),
                 message.getCourseChatRoom().getId(),
                 message.getSender().getId(),
                 message.getSender().getNickname(),
                 message.getContent(),
-                message.getCreatedAt().format(FORMATTER),
+                message.getCreatedAt(),
+//                message.getCreatedAt().format(FORMATTER),
+                message.getSender().getId().equals(principal.id()),
                 message.isDelivered()
         );
     }

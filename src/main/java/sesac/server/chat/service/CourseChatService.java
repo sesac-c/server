@@ -66,7 +66,7 @@ public class CourseChatService {
         chatRoom.updateLastMessageAt(message.getCreatedAt());
 
         saveMessageCache(chatRoom, message, sender);
-        sendMessageToTopic(courseId, message);
+        sendMessageToTopic(principal, courseId, message);
     }
 
 
@@ -80,7 +80,7 @@ public class CourseChatService {
 
         Page<ChatMessageResponse> messages = chatMessageRepository
                 .findByCourseChatRoomIdOrderByCreatedAtDesc(chatRoom.getId(), pageable)
-                .map(ChatMessageResponse::from);
+                .map(message -> ChatMessageResponse.from(message, principal));
 
         return new PageResponse<>(messages);
     }
@@ -164,10 +164,11 @@ public class CourseChatService {
     }
 
     // 메시지를 특정 경로로 전송
-    private void sendMessageToTopic(Long courseId, CourseChatMessage message) {
+    private void sendMessageToTopic(CustomPrincipal principal, Long courseId,
+            CourseChatMessage message) {
         messagingTemplate.convertAndSend(
                 TOPIC_PREFIX + courseId,
-                ChatMessageResponse.from(message)
+                ChatMessageResponse.from(message, principal)
         );
     }
 }
