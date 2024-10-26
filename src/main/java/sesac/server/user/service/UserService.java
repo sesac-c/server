@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import sesac.server.auth.dto.CustomPrincipal;
+import sesac.server.campus.entity.Course;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.GlobalErrorCode;
@@ -222,5 +223,18 @@ public class UserService extends CommonUserService {
     private String formatDate(LocalDate date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 M월 d일");
         return date.format(formatter);
+    }
+
+    public Map<String, String> getCourseInfo(CustomPrincipal principal) {
+        Student student = getStudentOrThrowException(principal);
+
+        Map<String, String> response = new HashMap<>();
+
+        Course course = student.getFirstCourse();
+        response.put("courseId", String.valueOf(course.getId()));
+        response.put("courseName",
+                String.format("(%s기) %s", course.getClassNumber(), course.getName()));
+
+        return response;
     }
 }

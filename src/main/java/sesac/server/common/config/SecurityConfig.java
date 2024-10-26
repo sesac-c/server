@@ -48,6 +48,9 @@ public class SecurityConfig {
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.authorizeHttpRequests(requests -> requests
+                // WebSocket 경로에 대한 필터 우회
+                .requestMatchers("/ws/**").permitAll()
+
                 // accounts
                 .requestMatchers(HttpMethod.DELETE, "/accounts/**").authenticated()
                 .requestMatchers("/accounts/**").permitAll()

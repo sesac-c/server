@@ -52,12 +52,20 @@ public class UserController {
 
     // -----------------------------------------------------------유저 목록
     @GetMapping("id")
-    public ResponseEntity<Map<String, String>> getUserId(
+    public ResponseEntity<Map<String, Long>> getUserId(
             @AuthPrincipal CustomPrincipal principal
     ) {
-        Map<String, String> response = new HashMap<>();
-        response.put("id", String.valueOf(principal.id()));
+        Map<String, Long> response = new HashMap<>();
+        response.put("id", principal.id());
 
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("course")
+    public ResponseEntity<Map<String, String>> getUserCourseInfo(
+            @AuthPrincipal CustomPrincipal principal
+    ) {
+        Map<String, String> response = userService.getCourseInfo(principal);
         return ResponseEntity.ok().body(response);
     }
 
