@@ -23,6 +23,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import sesac.server.campus.entity.Campus;
 import sesac.server.campus.entity.Course;
+import sesac.server.common.constants.AppConstants;
 import sesac.server.common.entity.HasCampus;
 import sesac.server.common.exception.BaseException;
 import sesac.server.user.dto.request.AcceptStatusRequest;
@@ -131,5 +132,10 @@ public class Student implements HasCampus {
         if (request.profileImage() != null) {
             this.profileImage = request.profileImage();
         }
+    }
+
+    public String getProfile() {
+        return hasText(this.profileImage) ? this.profileImage
+                : AppConstants.DEFAULT_PROFILE_IMAGE;
     }
 }

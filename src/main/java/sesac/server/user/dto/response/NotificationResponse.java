@@ -1,7 +1,5 @@
 package sesac.server.user.dto.response;
 
-import io.jsonwebtoken.lang.Strings;
-import sesac.server.common.constants.AppConstants;
 import sesac.server.user.entity.Notification;
 import sesac.server.user.entity.NotificationType;
 import sesac.server.user.entity.User;
@@ -39,10 +37,10 @@ public record NotificationResponse(
     }
 
     private static String getUserProfile(User user) {
-        String profileImage = user.getRole().equals(UserRole.MANAGER) ?
-                user.getManager().getProfileImage() :
-                user.getStudent().getProfileImage();
-
-        return Strings.hasText(profileImage) ? profileImage : AppConstants.DEFAULT_PROFILE_IMAGE;
+        return switch (user.getRole()) {
+            case MANAGER -> user.getManager().getProfile();
+            case STUDENT -> user.getStudent().getProfile();
+            default -> null;
+        };
     }
 }

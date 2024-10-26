@@ -1,9 +1,7 @@
 package sesac.server.user.dto.response;
 
-import io.jsonwebtoken.lang.Strings;
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
-import sesac.server.common.constants.AppConstants;
 import sesac.server.user.entity.Message;
 import sesac.server.user.entity.User;
 import sesac.server.user.entity.UserRole;
@@ -46,10 +44,10 @@ public record MessageResponse(
     }
 
     private static String getUserProfile(User user) {
-        String profileImage = user.getRole().equals(UserRole.MANAGER) ?
-                user.getManager().getProfileImage() :
-                user.getStudent().getProfileImage();
-
-        return Strings.hasText(profileImage) ? profileImage : AppConstants.DEFAULT_PROFILE_IMAGE;
+        return switch (user.getRole()) {
+            case MANAGER -> user.getManager().getProfile();
+            case STUDENT -> user.getStudent().getProfile();
+            default -> null;
+        };
     }
 }

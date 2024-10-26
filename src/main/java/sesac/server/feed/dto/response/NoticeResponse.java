@@ -1,10 +1,7 @@
 package sesac.server.feed.dto.response;
 
-import static org.springframework.util.StringUtils.hasText;
-
 import java.time.LocalDateTime;
 import java.util.List;
-import sesac.server.common.constants.AppConstants;
 import sesac.server.feed.entity.Notice;
 import sesac.server.user.entity.User;
 
@@ -24,8 +21,7 @@ public record NoticeResponse(
         boolean isNoticeMine
 ) {
 
-    private NoticeResponse(Long currentUserId, Notice notice, User user, String profileImage,
-            String campusName,
+    private NoticeResponse(Long currentUserId, Notice notice, User user, String campusName,
             boolean likesStatus) {
         this(
                 notice.getId(),
@@ -39,15 +35,10 @@ public record NoticeResponse(
                 notice.getImage(),
                 likesStatus,
                 notice.getLikesCount(),
-                profileImage,
+                notice.getUser().getManager().getProfile(),
                 user.getId(),
                 currentUserId == user.getId()
         );
-    }
-
-    private static String getProfile(User user) {
-        String profileImage = user.getManager().getProfileImage();
-        return hasText(profileImage) ? profileImage : AppConstants.DEFAULT_PROFILE_IMAGE;
     }
 
     public static NoticeResponse from(Long currentUserId, Notice notice, boolean likesStatus) {
@@ -57,7 +48,6 @@ public record NoticeResponse(
                 currentUserId,
                 notice,
                 user,
-                getProfile(user),
                 campusName,
                 likesStatus
         );

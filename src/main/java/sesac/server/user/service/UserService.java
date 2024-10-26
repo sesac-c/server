@@ -1,7 +1,5 @@
 package sesac.server.user.service;
 
-import static org.springframework.util.StringUtils.hasText;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -14,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.campus.entity.Course;
-import sesac.server.common.constants.AppConstants;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.common.exception.GlobalErrorCode;
@@ -211,11 +208,10 @@ public class UserService extends CommonUserService {
         Map<String, String> response = new HashMap<>();
         response.put("role", isManager ? UserRole.MANAGER.toString() : UserRole.STUDENT.toString());
 
-        String profileImage = isManager ? user.getManager().getProfileImage()
-                : user.getStudent().getProfileImage();
+        String profileImage = isManager ? user.getManager().getProfile()
+                : user.getStudent().getProfile();
 
-        response.put("profileImage",
-                hasText(profileImage) ? profileImage : AppConstants.DEFAULT_PROFILE_IMAGE);
+        response.put("profileImage", profileImage);
 
         if (!isManager) {
             response.put("nickname", user.getStudent().getNickname());

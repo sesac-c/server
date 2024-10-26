@@ -1,7 +1,5 @@
 package sesac.server.account.service;
 
-import static org.springframework.util.StringUtils.hasText;
-
 import jakarta.transaction.Transactional;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -27,7 +25,6 @@ import sesac.server.account.exception.AccountErrorCode;
 import sesac.server.account.exception.AccountException;
 import sesac.server.campus.entity.Course;
 import sesac.server.campus.repository.CourseRepository;
-import sesac.server.common.constants.AppConstants;
 import sesac.server.common.util.EmailUtil;
 import sesac.server.common.util.JwtUtil;
 import sesac.server.common.util.RedisUtil;
@@ -150,7 +147,7 @@ public class AccountService {
                 refreshToken,
                 student.getNickname(),
                 user.getRole(),
-                getProfileImage(student.getProfileImage())
+                student.getProfile()
         );
     }
 
@@ -172,7 +169,7 @@ public class AccountService {
                 refreshToken,
                 manager.getCampus().getName(),
                 user.getRole(),
-                getProfileImage(manager.getProfileImage())
+                manager.getProfile()
         );
     }
 
@@ -286,7 +283,4 @@ public class AccountService {
         emailUtil.sendTemplateEmail(email, subject, templateName, context);
     }
 
-    private String getProfileImage(String profileImage) {
-        return hasText(profileImage) ? profileImage : AppConstants.DEFAULT_PROFILE_IMAGE;
-    }
 }
