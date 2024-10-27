@@ -23,7 +23,6 @@ public class WebSocketBrokerConfig implements WebSocketMessageBrokerConfigurer {
     @Value("${origins}")
     private String origins;
 
-
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("/topic");
@@ -33,7 +32,7 @@ public class WebSocketBrokerConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOrigins(origins)
+                .setAllowedOrigins(origins.split(","))
                 .withSockJS();
     }
 
