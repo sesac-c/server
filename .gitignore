@@ -36,5 +36,6 @@ out/
 ### VS Code ###
 .vscode/
 
+*-secret.yml
 *-prod.yml
 server.log
