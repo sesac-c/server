@@ -29,6 +29,7 @@ import sesac.server.feed.dto.request.UpdatePostRequest;
 import sesac.server.feed.dto.response.ExtendedPostListResponse;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
+import sesac.server.feed.entity.Hashtag;
 import sesac.server.feed.entity.Post;
 import sesac.server.feed.entity.PostType;
 import sesac.server.feed.exception.PostErrorCode;
@@ -43,6 +44,9 @@ class PostServiceTest {
 
     @Autowired
     private PostService postService;
+
+    @Autowired
+    private HashtagService hashtagService;
 
     @PersistenceContext
     EntityManager em;
@@ -156,6 +160,20 @@ class PostServiceTest {
 
         assertThat(post1.getHashtags()).hasSize(2);
         assertThat(post2.getHashtags()).hasSize(3);
+    }
+
+    @Test
+    @DisplayName("해시코드 테스트")
+    public void hashcodeTest2() {
+        // give
+        List<Hashtag> hashtags1 = hashtagService.saveHashTags(List.of("해시1", "해시2"));
+        List<Hashtag> hashtags2 = hashtagService.saveHashTags(List.of("해시1", "해시2", "해시3"));
+
+        em.flush();
+        em.clear();
+
+        assertThat(hashtags1).hasSize(2);
+        assertThat(hashtags2).hasSize(3);
     }
 
     @Test
