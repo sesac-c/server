@@ -1,7 +1,9 @@
 package sesac.server.feed.service;
 
 import jakarta.transaction.Transactional;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import sesac.server.feed.entity.Hashtag;
@@ -21,20 +23,17 @@ public class HashtagService {
 
     public List<Hashtag> saveHashTags(List<String> tags) {
         List<Hashtag> hashtags = hashtagRepository.findByNameIn(tags);
-        List<Hashtag> newHashtags = tags
+        Set<String> tagsSet = new HashSet<>(hashtags.stream()
+                .map(Hashtag::getName).toList());
+
+        List<Hashtag> newTags = tags
                 .stream()
-                .filter(hashtag -> !hashtags.stream()
-                        .map(r -> r.getName())
-                        .toList()
-                        .contains(hashtag))
-                .map(hashtag -> Hashtag.builder()
-                        .name(hashtag)
-                        .build())
+                .filter(tag -> !tagsSet.contains(tag))
+                .map(tag -> Hashtag.builder().name(tag).build())
                 .toList();
 
-        hashtags.addAll(newHashtags);
-
-        hashtagRepository.saveAll(hashtags);
+        hashtags.addAll(newTags);
+        hashtagRepository.saveAll(newTags);
 
         return hashtags;
     }
