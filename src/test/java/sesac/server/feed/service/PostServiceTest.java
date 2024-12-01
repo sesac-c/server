@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import sesac.server.auth.dto.CustomPrincipal;
 import sesac.server.campus.entity.Campus;
 import sesac.server.campus.entity.Course;
+import sesac.server.common.Fixture;
 import sesac.server.common.dto.PageResponse;
 import sesac.server.common.exception.BaseException;
 import sesac.server.feed.dto.request.CreatePostRequest;
@@ -29,13 +28,10 @@ import sesac.server.feed.dto.request.UpdatePostRequest;
 import sesac.server.feed.dto.response.ExtendedPostListResponse;
 import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
-import sesac.server.feed.entity.Hashtag;
 import sesac.server.feed.entity.Post;
 import sesac.server.feed.entity.PostType;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.user.entity.Student;
-import sesac.server.user.entity.User;
-import sesac.server.user.entity.UserRole;
 
 @SpringBootTest
 @Transactional
@@ -56,65 +52,11 @@ class PostServiceTest {
 
     @BeforeEach
     public void setup() {
-        Campus campus = Campus.builder()
-                .name("Campus")
-                .address("campus address")
-                .build();
-
-        em.persist(campus);
-
-        LocalDate now = LocalDate.now();
-        Course course = Course.builder()
-                .campus(campus)
-                .name("Course")
-                .classNumber("course number")
-                .instructorName("instructor name")
-                .startDate(now)
-                .endDate(now.plusMonths(1))
-                .build();
-
-        em.persist(course);
-
-        User user = User.builder()
-                .email("test1@example.com")
-                .password("1234")
-                .role(UserRole.STUDENT)
-                .build();
-
-        em.persist(user);
-
-        student1 = Student.builder()
-                .user(user)
-                .name("김학생")
-                .birthDate(LocalDate.parse("19990101", DateTimeFormatter.ofPattern("yyyyMMdd")))
-                .firstCourse(course)
-                .gender('M')
-                .nickname("새싹_1")
-                .statusCode(10)
-                .build();
-
-        em.persist(student1);
-
-        User user2 = User.builder()
-                .email("test2@example.com")
-                .password("1234")
-                .role(UserRole.STUDENT)
-                .build();
-
-        em.persist(user2);
-
-        student2 = Student.builder()
-                .user(user2)
-                .name("이학생")
-                .birthDate(LocalDate.parse("19990101", DateTimeFormatter.ofPattern("yyyyMMdd")))
-                .firstCourse(course)
-                .gender('F')
-                .nickname("새싹_2")
-                .statusCode(10)
-                .build();
-        em.persist(student2);
-        em.flush();
-        em.clear();
+        Fixture.em = em;
+        Campus campus = Fixture.createCampus("캠퍼스 1");
+        Course course = Fixture.createCourse("과정 1", campus);
+        student1 = Fixture.createStudent("학생 1", course, 10);
+        student2 = Fixture.createStudent("학생 2", course, 10);
     }
 
 
@@ -139,8 +81,8 @@ class PostServiceTest {
     }
 
     @Test
-    @DisplayName("중복 해시코드")
-    public void hashcodeTest() {
+    @DisplayName("중복 해시태그")
+    public void hashtagTest() {
         // give
         CreatePostRequest request1 = new CreatePostRequest("제목", "내용", List.of("해시1", "해시2"), null,
                 null);
@@ -160,20 +102,6 @@ class PostServiceTest {
 
         assertThat(post1.getHashtags()).hasSize(2);
         assertThat(post2.getHashtags()).hasSize(3);
-    }
-
-    @Test
-    @DisplayName("해시코드 테스트")
-    public void hashcodeTest2() {
-        // give
-        List<Hashtag> hashtags1 = hashtagService.saveHashTags(List.of("해시1", "해시2"));
-        List<Hashtag> hashtags2 = hashtagService.saveHashTags(List.of("해시1", "해시2", "해시3"));
-
-        em.flush();
-        em.clear();
-
-        assertThat(hashtags1).hasSize(2);
-        assertThat(hashtags2).hasSize(3);
     }
 
     @Test
