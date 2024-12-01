@@ -20,7 +20,6 @@ import sesac.server.feed.dto.response.PostListResponse;
 import sesac.server.feed.dto.response.PostResponse;
 import sesac.server.feed.entity.Hashtag;
 import sesac.server.feed.entity.Post;
-import sesac.server.feed.entity.PostHashtag;
 import sesac.server.feed.entity.PostType;
 import sesac.server.feed.exception.PostErrorCode;
 import sesac.server.feed.repository.HashtagRepository;
@@ -43,6 +42,7 @@ public class PostService {
     private final HashtagRepository hashtagRepository;
     private final PostHashtagRepository postHashtagRepository;
     private final LikesRepository likesRepository;
+    private final HashtagService hashtagService;
 
     public Post createPost(Long userId, PostType postType, CreatePostRequest request) {
         User user = userRepository.findById(userId)
@@ -51,31 +51,8 @@ public class PostService {
         Post post = request.toEntity(user, postType);
 
         postRepository.save(post);
-
-        List<Hashtag> hashtags = hashtagRepository.findByNameIn(request.hashtag());
-        List<Hashtag> newHashtags = request.hashtag()
-                .stream()
-                .filter(hashtag -> !hashtags.stream()
-                        .map(r -> r.getName())
-                        .toList()
-                        .contains(hashtag))
-                .map(hashtag -> Hashtag.builder()
-                        .name(hashtag)
-                        .build())
-                .toList();
-
-        hashtags.addAll(newHashtags);
-
-        hashtagRepository.saveAll(hashtags);
-
-        List<PostHashtag> postHashtags = hashtags.stream()
-                .map(hashtag -> PostHashtag.builder()
-                        .post(post)
-                        .hashtag(hashtag)
-                        .build())
-                .toList();
-
-        postHashtagRepository.saveAll(postHashtags);
+        List<Hashtag> hashtags = hashtagService.saveHashTags(request.hashtag());
+        hashtagService.savePostHashtags(hashtags, post, null);
 
         return post;
     }
