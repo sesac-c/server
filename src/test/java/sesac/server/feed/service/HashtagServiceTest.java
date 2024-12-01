@@ -83,9 +83,9 @@ class HashtagServiceTest {
         List<Hashtag> hashtags = hashtagService.saveHashTags(List.of("해시1", "해시2", "해시3"));
 
         // when
-        hashtagService.savePostHashtags(hashtags, post, null);
+        hashtagService.savePostHashtags(hashtags, post);
         List<PostHashtag> list = postHashtagRepository.findAll();
-        
+
         // than
         assertThat(list).hasSize(3);
     }

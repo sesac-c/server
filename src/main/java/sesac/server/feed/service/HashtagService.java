@@ -38,7 +38,15 @@ public class HashtagService {
         return hashtags;
     }
 
-    public void savePostHashtags(List<Hashtag> hashtags, Post post, Notice notice) {
+    public void savePostHashtags(List<Hashtag> hashtags, Post post) {
+        this.savePostHashtags(hashtags, post, null);
+    }
+
+    public void savePostHashtags(List<Hashtag> hashtags, Notice notice) {
+        this.savePostHashtags(hashtags, null, notice);
+    }
+
+    private void savePostHashtags(List<Hashtag> hashtags, Post post, Notice notice) {
         List<PostHashtag> postHashtags = hashtags.stream()
                 .map(hashtag -> PostHashtag.builder()
                         .post(post)

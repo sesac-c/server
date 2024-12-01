@@ -22,12 +22,9 @@ import sesac.server.feed.dto.response.NoticeResponse;
 import sesac.server.feed.entity.Hashtag;
 import sesac.server.feed.entity.Notice;
 import sesac.server.feed.entity.NoticeType;
-import sesac.server.feed.entity.PostHashtag;
 import sesac.server.feed.exception.PostErrorCode;
-import sesac.server.feed.repository.HashtagRepository;
 import sesac.server.feed.repository.LikesRepository;
 import sesac.server.feed.repository.NoticeRepository;
-import sesac.server.feed.repository.PostHashtagRepository;
 import sesac.server.user.entity.User;
 import sesac.server.user.service.UserService;
 
@@ -38,42 +35,19 @@ import sesac.server.user.service.UserService;
 public class NoticeService {
 
     private final NoticeRepository noticeRepository;
-    private final HashtagRepository hashtagRepository;
-    private final PostHashtagRepository postHashtagRepository;
     private final LikesRepository likesRepository;
 
     private final CourseRepository courseRepository;
     private final UserService userService;
+    private final HashtagService hashtagService;
 
     public Notice createNotice(Long userId, CreateNoticeRequest request,
             NoticeType noticeType) {
         Notice notice = getNotice(userId, noticeType, request);
         noticeRepository.save(notice);
 
-        List<Hashtag> hashtags = hashtagRepository.findByNameIn(request.hashtags());
-        List<Hashtag> newHashtags = request.hashtags()
-                .stream()
-                .filter(hashtag -> !hashtags.stream()
-                        .map(r -> r.getName())
-                        .toList()
-                        .contains(hashtag))
-                .map(hashtag -> Hashtag.builder()
-                        .name(hashtag)
-                        .build())
-                .toList();
-
-        hashtags.addAll(newHashtags);
-
-        hashtagRepository.saveAll(hashtags);
-
-        List<PostHashtag> postHashtags = hashtags.stream()
-                .map(hashtag -> PostHashtag.builder()
-                        .notice(notice)
-                        .hashtag(hashtag)
-                        .build())
-                .toList();
-
-        postHashtagRepository.saveAll(postHashtags);
+        List<Hashtag> hashtags = hashtagService.saveHashTags(request.hashtags());
+        hashtagService.savePostHashtags(hashtags, notice);
 
         return notice;
     }
