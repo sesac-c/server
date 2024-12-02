@@ -3,6 +3,8 @@ package sesac.server.common;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import sesac.server.campus.entity.Campus;
 import sesac.server.campus.entity.Course;
 import sesac.server.user.entity.Manager;
@@ -13,6 +15,8 @@ import sesac.server.user.entity.UserRole;
 public class Fixture {
 
     public static EntityManager em;
+
+    private static PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public static Campus createCampus(String campusName) {
         Campus campus = Campus.builder()
@@ -47,7 +51,7 @@ public class Fixture {
         User user = User.builder()
                 .email(name)
                 .role(UserRole.MANAGER)
-                .password("1234")
+                .password(passwordEncoder.encode("1234"))
                 .build();
 
         Manager manager = Manager.builder()
@@ -67,7 +71,7 @@ public class Fixture {
         User user = User.builder()
                 .email(name)
                 .role(UserRole.STUDENT)
-                .password("1234")
+                .password(passwordEncoder.encode("1234"))
                 .build();
 
         Student student = Student.builder()
