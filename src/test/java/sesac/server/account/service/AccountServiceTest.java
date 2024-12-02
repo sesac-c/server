@@ -181,14 +181,21 @@ class AccountServiceTest {
         }
 
         @Test
-        public void login() {
+        public void userLogin() {
             LoginRequest request = new LoginRequest("학생1", "1234");
 
             LoginResponse response = accountService.login(request);
 
-            log.info(response);
+            assertThat(response.role()).isEqualTo(UserRole.STUDENT);
+        }
 
+        @Test
+        public void managerLogin() {
+            LoginRequest request = new LoginRequest("매니저1", "1234");
 
+            LoginResponse response = accountService.login(request);
+
+            assertThat(response.role()).isEqualTo(UserRole.MANAGER);
         }
     }
 
