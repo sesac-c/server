@@ -109,18 +109,21 @@ public class AccountService {
         User user = userRepository.findByEmail(loginRequest.email())
                 .orElseThrow(() -> new AccountException(AccountErrorCode.NO_EMAIL_OR_PASSWORD));
 
+        validatePassword(loginRequest, user);
+
+        return user.getRole().equals(UserRole.MANAGER)
+                ? loginManager(user)
+                : loginStudent(user);
+
+    }
+
+    private void validatePassword(LoginRequest loginRequest, User user) {
         if (!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
             throw new AccountException(AccountErrorCode.NO_EMAIL_OR_PASSWORD);
         }
-
-        if (user.getRole() == UserRole.MANAGER) {
-            return loginManager(user);
-        }
-
-        return loginStudent(user);
     }
 
-    public LoginResponse loginStudent(User user) {
+    private LoginResponse loginStudent(User user) {
         Student student = studentRepository.findById(user.getId())
                 .orElseThrow(() -> new AccountException(AccountErrorCode.NO_EMAIL_OR_PASSWORD));
 
@@ -129,7 +132,7 @@ public class AccountService {
         return createLoginResponse(user, student.getNickname(), student.getProfile());
     }
 
-    private static void validateStudentStatus(Student student) {
+    private void validateStudentStatus(Student student) {
         switch (student.getStatusCode()) {
             case 0 -> throw new AccountException(AccountErrorCode.PENDING_ACCOUNT);
             case 20 -> throw new AccountException(AccountErrorCode.HOLD_ACCOUNT);
@@ -137,7 +140,7 @@ public class AccountService {
         }
     }
 
-    public LoginResponse loginManager(User user) {
+    private LoginResponse loginManager(User user) {
         Manager manager = managerRepository.findById(user.getId())
                 .orElseThrow(() -> new AccountException(AccountErrorCode.NO_EMAIL_OR_PASSWORD));
 
@@ -156,7 +159,7 @@ public class AccountService {
         );
     }
 
-    private static Map<String, Object> createTokenClaims(User user, String nickname) {
+    private Map<String, Object> createTokenClaims(User user, String nickname) {
         Map<String, Object> claims = new HashMap<>();
 
         claims.put("id", user.getId().toString());
