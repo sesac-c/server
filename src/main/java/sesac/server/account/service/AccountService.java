@@ -133,11 +133,7 @@ public class AccountService {
                 throw new AccountException(AccountErrorCode.REJECTED_ACCOUNT);
         }
 
-        Map<String, Object> claims = new HashMap<>();
-
-        claims.put("id", user.getId().toString());
-        claims.put("role", user.getRole());
-        claims.put("nickname", student.getNickname());
+        Map<String, Object> claims = createTokenClaims(user, student.getNickname());
 
         String accessToken = jwtUtil.generateToken(claims, 1);
         String refreshToken = jwtUtil.generateToken(claims, 14);
@@ -155,11 +151,7 @@ public class AccountService {
         Manager manager = managerRepository.findById(user.getId())
                 .orElseThrow(() -> new AccountException(AccountErrorCode.NO_EMAIL_OR_PASSWORD));
 
-        Map<String, Object> claims = new HashMap<>();
-
-        claims.put("id", user.getId().toString());
-        claims.put("role", user.getRole());
-        claims.put("nickname", manager.getCampus().getName());
+        Map<String, Object> claims = createTokenClaims(user, manager.getCampus().getName());
 
         String accessToken = jwtUtil.generateToken(claims, 1);
         String refreshToken = jwtUtil.generateToken(claims, 14);
@@ -171,6 +163,15 @@ public class AccountService {
                 user.getRole(),
                 manager.getProfile()
         );
+    }
+
+    private static Map<String, Object> createTokenClaims(User user, String nickname) {
+        Map<String, Object> claims = new HashMap<>();
+
+        claims.put("id", user.getId().toString());
+        claims.put("role", user.getRole());
+        claims.put("nickname", nickname);
+        return claims;
     }
 
     public void logout(String token) {
