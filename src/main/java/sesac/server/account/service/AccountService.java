@@ -133,30 +133,24 @@ public class AccountService {
                 throw new AccountException(AccountErrorCode.REJECTED_ACCOUNT);
         }
 
-        Map<String, Object> claims = createTokenClaims(user, student.getNickname());
-
-        return createLoginResponse(claims, user.getRole(), student.getNickname(),
-                student.getProfile());
+        return createLoginResponse(user, student.getNickname(), student.getProfile());
     }
 
     public LoginResponse loginManager(User user) {
         Manager manager = managerRepository.findById(user.getId())
                 .orElseThrow(() -> new AccountException(AccountErrorCode.NO_EMAIL_OR_PASSWORD));
 
-        Map<String, Object> claims = createTokenClaims(user, manager.getCampus().getName());
-
-        return createLoginResponse(claims, user.getRole(), manager.getCampus().getName(),
-                manager.getProfile());
+        return createLoginResponse(user, manager.getCampus().getName(), manager.getProfile());
     }
 
-    private LoginResponse createLoginResponse(Map<String, Object> claims, UserRole role,
-            String nickname, String profile) {
+    private LoginResponse createLoginResponse(User user, String nickname, String profile) {
+        Map<String, Object> claims = createTokenClaims(user, nickname);
 
         return new LoginResponse(
                 jwtUtil.generateToken(claims, 1),
                 jwtUtil.generateToken(claims, 14),
                 nickname,
-                role,
+                user.getRole(),
                 profile
         );
     }
