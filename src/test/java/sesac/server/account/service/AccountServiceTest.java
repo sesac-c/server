@@ -190,6 +190,56 @@ class AccountServiceTest {
         }
 
         @Test
+        public void userLoginNotFound() {
+            LoginRequest request = new LoginRequest("학생2", "1234");
+
+            AccountException ex =
+                    assertThrows(AccountException.class,
+                            () -> accountService.login(request));
+
+            assertThat(ex.getErrorCode()).isEqualTo(AccountErrorCode.NO_EMAIL_OR_PASSWORD);
+        }
+
+        @Test
+        public void userStatusPending() {
+            Fixture.createStudent("학생2", course, 0);
+
+            LoginRequest request = new LoginRequest("학생2", "1234");
+
+            AccountException ex =
+                    assertThrows(AccountException.class,
+                            () -> accountService.login(request));
+
+            assertThat(ex.getErrorCode()).isEqualTo(AccountErrorCode.PENDING_ACCOUNT);
+        }
+
+        @Test
+        public void userStatusHold() {
+            Fixture.createStudent("학생2", course, 20);
+
+            LoginRequest request = new LoginRequest("학생2", "1234");
+
+            AccountException ex =
+                    assertThrows(AccountException.class,
+                            () -> accountService.login(request));
+
+            assertThat(ex.getErrorCode()).isEqualTo(AccountErrorCode.HOLD_ACCOUNT);
+        }
+
+        @Test
+        public void userStatusRejected() {
+            Fixture.createStudent("학생2", course, 30);
+
+            LoginRequest request = new LoginRequest("학생2", "1234");
+
+            AccountException ex =
+                    assertThrows(AccountException.class,
+                            () -> accountService.login(request));
+
+            assertThat(ex.getErrorCode()).isEqualTo(AccountErrorCode.REJECTED_ACCOUNT);
+        }
+
+        @Test
         public void managerLogin() {
             LoginRequest request = new LoginRequest("매니저1", "1234");
 
@@ -197,6 +247,18 @@ class AccountServiceTest {
 
             assertThat(response.role()).isEqualTo(UserRole.MANAGER);
         }
+
+        @Test
+        public void managerLoginNotFound() {
+            LoginRequest request = new LoginRequest("매니저", "1234");
+
+            AccountException ex =
+                    assertThrows(AccountException.class,
+                            () -> accountService.login(request));
+
+            assertThat(ex.getErrorCode()).isEqualTo(AccountErrorCode.NO_EMAIL_OR_PASSWORD);
+        }
+
     }
 
 }
