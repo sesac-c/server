@@ -135,16 +135,8 @@ public class AccountService {
 
         Map<String, Object> claims = createTokenClaims(user, student.getNickname());
 
-        String accessToken = jwtUtil.generateToken(claims, 1);
-        String refreshToken = jwtUtil.generateToken(claims, 14);
-
-        return new LoginResponse(
-                accessToken,
-                refreshToken,
-                student.getNickname(),
-                user.getRole(),
-                student.getProfile()
-        );
+        return createLoginResponse(claims, user.getRole(), student.getNickname(),
+                student.getProfile());
     }
 
     public LoginResponse loginManager(User user) {
@@ -153,15 +145,19 @@ public class AccountService {
 
         Map<String, Object> claims = createTokenClaims(user, manager.getCampus().getName());
 
-        String accessToken = jwtUtil.generateToken(claims, 1);
-        String refreshToken = jwtUtil.generateToken(claims, 14);
+        return createLoginResponse(claims, user.getRole(), manager.getCampus().getName(),
+                manager.getProfile());
+    }
+
+    private LoginResponse createLoginResponse(Map<String, Object> claims, UserRole role,
+            String nickname, String profile) {
 
         return new LoginResponse(
-                accessToken,
-                refreshToken,
-                manager.getCampus().getName(),
-                user.getRole(),
-                manager.getProfile()
+                jwtUtil.generateToken(claims, 1),
+                jwtUtil.generateToken(claims, 14),
+                nickname,
+                role,
+                profile
         );
     }
 
