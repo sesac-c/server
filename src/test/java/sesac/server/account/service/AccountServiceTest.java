@@ -201,10 +201,10 @@ class AccountServiceTest {
         }
 
         @Test
+        @DisplayName("미승인 테스트")
         public void userStatusPending() {
-            Fixture.createStudent("학생2", course, 0);
-
-            LoginRequest request = new LoginRequest("학생2", "1234");
+            Fixture.createStudent("미승인", course, 0);
+            LoginRequest request = new LoginRequest("미승인", "1234");
 
             AccountException ex =
                     assertThrows(AccountException.class,
@@ -214,10 +214,10 @@ class AccountServiceTest {
         }
 
         @Test
+        @DisplayName("승인보류 테스트")
         public void userStatusHold() {
-            Fixture.createStudent("학생2", course, 20);
-
-            LoginRequest request = new LoginRequest("학생2", "1234");
+            Fixture.createStudent("승인보류", course, 20);
+            LoginRequest request = new LoginRequest("승인보류", "1234");
 
             AccountException ex =
                     assertThrows(AccountException.class,
@@ -227,10 +227,10 @@ class AccountServiceTest {
         }
 
         @Test
+        @DisplayName("승인거절 테스트")
         public void userStatusRejected() {
-            Fixture.createStudent("학생2", course, 30);
-
-            LoginRequest request = new LoginRequest("학생2", "1234");
+            Fixture.createStudent("승인거절", course, 30);
+            LoginRequest request = new LoginRequest("승인거절", "1234");
 
             AccountException ex =
                     assertThrows(AccountException.class,

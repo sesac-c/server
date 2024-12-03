@@ -124,16 +124,17 @@ public class AccountService {
         Student student = studentRepository.findById(user.getId())
                 .orElseThrow(() -> new AccountException(AccountErrorCode.NO_EMAIL_OR_PASSWORD));
 
-        switch (student.getStatusCode()) {
-            case 0:
-                throw new AccountException(AccountErrorCode.PENDING_ACCOUNT);
-            case 20:
-                throw new AccountException(AccountErrorCode.HOLD_ACCOUNT);
-            case 30:
-                throw new AccountException(AccountErrorCode.REJECTED_ACCOUNT);
-        }
+        validateStudentStatus(student);
 
         return createLoginResponse(user, student.getNickname(), student.getProfile());
+    }
+
+    private static void validateStudentStatus(Student student) {
+        switch (student.getStatusCode()) {
+            case 0 -> throw new AccountException(AccountErrorCode.PENDING_ACCOUNT);
+            case 20 -> throw new AccountException(AccountErrorCode.HOLD_ACCOUNT);
+            case 30 -> throw new AccountException(AccountErrorCode.REJECTED_ACCOUNT);
+        }
     }
 
     public LoginResponse loginManager(User user) {
